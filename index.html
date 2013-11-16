@@ -1,0 +1,40 @@
+<html>
+	<head>
+		<script src="/jquery.js">
+			</script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			var socket = io.connect('http://localhost');
+			socket.on('news', function (data) {
+				console.log(data);
+			});
+			
+			function clickPosition(event, element) {
+				var offset = element.offset();
+
+				return {x: (event.pageX - offset.left),
+				        y: (event.pageY - offset.top) };
+			}
+			
+			$(document).ready(function() {
+				var canvas = $('canvas#canvas');
+				canvas.on('mousedown', function(e) {
+					socket.emit('down', clickPosition(e, canvas));
+				});
+				canvas.on('mouseup', function(e) {
+					socket.emit('up', clickPosition(e, canvas));
+				});
+				
+				var context = canvas[0].getContext('2d');
+				context.fillStyle = "#FF0000";
+				
+				socket.on('draw', function(data) {
+					context.fillRect(data.x,data.y,data.w,data.h);
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<canvas id="canvas" width=800 height=600></canvas>
+	</body>
+</html>

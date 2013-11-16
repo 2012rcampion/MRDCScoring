@@ -1,0 +1,13 @@
+{
+  "name": "jsdc",
+  "version": "0.0.0",
+  "description": "JSDC Server",
+  "main": "server.js",
+  "dependencies": {
+    "socket.io": "~0.9.16",
+    "express": "~3.4.4"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
