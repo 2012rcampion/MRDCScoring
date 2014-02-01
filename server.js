@@ -51,7 +51,7 @@ fs.readFile(__dirname + '/field.config', 'utf8', function(err, data) {
 			else {
 				if(field.colors[i][j] == type) {
 					field.indicies[i][j] = idx;
-					field.squares[idx].push({'i':i, 'j':j});
+					field.squares[idx].push({'row':i, 'col':j});
 					floodFill(i-1, j, type, idx);
 					floodFill(i+1, j, type, idx);
 					floodFill(i, j-1, type, idx);
@@ -77,54 +77,30 @@ fs.readFile(__dirname + '/field.config', 'utf8', function(err, data) {
 		}
 	}
 	
+	field.state = new Array(field.squares.length);
+	for(var i = 0; i < field.state.length; i++) {
+		field.state[i] = -1;
+	}
+	
+	field.teamCorners = [
+		field.indicies[0][0],
+		field.indicies[0][field.width-1],
+		field.indicies[field.height-1][field.width-1],
+		field.indicies[field.height-1][0]		
+	];
+	
+	field.teams = field.teamCorners.length;
+	
+	for(var i = 0; i < field.teams; i++ ) {
+		field.state[field.teamCorners[i]] = i;
+	}
+	
 	for(var i = 0; i < field.adjacent.length; i++) {
 		
 	}
-					
-				
-/*		
-	index = 1;
-floodFill[i_, j_, type_, idx_] :=
- If[0 < i <= h && 0 < j <= w && full[[i, j]] > 0,
-  If[map[[i, j]] > 0,
-   If[map[[i, j]] != idx,
-    AppendTo[adjacency[[idx]], map[[i, j]]]
-    ],
-   If[full[[i, j]] == type,
-    map[[i, j]] = idx;
-    AppendTo[territories[[idx]], {i, j}];
-    floodFill[i + 1, j, type, idx];
-    floodFill[i - 1, j, type, idx];
-    floodFill[i, j + 1, type, idx];
-    floodFill[i, j - 1, type, idx]]
-   ]
-  ]
-Do[
- If[full[[i, j]] < 1,
-  map[[i, j]] = 0,
-  If[map[[i, j]] == 0,
-   AppendTo[territories, {}];
-   AppendTo[adjacency, {}];
-   floodFill[i, j, full[[i, j]], index++]
-   ]],
- {i, h},
- {j, w}]
-Do[AppendTo[adjacency[[j]], i], {i, index - 1}, {j, adjacency[[i]]}];
-Do[adjacency[[i]] = Union[adjacency[[i]]], {i, index - 1}]
-*/
 	
 	console.log(field);
 });
-
-
-
-/*
-h = First[Dimensions[full]];
-w = Last[Dimensions[full]];
-map = ConstantArray[0, Dimensions[full]];
-territories = {};
-adjacency = {};
-*/
 
 var app = express();
 var server = http.createServer(app);
@@ -132,26 +108,76 @@ var io = socket.listen(server);
 
 server.listen(80);
 
-
-app.get('/', function (req, res) {
+/*app.get('/', function (req, res) {
 	res.sendfile(__dirname + '/index.html');
 });
 
 app.get('/jquery.js', function(req, res) {
 	res.sendfile(__dirname + '/jquery-1.10.2.js');
-});
+});*/
+app.use(express.static(__dirname));
 
 io.sockets.on('connection', function (socket) {
-	var x0, y0;
+	socket.emit('stateUpdate', {'field':field})
 	
-	socket.emit('news', { hello: 'world' });
-	socket.on('down', function (data) {
+	socket.on('scoreEvent', function (data) {
 		console.log(data);
-		x0 = data.x;
-		y0 = data.y;
-	});
-	socket.on('up', function (data) {
-		console.log(data);
-		socket.emit('draw', {x:x0, y:y0, w:data.x-x0, h:data.y-y0})
+		if(data.team < 0 || data.team >= field.teams) {
+			return
+		}
+		if(data.type == 'capture') {
+			var index = field.indicies[data.row][data.col];
+			if(index >= 0 && field.teamCorners.indexOf(index) < 0) {
+				var corner = field.teamCorners[data.team];
+				var visited = [index];
+				var next = field.adjacent[index].slice(0);
+				var success = false;
+				while(next.length > 0) {
+					var current = next.pop();
+					if(current == corner) {
+						success = true;
+						break;
+					}
+					if(field.state[current] != data.team) {
+						continue;
+					}
+					visited.push(current);
+					var adj = field.adjacent[current];
+					for(var i = 0; i < adj.length; i++) {
+						if(visited.indexOf(adj[i]) < 0 && next.indexOf(adj[i]) < 0) {
+							next.push(adj[i]);
+						}
+					}
+				}
+				if(success) {
+					field.state[index] = data.team;
+					for(var i = 0; i < field.state.length; i++) {
+						if(field.state[i] >= 0) {
+							field.state[i] = field.state[i] % field.teams + field.teams;
+						}
+					}
+					for(var team = 0; team < field.teams; team++) {
+						var corner = field.teamCorners[team];
+						//var visited = [];
+						var next = [corner];
+						while(next.length > 0) {
+							var current = next.pop();
+							if(field.state[current] != field.teams + team) {
+								continue;
+							}
+							field.state[current] = field.state[current] % field.teams;
+							//visited.push(current);
+							var adj = field.adjacent[current];
+							for(var i = 0; i < adj.length; i++) {
+								if(/*visited.indexOf(adj[i]) < 0 &&*/ next.indexOf(adj[i]) < 0) {
+									next.push(adj[i]);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		socket.emit('stateUpdate', {'field':field});
 	});
 });

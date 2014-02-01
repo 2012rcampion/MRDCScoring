@@ -1,0 +1,90 @@
+<html>
+	<head>
+		<title>Scoreboard</title>
+		<link rel="stylesheet" type="text/css" href="style.css"/>
+		<script src="jquery-1.10.2.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			socket = io.connect('http://localhost');
+			currentColor = -1;
+			teamColors = ["#ff0000", "#ffff00", "#00ff00", "#0000ff",
+				"#7f0000", "#7f7f00", "#007f00", "#00007f"];
+			size = 11;
+			squareDim = 50; //pixels
+				
+			$(document).ready(function() {
+				$('#field').css({width:size*squareDim, height:size*squareDim});
+				for(var i = 0; i < size; i++) {
+					var row = $("<tr></tr>");
+					$('#board').append(row);
+					for(var j = 0; j < size; j++) {
+						var cell = $("<td></td>");
+						cell.data('row', i);
+						cell.data('col', j);
+						cell.on('click', function() {
+							var x = +$(this).data('col');
+							var y = +$(this).data('row');
+							socket.emit('scoreEvent', {
+								type:"capture",
+								team:currentColor,
+								row:y,
+								col:x
+							});
+						});
+						cell.css({width:squareDim, height:squareDim})
+						row.append(cell);
+					}
+				}
+				
+				var buttonDiv = $('#buttons');
+				for(var i = 0; i < 4; i++) {
+					var button = $("<button></button>");
+					button.html("Team " + (1+i));
+					button.data('color', i)
+					button.css({'background-color': teamColors[i]});
+					button.on('click', function() {
+						currentColor = +$(this).data('color');
+						$(this).siblings().removeClass('selected');
+						$(this).addClass('selected');
+					});
+					buttonDiv.append(button)
+				}
+				
+				var canvas = $('canvas#canvas')[0];
+				canvas.width = size*squareDim;
+				canvas.height = size*squareDim;
+				context = canvas.getContext('2d');
+				context.fillStyle = "#444444";
+				context.fillRect(0, 0, size*squareDim, size*squareDim);
+				
+				socket.on('stateUpdate', function(data) {
+					console.log(data)
+					context.clearRect(0, 0, size*squareDim, size*squareDim)
+					for(var i = 0; i < data.field.state.length; i++) {
+						var color = data.field.state[i]
+						if(color >= 0) {
+							context.fillStyle = teamColors[color];
+							var squares = data.field.squares[i];
+							for(var j = 0; j < squares.length; j++) {
+								context.fillRect(
+									(squares[j].col)*squareDim,
+									(squares[j].row)*squareDim,
+									squareDim, squareDim);
+							}
+						}
+					}
+				});
+				
+				//socket.emit('scoreEvent',{});
+			
+			});
+		</script>
+	</head>
+	<body>
+		<div id='field'>
+			<canvas id='canvas'></canvas>
+			<table id='board'></table>
+		</div>
+		<div id='buttons'></div>
+	</body>
+</html>
