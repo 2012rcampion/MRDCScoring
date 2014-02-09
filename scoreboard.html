@@ -1,31 +1,46 @@
 <html>
 	<head>
 		<title>Scoreboard</title>
-		<link rel="stylesheet" type="text/css" href="style.css"/>
-		<script src="jquery-1.10.2.js"></script>
-		<script src="/socket.io/socket.io.js"></script>
+		<link rel='stylesheet' type='text/css' href='style.css'/>
+		<script src='jquery-1.10.2.js'></script>
+		<script src='/socket.io/socket.io.js'></script>
 		<script>
 			socket = io.connect('http://localhost');
 			currentColor = -1;
-			teamColors = ["#ff0000", "#ffff00", "#00ff00", "#0000ff",
-				"#7f0000", "#7f7f00", "#007f00", "#00007f"];
+			teamColors = [
+				'#ff0000',
+				'#ffff00',
+				'#00ff00',
+				'#0000ff',
+				'#7f0000',
+				'#7f7f00',
+				'#007f00',
+				'#00007f'
+			];
+			fieldColors = {
+				't':'#ddc16f',
+				'd':'#888888',
+				'l':'#bbbbbb',
+				'w':'#ffffff',
+				'S':'#9370db',
+			};
 			size = 11;
 			squareDim = 50; //pixels
 				
 			$(document).ready(function() {
 				$('#field').css({width:size*squareDim, height:size*squareDim});
 				for(var i = 0; i < size; i++) {
-					var row = $("<tr></tr>");
+					var row = $('<tr></tr>');
 					$('#board').append(row);
 					for(var j = 0; j < size; j++) {
-						var cell = $("<td></td>");
+						var cell = $('<td></td>');
 						cell.data('row', i);
 						cell.data('col', j);
 						cell.on('click', function() {
 							var x = +$(this).data('col');
 							var y = +$(this).data('row');
 							socket.emit('scoreEvent', {
-								type:"capture",
+								type:'capture',
 								team:currentColor,
 								row:y,
 								col:x
@@ -38,8 +53,8 @@
 				
 				var buttonDiv = $('#buttons');
 				for(var i = 0; i < 4; i++) {
-					var button = $("<button></button>");
-					button.html("Team " + (1+i));
+					var button = $('<button></button>');
+					button.html('Team ' + (1+i));
 					button.data('color', i)
 					button.css({'background-color': teamColors[i]});
 					button.on('click', function() {
@@ -54,23 +69,35 @@
 				canvas.width = size*squareDim;
 				canvas.height = size*squareDim;
 				context = canvas.getContext('2d');
-				context.fillStyle = "#444444";
+				context.fillStyle = '#444444';
 				context.fillRect(0, 0, size*squareDim, size*squareDim);
 				
 				socket.on('stateUpdate', function(data) {
-					console.log(data)
-					context.clearRect(0, 0, size*squareDim, size*squareDim)
-					for(var i = 0; i < data.field.state.length; i++) {
-						var color = data.field.state[i]
+					var f = data.field;
+					console.log(data);
+					context.clearRect(0, 0, size*squareDim, size*squareDim);
+					context.lineWidth = 16;
+					for(var i = 0; i < f.territories; i++) {
+						var border = f.borders[i];
+						context.beginPath();
+						context.moveTo(border[0].x * squareDim,
+							border[0].y * squareDim);
+						for(var j = 1; j < border.length; j++ ) {
+							context.lineTo(border[j].x * squareDim,
+							border[j].y * squareDim);
+						}
+						context.closePath();
+						
+						context.fillStyle = fieldColors[f.colors[i]];
+						context.fill();
+						
+						var color = f.state[i];
 						if(color >= 0) {
-							context.fillStyle = teamColors[color];
-							var squares = data.field.squares[i];
-							for(var j = 0; j < squares.length; j++) {
-								context.fillRect(
-									(squares[j].col)*squareDim,
-									(squares[j].row)*squareDim,
-									squareDim, squareDim);
-							}
+							context.strokeStyle = teamColors[color];
+							context.save();
+							context.clip();
+							context.stroke();
+							context.restore();
 						}
 					}
 				});

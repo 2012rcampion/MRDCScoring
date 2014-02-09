@@ -3,104 +3,176 @@ var http    = require('http');
 var socket  = require('socket.io');
 var fs      = require('fs');
 
+var fieldFileName = __dirname + '/field.config';
+
+try {
+	var lines = fs.readFileSync(fieldFileName, 'utf8').split('\n');
+}
+catch(e) {
+	console.error('error reading config file ' + fieldFileName);
+	process.exit(1);
+}
+
+var height_width = lines[0].split(',');
+
 var field = {};
 
-fs.readFile(__dirname + '/field.config', 'utf8', function(err, data) {
-	if(err) {
-		return console.log(err);
+field.height = parseInt(height_width[0]);
+field.width  = parseInt(height_width[1]);
+
+field.colors   = new Array(field.height);
+field.points   = new Array(field.height);
+field.indicies = new Array(field.height);
+field.squares  = []
+field.adjacent = []
+
+for(var i = 0; i < field.height; i++) {
+	var chars = lines[i+1].split(',');
+	if(chars.length != field.width) {
+		console.error('Warning, field is not the proper width on line '+(i+1));
+		process.exit();
 	}
-	var lines = data.split('\n');
-	var height_width = lines[0].split(',');
-	
-	field.height = parseInt(height_width[0]);
-	field.width  = parseInt(height_width[1]);
-	
-	field.colors   = new Array(field.height);
-	field.indicies = new Array(field.height);
-	field.squares  = []
-	field.adjacent = []
-	
-	for(var i = 0; i < field.height; i++) {
-		var chars = lines[i+1].split('');
-		if(chars.length != field.width) {
-			console.error("Warning, field is not the proper width.");
-		}
-		field.colors[i]   = chars;
-		field.indicies[i] = new Array(field.width);
+	field.colors[i]   = chars;
+	var chars = lines[i+1+field.height].split(',');
+	if(chars.length != field.width) {
+		console.error('Warning, field is not the proper width on line '+(i+1+field.width));
+		process.exit();
 	}
-	
-	console.log(field);
-	
-	
-	var index = 0;
-	
-	function floodFill(i, j, type, idx) {
-		if(0 <= i && i < field.height && 0 <= j && j < field.width && field.colors[i][j] != ' ') {
-			if(field.indicies[i][j] >= 0) {
-				var newidx = field.indicies[i][j];
-				console.log(newidx);
-				if(newidx != idx) {
-					if(field.adjacent[idx].indexOf(newidx) < 0) {
-						field.adjacent[idx].push(newidx);
-					}
-					if(newidx < idx && field.adjacent[newidx].indexOf(idx) < 0) {
-						field.adjacent[newidx].push(idx);
-					}
+	field.points[i]   = chars;
+	field.indicies[i] = new Array(field.width);
+}
+
+
+var index = 0;
+
+function floodFill(i, j, type, idx) {
+	if(0 <= i && i < field.height && 0 <= j && j < field.width && field.colors[i][j] != ' ') {
+		if(field.indicies[i][j] >= 0) {
+			var newidx = field.indicies[i][j];
+			if(newidx != idx) {
+				if(field.adjacent[idx].indexOf(newidx) < 0) {
+					field.adjacent[idx].push(newidx);
 				}
-			}
-			else {
-				if(field.colors[i][j] == type) {
-					field.indicies[i][j] = idx;
-					field.squares[idx].push({'row':i, 'col':j});
-					floodFill(i-1, j, type, idx);
-					floodFill(i+1, j, type, idx);
-					floodFill(i, j-1, type, idx);
-					floodFill(i, j+1, type, idx);
+				if(newidx < idx && field.adjacent[newidx].indexOf(idx) < 0) {
+					field.adjacent[newidx].push(idx);
 				}
 			}
 		}
-	}
-			
-	for(var i = 0; i < field.height; i++) {
-		for(var j = 0; j < field.width; j++) {
-			if(field.colors[i][j] == ' ') {
-				field.indicies[i][j] = -1;
-			}
-			else {
-				if(!(field.indicies[i][j] >= 0)) {
-					field.squares.push([]);
-					field.adjacent.push([]);
-					floodFill(i, j, field.colors[i][j], index);
-					index++;
-				}
+		else {
+			if(field.colors[i][j] == type) {
+				field.indicies[i][j] = idx;
+				field.squares[idx].push({'row':i, 'col':j});
+				floodFill(i-1, j, type, idx);
+				floodFill(i+1, j, type, idx);
+				floodFill(i, j-1, type, idx);
+				floodFill(i, j+1, type, idx);
 			}
 		}
 	}
-	
-	field.state = new Array(field.squares.length);
-	for(var i = 0; i < field.state.length; i++) {
-		field.state[i] = -1;
-	}
-	
-	field.teamCorners = [
-		field.indicies[0][0],
-		field.indicies[0][field.width-1],
-		field.indicies[field.height-1][field.width-1],
-		field.indicies[field.height-1][0]		
-	];
-	
-	field.teams = field.teamCorners.length;
-	
-	for(var i = 0; i < field.teams; i++ ) {
-		field.state[field.teamCorners[i]] = i;
-	}
-	
-	for(var i = 0; i < field.adjacent.length; i++) {
+}
 		
+for(var i = 0; i < field.height; i++) {
+	for(var j = 0; j < field.width; j++) {
+		if(field.colors[i][j] == ' ') {
+			field.indicies[i][j] = -1;
+		}
+		else {
+			if(!(field.indicies[i][j] >= 0)) {
+				field.squares.push([]);
+				field.adjacent.push([]);
+				floodFill(i, j, field.colors[i][j], index);
+				index++;
+			}
+		}
 	}
-	
-	console.log(field);
-});
+}
+
+field.territories = field.squares.length;
+
+var colors2 = new Array(field.territories);
+var points2 = new Array(field.territories);
+for(var i = 0; i < field.territories; i++) {
+	var s = field.squares[i][0];
+	colors2[i] = field.colors[s.row][s.col];
+	points2[i] = +(field.points[s.row][s.col]);
+}
+field.colors = colors2;
+field.points = points2;
+
+field.borders = new Array(field.territories);
+for(var i = 0; i < field.territories; i++) {
+	var border = []
+	for(var j = 0; j < field.squares[i].length; j++) {
+		var s = field.squares[i][j];
+		var toAdd = [
+			[{x:s.col,   y:s.row},   {x:s.col+1, y:s.row}],
+			[{x:s.col+1, y:s.row},   {x:s.col+1, y:s.row+1}],
+			[{x:s.col+1, y:s.row+1}, {x:s.col,   y:s.row+1}],
+			[{x:s.col,   y:s.row+1}, {x:s.col,   y:s.row}]
+		]
+		for(var k = 0; k < 4; k++) {
+			var replace = true;
+			var a = toAdd[k];
+			for(var l = 0; l < border.length; l++) {
+				var b = border[l];
+				//console.log(a,b);
+				if(a[0].x == b[1].x && a[0].y == b[1].y &&
+				   a[1].x == b[0].x && a[1].y == b[0].y) {
+					border.splice(l, 1);
+					replace = false;
+					break;
+				}
+			}
+			if(replace) {
+				border.push(toAdd[k]);
+			}
+		}
+	}
+	field.borders[i] = border.pop();
+	var last = field.borders[i][1];
+	while(border.length > 1) {
+		for(var j = 0; j < border.length; j++) {
+			if(border[j][0].x == last.x && border[j][0].y == last.y) {
+				last = border[j][1];
+				border.splice(j,1);
+				field.borders[i].push(last);
+				break;
+			}
+		}
+	}
+}
+
+field.state = new Array(field.territories);
+for(var i = 0; i < field.territories; i++) {
+	field.state[i] = -1;
+}
+
+field.teamCorners = [
+	field.indicies[0][0],
+	field.indicies[0][field.width-1],
+	field.indicies[field.height-1][field.width-1],
+	field.indicies[field.height-1][0]		
+];
+
+field.maxTeams = field.teamCorners.length;
+
+for(var i = 0; i < field.maxTeams; i++ ) {
+	field.state[field.teamCorners[i]] = i;
+}
+
+//console.log(field);
+
+var teams = new Array(field.maxTeams);
+for(var i = 0; i < teams.length; i++) {
+	teams[i] = {
+		score: 0,
+		multiplier: 1
+	};
+}
+teams[0].name = 'John Cleese';
+teams[1].name = 'Terry Gilliam';
+teams[2].name = 'Eric Idle';
+teams[3].name = 'Terry Jones';
 
 var app = express();
 var server = http.createServer(app);
@@ -118,11 +190,11 @@ app.get('/jquery.js', function(req, res) {
 app.use(express.static(__dirname));
 
 io.sockets.on('connection', function (socket) {
-	socket.emit('stateUpdate', {'field':field})
+	socket.emit('stateUpdate', {'field':field, 'teams':teams})
 	
 	socket.on('scoreEvent', function (data) {
 		console.log(data);
-		if(data.team < 0 || data.team >= field.teams) {
+		if(data.team < 0 || data.team >= field.maxTeams) {
 			return
 		}
 		if(data.type == 'capture') {
@@ -153,19 +225,19 @@ io.sockets.on('connection', function (socket) {
 					field.state[index] = data.team;
 					for(var i = 0; i < field.state.length; i++) {
 						if(field.state[i] >= 0) {
-							field.state[i] = field.state[i] % field.teams + field.teams;
+							field.state[i] = field.state[i] % field.maxTeams + field.maxTeams;
 						}
 					}
-					for(var team = 0; team < field.teams; team++) {
+					for(var team = 0; team < field.maxTeams; team++) {
 						var corner = field.teamCorners[team];
 						//var visited = [];
 						var next = [corner];
 						while(next.length > 0) {
 							var current = next.pop();
-							if(field.state[current] != field.teams + team) {
+							if(field.state[current] != field.maxTeams + team) {
 								continue;
 							}
-							field.state[current] = field.state[current] % field.teams;
+							field.state[current] = field.state[current] % field.maxTeams;
 							//visited.push(current);
 							var adj = field.adjacent[current];
 							for(var i = 0; i < adj.length; i++) {
@@ -178,6 +250,14 @@ io.sockets.on('connection', function (socket) {
 				}
 			}
 		}
-		socket.emit('stateUpdate', {'field':field});
+		socket.emit('stateUpdate', {
+			'field':{
+				'territories':field.territories,
+				'state':field.state,
+				'colors':field.colors,
+				'borders':field.borders
+			},
+			'teams':teams
+		});
 	});
 });
