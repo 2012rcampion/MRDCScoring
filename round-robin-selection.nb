@@ -10,14 +10,19 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[     39551,        969]
-NotebookOptionsPosition[     38497,        927]
-NotebookOutlinePosition[     38840,        942]
-CellTagsIndexPosition[     38797,        939]
+NotebookDataLength[    134039,       2748]
+NotebookOptionsPosition[    132838,       2703]
+NotebookOutlinePosition[    133181,       2718]
+CellTagsIndexPosition[    133138,       2715]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
 Notebook[{
+
+Cell[CellGroupData[{
+Cell["Generate matches", "Subsection",
+ CellChangeTimes->{{3.6009932356384397`*^9, 3.6009932456440673`*^9}}],
+
 Cell[TextData[{
  "Construction of the Steiner system S(2,4,28) based on from Theorem 2.3 of:\n\
 Reid C., Rosa A., \[OpenCurlyDoubleQuote]Steiner systems S(2, 4, v) \
@@ -28,11 +33,12 @@ Reid C., Rosa A., \[OpenCurlyDoubleQuote]Steiner systems S(2, 4, v) \
 B of length-4 subsets of V such that that every length-2 subset of V appears \
 in exactly one element of B.  In other words, V is a list of players, B is a \
 list of four-player matches, and every player plays every other player at \
-exactly once."
+exactly once.  B, in this case, has 63 elements."
 }], "Text",
  CellChangeTimes->{{3.6009787554878855`*^9, 3.600978826518938*^9}, {
   3.600978858715263*^9, 3.6009789410047717`*^9}, {3.6009819580032096`*^9, 
-  3.600981988411351*^9}, {3.600984582796856*^9, 3.6009848965486827`*^9}}],
+  3.600981988411351*^9}, {3.600984582796856*^9, 3.6009848965486827`*^9}, {
+  3.6009949911873016`*^9, 3.6009950041839123`*^9}}],
 
 Cell[BoxData[
  RowBox[{"Needs", "[", "\"\<FiniteFields`\>\"", "]"}]], "Input",
@@ -40,26 +46,40 @@ Cell[BoxData[
 
 Cell[CellGroupData[{
 
-Cell["Generate matches", "Subsection",
- CellChangeTimes->{{3.6009932356384397`*^9, 3.6009932456440673`*^9}}],
-
-Cell[CellGroupData[{
-
 Cell[BoxData[{
  RowBox[{
-  RowBox[{"t", "=", "2"}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
+  RowBox[{"t", "=", "2"}], ";", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"so", " ", "far", " ", 
+      RowBox[{"I", "'"}], "ve", " ", "only", " ", "implemented", " ", "the", 
+      " ", "case", " ", "of", " ", "v"}], "\[Congruent]", 
+     RowBox[{"4", " ", "mod", " ", "12"}]}], ";", " ", 
+    RowBox[{
+    "this", " ", "may", " ", "not", " ", "work", " ", "for", " ", "other", 
+     " ", "values", " ", "of", " ", "t", " ", 
+     RowBox[{"(", 
+      RowBox[{"\[NotEqual]", "2"}], ")"}], " ", "since", " ", "I", " ", 
+     RowBox[{"haven", "'"}], "t", " ", "implemented", " ", "the", " ", 
+     "algorithm", " ", "completely", " ", "rigorously"}]}], "*)"}], 
+  "\[IndentingNewLine]", 
   RowBox[{"v", "=", 
    RowBox[{
     RowBox[{"12", "t"}], "+", "4"}]}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"pn", "=", 
    RowBox[{
-    RowBox[{"4", "t"}], "+", "1"}]}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
+    RowBox[{"4", "t"}], "+", "1"}]}], ";", 
+  RowBox[{"(*", 
+   RowBox[{
+    SuperscriptBox["p", "n"], " ", "in", " ", "the", " ", "paper"}], "*)"}], 
+  "\[IndentingNewLine]", 
   RowBox[{"\[ScriptCapitalF]", "=", 
-   RowBox[{"GF", "[", "pn", "]"}]}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
+   RowBox[{"GF", "[", "pn", "]"}]}], ";", 
+  RowBox[{"(*", 
+   RowBox[{"finite", " ", "field", " ", "of", " ", "order", " ", 
+    SuperscriptBox["p", "n"]}], "*)"}], "\[IndentingNewLine]", 
   RowBox[{"X", "=", 
    RowBox[{"Table", "[", 
     RowBox[{
@@ -68,9 +88,10 @@ Cell[BoxData[{
        RowBox[{"\[ScriptCapitalF]", ",", "i"}], "]"}], "]"}], ",", 
      RowBox[{"{", 
       RowBox[{"i", ",", "0", ",", 
-       RowBox[{"pn", "-", "1"}]}], "}"}]}], "]"}]}], 
-  ";"}], "\[IndentingNewLine]", 
- RowBox[{
+       RowBox[{"pn", "-", "1"}]}], "}"}]}], "]"}]}], ";", 
+  RowBox[{"(*", 
+   RowBox[{"elements", " ", "in", " ", "\[ScriptCapitalF]"}], "*)"}], 
+  "\[IndentingNewLine]", 
   RowBox[{"Do", "[", "\[IndentingNewLine]", 
    RowBox[{
     RowBox[{"If", "[", 
@@ -90,10 +111,68 @@ Cell[BoxData[{
        RowBox[{"\[Alpha]", "=", "a"}], ";", 
        RowBox[{"Break", "[", "]"}]}]}], "]"}], ",", "\[IndentingNewLine]", 
     RowBox[{"{", 
-     RowBox[{"a", ",", "X"}], "}"}]}], "]"}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"c", "=", "1"}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
+     RowBox[{"a", ",", "X"}], "}"}]}], "]"}], ";", 
+  RowBox[{"(*", 
+   RowBox[{"find", " ", "a", " ", "generator", " ", 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"a", ".", "k", ".", "a"}], " ", "primitive", " ", "root"}], 
+     ")"}], " ", "\[Alpha]", " ", "such", " ", "that", " ", "every", " ", 
+    "nonzero", " ", "element", " ", "of", " ", "\[ScriptCapitalF]", " ", "is",
+     " ", "equal", " ", "to", " ", 
+    SuperscriptBox["\[Alpha]", "i"], " ", "for", " ", "some", " ", "integer", 
+    " ", "i"}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{"c", "=", "1"}], ";", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"I", " ", "guessed", " ", "here"}], ",", " ", 
+    RowBox[{
+     RowBox[{"but", " ", "it", " ", 
+      RowBox[{"works", ".", "  ", "I"}], " ", "think", " ", "any", " ", "c", 
+      " ", "such", " ", "that", " ", 
+      SuperscriptBox["\[Alpha]", "c"]}], "\[NotEqual]", 
+     RowBox[{
+      RowBox[{"\[PlusMinus]", "1"}], " ", "will", " ", "work"}]}], ",", " ", 
+    RowBox[{
+     RowBox[{"since", " ", "then", " ", 
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{
+         SuperscriptBox["\[Alpha]", "c"], "+", "1"}], ")"}], "/", 
+       RowBox[{"(", 
+        RowBox[{
+         SuperscriptBox["\[Alpha]", "c"], "-", "1"}], ")"}]}], " ", "is", " ",
+       "nonzero", " ", "and", " ", "there", " ", "is", " ", "no", " ", 
+      "division", " ", "by", " ", 
+      RowBox[{"zero", ":", " ", 
+       RowBox[{
+       "therefore", " ", "there", " ", "exists", " ", "some", " ", "q", " ", 
+        "such", " ", "that", " ", 
+        RowBox[{
+         RowBox[{"(", 
+          RowBox[{
+           SuperscriptBox["\[Alpha]", "c"], "+", "1"}], ")"}], "/", 
+         RowBox[{"(", 
+          RowBox[{
+           SuperscriptBox["\[Alpha]", "c"], "-", "1"}], ")"}]}]}]}]}], "=", 
+     SuperscriptBox["\[Alpha]", "q"]}], ",", " ", 
+    RowBox[{"by", " ", "definition", " ", "of", " ", 
+     RowBox[{"\[Alpha]", ".", "  ", "Since"}], " ", "\[Alpha]", " ", "cannot",
+      " ", "be", " ", "1", " ", 
+     RowBox[{"(", 
+      RowBox[{
+       SuperscriptBox["1", "i"], "=", "1"}], ")"}]}], ",", " ", 
+    RowBox[{
+     RowBox[{
+     "then", " ", "we", " ", "just", " ", "have", " ", "to", " ", "avoid"}], 
+     " ", "-", "1"}], ",", " ", 
+    RowBox[{"which", " ", "should", 
+     RowBox[{"(", "?", ")"}], " ", "be", " ", "the", " ", "last", " ", 
+     "element", " ", "considered"}], ",", " ", 
+    RowBox[{"and", " ", "there", " ", "are", " ", "usually", " ", 
+     RowBox[{"(", 
+      RowBox[{"also", " ", "?"}], ")"}], " ", "multiple", " ", 
+     "generators"}]}], "*)"}], "\[IndentingNewLine]", 
   RowBox[{"B", "=", 
    RowBox[{"Flatten", "[", 
     RowBox[{
@@ -220,9 +299,15 @@ Cell[BoxData[{
         RowBox[{"i", ",", "0", ",", 
          RowBox[{"t", "-", "1"}]}], "}"}], ",", 
        RowBox[{"{", 
-        RowBox[{"j", ",", "X"}], "}"}]}], "]"}], ",", "2"}], "]"}]}], 
-  ";"}], "\[IndentingNewLine]", 
- RowBox[{
+        RowBox[{"j", ",", "X"}], "}"}]}], "]"}], ",", "2"}], "]"}]}], ";", 
+  RowBox[{"(*", 
+   RowBox[{
+   "find", " ", "the", " ", "base", " ", "blocks", " ", "and", " ", "all", 
+    " ", "of", " ", "the", " ", "cyclical", " ", "permutations", " ", "at", 
+    " ", "the", " ", "same", " ", 
+    RowBox[{"time", ".", "  ", "Note"}], " ", "that", " ", "\[Infinity]", " ",
+     "is", " ", "a", " ", "fixed", " ", "point"}], "*)"}], 
+  "\[IndentingNewLine]", 
   RowBox[{"B", "=", 
    RowBox[{"B", "/.", 
     RowBox[{"{", 
@@ -230,9 +315,13 @@ Cell[BoxData[{
       RowBox[{"e", ":", 
        RowBox[{"(", 
         RowBox[{"_GF", "[", "___", "]"}], ")"}]}], "\[RuleDelayed]", 
-      RowBox[{"ToElementCode", "[", "e", "]"}]}], "}"}]}]}], 
-  ";"}], "\[IndentingNewLine]", 
- RowBox[{
+      RowBox[{"ToElementCode", "[", "e", "]"}]}], "}"}]}]}], ";", 
+  RowBox[{"(*", 
+   RowBox[{
+   "convert", " ", "field", " ", "elements", " ", "to", " ", "numbers", " ", 
+    "so", " ", "that", " ", 
+    RowBox[{"Union", "[", "]"}], " ", "works", " ", "later"}], "*)"}], 
+  "\[IndentingNewLine]", 
   RowBox[{"V", "=", 
    RowBox[{"Union", "[", 
     RowBox[{"Flatten", "[", 
@@ -242,14 +331,19 @@ Cell[BoxData[{
    RowBox[{"B", "/.", 
     RowBox[{"Thread", "[", 
      RowBox[{"V", "\[Rule]", 
-      RowBox[{"Range", "[", "v", "]"}]}], "]"}]}]}], 
-  ";"}], "\[IndentingNewLine]", 
- RowBox[{
+      RowBox[{"Range", "[", "v", "]"}]}], "]"}]}]}], ";", 
+  RowBox[{"(*", 
+   RowBox[{
+   "convert", " ", "the", " ", "elements", " ", "of", " ", "V", " ", "to", 
+    " ", "numbers", " ", "for", " ", "easy", " ", "processing", " ", 
+    "later"}], "*)"}], "\[IndentingNewLine]", 
   RowBox[{"V", "=", 
    RowBox[{"Range", "[", "v", "]"}]}], ";"}], "\[IndentingNewLine]", 
  RowBox[{"B", "=", 
   RowBox[{"Union", "[", 
-   RowBox[{"Sort", "/@", "B"}], "]"}]}]}], "Input",
+   RowBox[{"Sort", "/@", "B"}], "]"}], 
+  RowBox[{"(*", 
+   RowBox[{"eliminate", " ", "duplicates"}], "*)"}]}]}], "Input",
  CellChangeTimes->{{3.6009789475721216`*^9, 3.600978950251895*^9}, {
    3.6009790040025015`*^9, 3.600979047084036*^9}, {3.600979082444459*^9, 
    3.6009792269231606`*^9}, {3.600979258947373*^9, 3.6009792925016007`*^9}, {
@@ -271,7 +365,8 @@ Cell[BoxData[{
    3.600983131762701*^9, 3.600983137902768*^9}, {3.6009831794112625`*^9, 
    3.600983224647227*^9}, {3.600983303447425*^9, 3.6009833729874873`*^9}, {
    3.600983531833705*^9, 3.6009835575107117`*^9}, {3.6009847484685946`*^9, 
-   3.60098475407631*^9}}],
+   3.60098475407631*^9}, {3.6009950387327957`*^9, 3.600995734452637*^9}, {
+   3.60099591506428*^9, 3.6009959385448265`*^9}}],
 
 Cell[BoxData[
  RowBox[{"{", 
@@ -421,11 +516,22 @@ Cell[BoxData[{
  RowBox[{
   RowBox[{"f", "[", 
    RowBox[{"list_", ",", "remaining_"}], "]"}], ":=", 
-  RowBox[{"If", "[", "\[IndentingNewLine]", 
+  RowBox[{"If", "[", 
+   RowBox[{"(*", 
+    RowBox[{"yay", ",", " ", 
+     RowBox[{"a", " ", "recursive", " ", 
+      RowBox[{"algorithm", "!"}]}]}], "*)"}], "\[IndentingNewLine]", 
    RowBox[{
     RowBox[{"remaining", "\[Equal]", 
-     RowBox[{"{", "}"}]}], ",", "\[IndentingNewLine]", "list", ",", 
-    "\[IndentingNewLine]", 
+     RowBox[{"{", "}"}]}], ",", 
+    RowBox[{"(*", 
+     RowBox[{
+      RowBox[{"base", " ", "case"}], ",", " ", 
+      RowBox[{
+      "if", " ", "there", " ", "are", " ", "not", " ", "more", " ", "pairs", 
+       " ", "remaining"}], ",", " ", 
+      RowBox[{"return", " ", "the", " ", "completed", " ", "list"}]}], "*)"}],
+     "\[IndentingNewLine]", "list", ",", "\[IndentingNewLine]", 
     RowBox[{"Block", "[", 
      RowBox[{
       RowBox[{"{", 
@@ -437,7 +543,10 @@ Cell[BoxData[{
          RowBox[{"Rest", "[", "remaining", "]"}]}]}], "}"}], ",", 
       "\[IndentingNewLine]", 
       RowBox[{
-       RowBox[{"Do", "[", "\[IndentingNewLine]", 
+       RowBox[{"Do", "[", 
+        RowBox[{"(*", 
+         RowBox[{"loop", " ", "over", " ", "each", " ", "round"}], "*)"}], 
+        "\[IndentingNewLine]", 
         RowBox[{
          RowBox[{"If", "[", 
           RowBox[{
@@ -448,7 +557,13 @@ Cell[BoxData[{
                RowBox[{"list", "[", 
                 RowBox[{"[", "i", "]"}], "]"}], "]"}], ",", "next"}], "]"}], 
             "\[Equal]", 
-            RowBox[{"{", "}"}]}], ",", "\[IndentingNewLine]", 
+            RowBox[{"{", "}"}]}], ",", 
+           RowBox[{"(*", 
+            RowBox[{
+            "if", " ", "none", " ", "of", " ", "the", " ", "teams", " ", "in",
+              " ", "the", " ", "next", " ", "match", " ", "are", " ", "in", 
+             " ", "the", " ", "given", " ", "round"}], "*)"}], 
+           "\[IndentingNewLine]", 
            RowBox[{
             RowBox[{"return", "=", 
              RowBox[{"f", "[", 
@@ -459,11 +574,28 @@ Cell[BoxData[{
                   RowBox[{"Append", "[", 
                    RowBox[{"#", ",", "next"}], "]"}], "&"}], ",", "list", ",",
                   "i"}], "]"}], ",", "rest"}], "]"}]}], ";", 
+            RowBox[{"(*", 
+             RowBox[{"recurse", ",", " ", 
+              RowBox[{
+              "adding", " ", "the", " ", "next", " ", "match", " ", "to", " ",
+                "the", " ", "given", " ", "round"}]}], "*)"}], 
             "\[IndentingNewLine]", 
             RowBox[{"If", "[", 
              RowBox[{
-              RowBox[{"return", "===", "None"}], ",", "\[IndentingNewLine]", 
-              ",", "\[IndentingNewLine]", 
+              RowBox[{"return", "===", "None"}], ",", 
+              RowBox[{"(*", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"if", " ", "return"}], " ", "=", " ", "None"}], ",", 
+                " ", 
+                RowBox[{"that", " ", 
+                 RowBox[{"sucks", ":", " ", 
+                  RowBox[{
+                  "putting", " ", "the", " ", "next", " ", "match", " ", "in",
+                    " ", "that", " ", "round", " ", "broke", " ", 
+                   "everything"}]}]}], ",", " ", 
+                RowBox[{"continue", " ", "with", " ", "the", " ", "chain"}]}],
+                "*)"}], "\[IndentingNewLine]", ",", "\[IndentingNewLine]", 
               RowBox[{
                RowBox[{"Break", "[", "]"}], ";"}]}], "\[IndentingNewLine]", 
              "]"}]}]}], "\[IndentingNewLine]", "]"}], ",", 
@@ -471,23 +603,41 @@ Cell[BoxData[{
          RowBox[{"{", 
           RowBox[{"i", ",", 
            RowBox[{"Length", "[", "list", "]"}]}], "}"}]}], "]"}], ";", 
-       "\[IndentingNewLine]", "return"}]}], "]"}]}], "\[IndentingNewLine]", 
+       "\[IndentingNewLine]", "return"}]}], "]"}]}], 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"if", " ", "return"}], " ", "\[NotEqual]", " ", "None"}], ",", 
+     " ", 
+     RowBox[{
+      RowBox[{"the", " ", "base", " ", "case", " ", "has", " ", "been", " ", 
+       RowBox[{"reached", ":", " ", 
+        RowBox[{"pass", " ", "it", " ", "up", " ", "the", " ", "chain"}]}]}], 
+      ";", " ", 
+      RowBox[{"otherwise", " ", 
+       RowBox[{"you", "'"}], "re", " ", "stuck", " ", "and", " ", "you", " ", 
+       "have", " ", "to", " ", "go", " ", "up", " ", "a", " ", "level", " ", 
+       "anyway"}]}]}], "*)"}], "\[IndentingNewLine]", 
    "]"}]}], "\[IndentingNewLine]", 
  RowBox[{"sets", "=", 
   RowBox[{"f", "[", 
    RowBox[{
     RowBox[{"ConstantArray", "[", 
      RowBox[{
-      RowBox[{"{", "}"}], ",", "9"}], "]"}], ",", "B"}], "]"}]}]}], "Input",
+      RowBox[{"{", "}"}], ",", "9"}], "]"}], ",", "B"}], "]"}], 
+  RowBox[{"(*", 
+   RowBox[{
+   "initialize", " ", "each", " ", "of", " ", "the", " ", "9", " ", "rounds", 
+    " ", "to", " ", "be", " ", "empty"}], "*)"}]}]}], "Input",
  CellChangeTimes->CompressedData["
-1:eJwdyj1IAgEAxfGrIFIyxSUSwZwKIokgc6krRDgQ+tC0tAyK3MTAMjKI9KKp
-ocGGFBzSIZsqISlvqZAGyQxSitCpg1ALEm3JkO7d8Pjx4K9cXjXYmwmCkHOD
-PV3mfVO2NN52uHIAXR3HR/yngyHIbg3GeAvCSxh+prPw06vPwauN5BvMi6fL
-0Opu+YZ6baAOz42RVjNnaTIugLU6KYWSAMU76mE6IWW0yKArVCTh6bVwDKZF
-7Tq4OJ+xwdc1xg7V3Q4ntA6xbnj39MtLaVLbkLCJd+CDzL8L4xVBBDqGJQl4
-H9XwRklPDm5WaV7VycsXnPD5qzBLfkhnOW8KeiVUOMK9sFLxk7A0kNdChlXo
-4JKp7x1OqeRF2GjM1KC3PvIDVdTCxRxn2dIUg0FDfxyuh328omQhAdMSDcN3
-NfoWqvfOUvCPTTxCu9OSgf9QuPdP
+1:eJwdyj1IAgEAxXErkJRMcYmkMKeESCKoXOoKEQ6EPjQtLYMiNzGwjAwivWhq
+aLAhBYd0SKdKyEqXCmmQ1CClCJ0SQi3ItCVFunfD48eDv2RlTW1qZrFY3fRg
+b6fuQJsuTrQerR5Ca/vJMfMpjxfmtwdDjDnuJfQ9U2n46VBl4PVm7A1m+TMl
+aLC1fEOVwl2D5xo/W0dbnApzYLVGCKHATTKO2aMdkNToRdDqLRAweMMdhwle
+mxIuLaSM8HU9aoLDPWYLNAzlbfD+6Y+RlMd3IMvI34WPItceDJc5fmgeEUTg
+Q0DOGCDsGbhVoRhlpy9fcNLpqsA08SGco73NqSRQbPZJYbnsImBxIKuA0bxY
+CZe1fe9wWtZVgI3GbBU6aqO/UEYuXszTlvRNIehR94fhhs/JyIvlIjAhkEeZ
+rkrdweH9szis5yNJaLLoU/AnmEgaaNlX0jr8ByDqASg=
   "]],
 
 Cell[BoxData[
@@ -669,7 +819,12 @@ Cell[BoxData[{
       RowBox[{"{", 
        RowBox[{"return", "=", "None"}], "}"}], ",", "\[IndentingNewLine]", 
       RowBox[{
-       RowBox[{"Do", "[", "\[IndentingNewLine]", 
+       RowBox[{"Do", "[", 
+        RowBox[{"(*", 
+         RowBox[{
+         "loop", " ", "over", " ", "each", " ", "match", " ", "in", " ", 
+          "the", " ", "current", " ", "round"}], "*)"}], 
+        "\[IndentingNewLine]", 
         RowBox[{
          RowBox[{"If", "[", 
           RowBox[{
@@ -682,75 +837,167 @@ Cell[BoxData[{
                  RowBox[{
                   RowBox[{"-", "n"}], ";;"}], "]"}], "]"}], "]"}], ",", 
               "choice"}], "]"}], "\[Equal]", 
-            RowBox[{"{", "}"}]}], ",", "\[IndentingNewLine]", 
+            RowBox[{"{", "}"}]}], ",", 
+           RowBox[{"(*", 
+            RowBox[{
+             RowBox[{
+             "any", " ", "of", " ", "the", " ", "teams", " ", "in", " ", 
+              "the", " ", "selected", " ", "match", " ", "have", " ", "not", 
+              " ", "participated", " ", "in", " ", "the", " ", "last", " ", 
+              "n", " ", "matches"}], "..."}], "*)"}], "\[IndentingNewLine]", 
            RowBox[{
             RowBox[{"return", "=", 
              RowBox[{"g", "[", 
+              RowBox[{"(*", 
+               RowBox[{"recurse", "!"}], "*)"}], "\[IndentingNewLine]", 
               RowBox[{
                RowBox[{"Append", "[", 
                 RowBox[{"list", ",", "choice"}], "]"}], ",", 
-               RowBox[{"If", "[", 
+               RowBox[{"(*", 
+                RowBox[{
+                "add", " ", "the", " ", "current", " ", "match", " ", "to", 
+                 " ", "the", " ", "sequence"}], "*)"}], "\[IndentingNewLine]", 
+               RowBox[{"If", "[", "\[IndentingNewLine]", 
                 RowBox[{
                  RowBox[{
                   RowBox[{"Length", "[", 
                    RowBox[{"First", "[", "remaining", "]"}], "]"}], 
                   "\[Equal]", "1"}], ",", 
+                 RowBox[{"(*", 
+                  RowBox[{
+                   RowBox[{
+                   "if", " ", "there", " ", "is", " ", "only", " ", "one", 
+                    " ", "match", " ", "remaining", " ", "in", " ", "the", 
+                    " ", "current", " ", "round"}], "..."}], "*)"}], 
+                 "\[IndentingNewLine]", 
                  RowBox[{"Rest", "[", "remaining", "]"}], ",", 
+                 RowBox[{"(*", 
+                  RowBox[{
+                  "return", " ", "all", " ", "of", " ", "the", " ", 
+                   "following", " ", "rounds"}], "*)"}], 
+                 "\[IndentingNewLine]", 
                  RowBox[{"Prepend", "[", 
                   RowBox[{
                    RowBox[{"Rest", "[", "remaining", "]"}], ",", 
                    RowBox[{"DeleteCases", "[", 
                     RowBox[{
                     RowBox[{"First", "[", "remaining", "]"}], ",", "choice"}],
-                     "]"}]}], "]"}]}], "]"}], ",", "n"}], "]"}]}], ";", 
-            "\[IndentingNewLine]", 
+                     "]"}]}], "]"}]}], 
+                RowBox[{"(*", 
+                 RowBox[{"otherwise", ",", " ", 
+                  RowBox[{
+                  "delete", " ", "the", " ", "selected", " ", "match", " ", 
+                   "from", " ", "the", " ", "round"}]}], "*)"}], 
+                "\[IndentingNewLine]", "]"}], ",", "\[IndentingNewLine]", 
+               "n"}], "]"}]}], ";", "\[IndentingNewLine]", 
             RowBox[{"If", "[", 
              RowBox[{
               RowBox[{"return", "===", "None"}], ",", "\[IndentingNewLine]", 
               ",", "\[IndentingNewLine]", 
               RowBox[{
-               RowBox[{"Break", "[", "]"}], ";"}]}], "\[IndentingNewLine]", 
-             "]"}]}]}], "\[IndentingNewLine]", "]"}], ",", 
-         "\[IndentingNewLine]", 
+               RowBox[{"Break", "[", "]"}], ";"}]}], 
+             RowBox[{"(*", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"if", " ", "return"}], " ", "\[NotEqual]", " ", 
+                "None"}], ",", " ", 
+               RowBox[{
+               "break", " ", "the", " ", "loop", " ", "and", " ", 
+                "return"}]}], "*)"}], "\[IndentingNewLine]", "]"}]}]}], 
+          "\[IndentingNewLine]", "]"}], ",", "\[IndentingNewLine]", 
          RowBox[{"{", 
           RowBox[{"choice", ",", 
            RowBox[{"First", "[", "remaining", "]"}]}], "}"}]}], "]"}], ";", 
-       "\[IndentingNewLine]", "return"}]}], "]"}]}], "\[IndentingNewLine]", 
+       "\[IndentingNewLine]", "return"}]}], "]"}]}], 
+   RowBox[{"(*", 
+    RowBox[{
+    "the", " ", "structure", " ", "is", " ", "pretty", " ", "much", " ", 
+     "the", " ", "same", " ", "as", " ", "the", " ", "previous", " ", 
+     "recursive", " ", "function"}], "*)"}], "\[IndentingNewLine]", 
    "]"}]}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"best", "=", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", "}"}], ",", "0"}], "}"}]}], ";"}], "\[IndentingNewLine]", 
- RowBox[{"Dynamic", "[", "best", "]"}], "\[IndentingNewLine]", 
+   RowBox[{"{", "}"}]}], ";", 
+  RowBox[{"(*", 
+   RowBox[{"initialize", " ", "the", " ", "counter"}], "*)"}], 
+  "\[IndentingNewLine]", 
+  RowBox[{"Dynamic", "[", "best", "]"}]}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"n", "=", "0"}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"Do", "[", 
+   RowBox[{"(*", 
+    RowBox[{"for", " ", "every", " ", "ordering", " ", 
+     RowBox[{"(", "permutation", ")"}], " ", "of", " ", "the", " ", 
+     RowBox[{"rounds", ":"}]}], "*)"}], "\[IndentingNewLine]", 
    RowBox[{
     RowBox[{"While", "[", 
-     RowBox[{"True", ",", 
+     RowBox[{"True", ",", "\[IndentingNewLine]", 
       RowBox[{
        RowBox[{"current", "=", 
         RowBox[{"g", "[", 
          RowBox[{
           RowBox[{"First", "[", "s", "]"}], ",", 
           RowBox[{"Rest", "[", "s", "]"}], ",", "n"}], "]"}]}], ";", 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{
+         "calculate", " ", "an", " ", "ordering", " ", "with", " ", "the", 
+          " ", "previous", " ", "best", " ", "spacing"}], "+", "1"}], "*)"}], 
+       "\[IndentingNewLine]", 
        RowBox[{"If", "[", 
         RowBox[{
          RowBox[{"current", "===", "None"}], ",", 
+         RowBox[{"(*", 
+          RowBox[{
+           RowBox[{"if", " ", "it", " ", "failed"}], "..."}], "*)"}], 
+         "\[IndentingNewLine]", 
          RowBox[{"Break", "[", "]"}], ",", 
-         RowBox[{"best", "=", 
-          RowBox[{"{", 
-           RowBox[{"current", ",", "n"}], "}"}]}]}], "]"}], ";", 
-       RowBox[{"n", "++"}]}]}], "]"}], ",", 
+         RowBox[{"(*", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+            "break", " ", "out", " ", "of", " ", "the", " ", "while"}], "-", 
+            "loop"}], ",", " ", 
+           RowBox[{
+           "continue", " ", "to", " ", "the", " ", "next", " ", 
+            "permutation"}]}], "*)"}], "\[IndentingNewLine]", 
+         RowBox[{"best", "=", "current"}]}], 
+        RowBox[{"(*", 
+         RowBox[{
+         "otherwise", " ", "we", " ", "have", " ", "a", " ", "new", " ", 
+          "best", " ", "ordering"}], "*)"}], "\[IndentingNewLine]", "]"}], 
+       ";", "\[IndentingNewLine]", 
+       RowBox[{"n", "++"}]}]}], 
+     RowBox[{"(*", 
+      RowBox[{
+      "increase", " ", "the", " ", "spacing", " ", "by", " ", "one", " ", 
+       "for", " ", "the", " ", "next", " ", "ordering"}], "*)"}], 
+     "\[IndentingNewLine]", "]"}], ",", "\[IndentingNewLine]", 
     RowBox[{"{", 
      RowBox[{"s", ",", 
-      RowBox[{"Permutations", "[", "sets", "]"}]}], "}"}]}], "]"}], 
-  ";"}], "\[IndentingNewLine]", 
- RowBox[{
+      RowBox[{"Permutations", "[", "sets", "]"}]}], "}"}]}], "]"}], ";", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"I", " ", 
+     RowBox[{"don", "'"}], "t", " ", "know", " ", "if", " ", "the", " ", 
+     "loop", " ", "actually", " ", "helps"}], ",", " ", 
+    RowBox[{
+    "but", " ", "it", " ", "only", " ", "takes", " ", "like", " ", "30", " ", 
+     "seconds"}]}], "*)"}], "\[IndentingNewLine]", 
   RowBox[{"ordering", "=", 
-   RowBox[{"First", "[", "best", "]"}]}], ";"}]}], "Input",
+   RowBox[{"best", "/.", 
+    RowBox[{"Thread", "[", 
+     RowBox[{
+      RowBox[{"Take", "[", 
+       RowBox[{
+        RowBox[{"Flatten", "[", "best", "]"}], ",", "v"}], "]"}], "\[Rule]", 
+      "V"}], "]"}]}]}], ";", 
+  RowBox[{"(*", 
+   RowBox[{
+   "use", " ", "an", " ", "isomporphism", " ", "to", " ", "map", " ", "the", 
+    " ", "result", " ", "onto", " ", "itself", " ", "with", " ", "a", " ", 
+    "specified", " ", "ordering"}], "*)"}]}]}], "Input",
  CellChangeTimes->{{3.6009918876765566`*^9, 3.6009918897519336`*^9}, {
   3.600992212943012*^9, 3.6009922305846972`*^9}, {3.6009924532411847`*^9, 
   3.600992469271803*^9}, {3.600992563948517*^9, 3.6009926057612123`*^9}, {
@@ -761,18 +1008,19 @@ Cell[BoxData[{
   3.600993432921118*^9, 3.600993823897097*^9}, {3.6009938552398586`*^9, 
   3.6009938607094803`*^9}, {3.6009939453605523`*^9, 3.6009939552400985`*^9}, {
   3.6009940088866367`*^9, 3.600994045776067*^9}, {3.600994119495907*^9, 
-  3.600994127078924*^9}}],
+  3.600994127078924*^9}, {3.600996368238454*^9, 3.600996967423346*^9}, {
+  3.600997536859538*^9, 3.6009975528321176`*^9}}],
 
 Cell[BoxData[
  DynamicBox[ToBoxes[$CellContext`best, StandardForm],
-  ImageSizeCache->{1344., {104., 12.}}]], "Output",
+  ImageSizeCache->{1335.5, {104., 12.}}]], "Output",
  CellChangeTimes->{
   3.6009918902562685`*^9, {3.6009922144840355`*^9, 3.6009922308338675`*^9}, 
    3.600992910548102*^9, 3.6009929493868275`*^9, {3.600992982994088*^9, 
    3.6009929967642097`*^9}, {3.6009931590497074`*^9, 3.6009931658592277`*^9}, 
    3.6009933838065825`*^9, 3.6009937452920437`*^9, 3.600993877156375*^9, {
    3.6009939468645515`*^9, 3.6009939558034697`*^9}, {3.6009940131934967`*^9, 
-   3.6009940500999346`*^9}, 3.6009941288020644`*^9}]
+   3.6009940500999346`*^9}, 3.6009941288020644`*^9, 3.600996969853956*^9}]
 }, Open  ]]
 }, Open  ]],
 
@@ -785,143 +1033,1671 @@ Cell[CellGroupData[{
 
 Cell[BoxData[{
  RowBox[{
-  RowBox[{"positions", "=", 
-   RowBox[{
-    RowBox[{"(", 
-     RowBox[{"Flatten", "/@", 
-      RowBox[{"Flatten", "[", 
-       RowBox[{
-        RowBox[{"MapIndexed", "[", 
-         RowBox[{"List", ",", "ordering", ",", 
-          RowBox[{"{", "2", "}"}]}], "]"}], ",", "1"}], "]"}]}], ")"}], "[", 
-    RowBox[{"[", 
-     RowBox[{";;", ",", 
-      RowBox[{";;", "2"}]}], "]"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
- RowBox[{"Graphics", "[", 
   RowBox[{
-   RowBox[{"Rectangle", "/@", "positions"}], ",", 
-   RowBox[{"GridLines", "\[Rule]", 
-    RowBox[{"{", 
-     RowBox[{"Range", ",", "Range"}], "}"}]}], ",", 
-   RowBox[{"PlotRange", "\[Rule]", 
-    RowBox[{"{", 
+   RowBox[{"positions", "=", 
+    RowBox[{
+     RowBox[{"(", 
+      RowBox[{"Flatten", "/@", 
+       RowBox[{"Flatten", "[", 
+        RowBox[{
+         RowBox[{"MapIndexed", "[", 
+          RowBox[{"List", ",", "ordering", ",", 
+           RowBox[{"{", "2", "}"}]}], "]"}], ",", "1"}], "]"}]}], ")"}], "[", 
+     RowBox[{"[", 
+      RowBox[{";;", ",", 
+       RowBox[{";;", "2"}]}], "]"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+   "draw", " ", "a", " ", "sort", " ", "of", " ", "schedule", " ", "diagram", 
+    " ", "thingey"}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Graphics", "[", 
+   RowBox[{
+    RowBox[{"Rectangle", "/@", 
+     RowBox[{"(", 
+      RowBox[{"positions", "-", 
+       RowBox[{"1", "/", "2"}]}], ")"}]}], ",", 
+    RowBox[{"GridLines", "\[Rule]", 
+     RowBox[{"{", 
+      RowBox[{"Range", ",", "Range"}], "}"}]}], ",", 
+    RowBox[{"PlotRange", "\[Rule]", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"0", ",", "28"}], "}"}], "+", 
+        RowBox[{"1", "/", "2"}]}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"0", ",", "63"}], "}"}], "+", 
+        RowBox[{"1", "/", "2"}]}]}], "}"}]}], ",", 
+    RowBox[{"Frame", "\[Rule]", "True"}], ",", 
+    RowBox[{"FrameLabel", "\[Rule]", 
+     RowBox[{"{", 
+      RowBox[{"\"\<Team\>\"", ",", "\"\<Match\>\""}], "}"}]}]}], "]"}], 
+  "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"schedule", ":", " ", 
+    RowBox[{
+    "which", " ", "teams", " ", "play", " ", "in", " ", "a", " ", "given", 
+     " ", "match"}]}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Column", "[", 
+   RowBox[{"MapIndexed", "[", 
+    RowBox[{
      RowBox[{
+      RowBox[{"Row", "[", 
+       RowBox[{"Flatten", "[", 
+        RowBox[{"{", 
+         RowBox[{"\"\<Round \>\"", ",", 
+          RowBox[{"Ceiling", "[", 
+           RowBox[{
+            RowBox[{"First", "[", "#2", "]"}], "/", "7"}], "]"}], ",", 
+          "\"\<, match \>\"", ",", 
+          RowBox[{"Mod", "[", 
+           RowBox[{
+            RowBox[{"First", "[", "#2", "]"}], ",", "7", ",", "1"}], "]"}], 
+          ",", "\"\<: Teams \>\"", ",", 
+          RowBox[{"Insert", "[", 
+           RowBox[{
+            RowBox[{"Riffle", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{
+                RowBox[{"PaddedForm", "[", 
+                 RowBox[{"#", ",", "2", ",", 
+                  RowBox[{"NumberSigns", "\[Rule]", 
+                   RowBox[{"{", 
+                    RowBox[{"\"\<\>\"", ",", "\"\<\>\""}], "}"}]}]}], "]"}], 
+                "&"}], "/@", "#1"}], ",", "\"\<, \>\""}], "]"}], ",", 
+            "\"\<and \>\"", ",", 
+            RowBox[{"-", "2"}]}], "]"}]}], "}"}], "]"}], "]"}], "&"}], ",", 
+     "ordering"}], "]"}], "]"}], "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"itinerary", ":", " ", 
+    RowBox[{
+    "which", " ", "matches", " ", "a", " ", "given", " ", "team", " ", 
+     "plays"}]}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Column", "[", 
+   RowBox[{"MapIndexed", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"Row", "[", 
+       RowBox[{"Flatten", "[", 
+        RowBox[{"{", 
+         RowBox[{"\"\<Team \>\"", ",", 
+          RowBox[{"PaddedForm", "[", 
+           RowBox[{
+            RowBox[{"First", "[", "#2", "]"}], ",", "2", ",", 
+            RowBox[{"NumberSigns", "\[Rule]", 
+             RowBox[{"{", 
+              RowBox[{"\"\<\>\"", ",", "\"\<\>\""}], "}"}]}]}], "]"}], ",", 
+          "\"\<: \>\"", ",", 
+          RowBox[{"Insert", "[", 
+           RowBox[{
+            RowBox[{"Riffle", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{
+                RowBox[{"{", 
+                 RowBox[{"\"\<round \>\"", ",", 
+                  RowBox[{"Ceiling", "[", 
+                   RowBox[{"#", "/", "7"}], "]"}], ",", "\"\<, match \>\"", 
+                  ",", 
+                  RowBox[{"Mod", "[", 
+                   RowBox[{"#", ",", "7", ",", "1"}], "]"}]}], "}"}], "&"}], "/@",
+                "#1"}], ",", "\"\<; \>\""}], "]"}], ",", "\"\<and \>\"", ",", 
+            RowBox[{"-", "2"}]}], "]"}]}], "}"}], "]"}], "]"}], "&"}], ",", 
+     RowBox[{
+      RowBox[{"SplitBy", "[", 
+       RowBox[{
+        RowBox[{"Sort", "[", "positions", "]"}], ",", "First"}], "]"}], "[", 
+      RowBox[{"[", 
+       RowBox[{";;", ",", ";;", ",", "2"}], "]"}], "]"}]}], "]"}], "]"}], 
+  "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{
+    "graph", " ", "the", " ", "number", " ", "of", " ", "matches", " ", "per",
+      " ", "team", " ", "over", " ", "time"}], ";", " ", 
+    RowBox[{
+    "shows", " ", "that", " ", "no", " ", "team", " ", "has", " ", "more", 
+     " ", "than", " ", "one", " ", "more", " ", "match", " ", "played", " ", 
+     "than", " ", "any", " ", "other", " ", "team"}]}], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{"ListLinePlot", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Transpose", "[", 
+     RowBox[{"{", 
       RowBox[{
-       RowBox[{"{", 
-        RowBox[{"0", ",", "28"}], "}"}], "+", "1"}], ",", 
-      RowBox[{
-       RowBox[{"{", 
-        RowBox[{"0", ",", "63"}], "}"}], "+", "1"}]}], "}"}]}], ",", 
-   RowBox[{"Frame", "\[Rule]", "True"}], ",", 
-   RowBox[{"Ticks", "\[Rule]", 
-    RowBox[{"{", 
-     RowBox[{"Range", ",", "Range"}], "}"}]}]}], "]"}]}], "Input",
+       RowBox[{"Flatten", "@", 
+        RowBox[{"Partition", "[", 
+         RowBox[{
+          RowBox[{"Prepend", "[", 
+           RowBox[{
+            RowBox[{"Append", "[", 
+             RowBox[{
+              RowBox[{"Last", "/@", "#"}], ",", 
+              RowBox[{"Length", "[", "ordering", "]"}]}], "]"}], ",", "0"}], 
+           "]"}], ",", "2", ",", "1"}], "]"}]}], ",", 
+       RowBox[{"Floor", "@", 
+        RowBox[{"Range", "[", 
+         RowBox[{"0", ",", 
+          RowBox[{
+           RowBox[{"Length", "[", "#", "]"}], "+", 
+           RowBox[{"1", "/", "2"}]}], ",", 
+          RowBox[{"1", "/", "2"}]}], "]"}]}]}], "}"}], "]"}], "&"}], "/@", 
+   RowBox[{"SplitBy", "[", 
+    RowBox[{
+     RowBox[{"Sort", "[", "positions", "]"}], ",", "First"}], "]"}]}], 
+  "]"}]}], "Input",
  CellChangeTimes->{{3.6009940973252153`*^9, 3.6009941084455795`*^9}, {
   3.6009941564934053`*^9, 3.6009944939869585`*^9}, {3.60099452736807*^9, 
-  3.6009945627665176`*^9}}],
+  3.6009945627665176`*^9}, {3.6009946919630976`*^9, 3.6009947020697913`*^9}, {
+  3.600996992071675*^9, 3.6009970041806965`*^9}, {3.600997068142065*^9, 
+  3.6009970845159082`*^9}, {3.6009975975237226`*^9, 3.600997625356161*^9}, {
+  3.6009976737362022`*^9, 3.600997928562998*^9}, {3.600998024647646*^9, 
+  3.600998233681107*^9}, {3.600998269078555*^9, 3.600998346265682*^9}, {
+  3.6009983885797253`*^9, 3.6009985144250746`*^9}}],
 
 Cell[BoxData[
- GraphicsBox[{RectangleBox[{1, 1}], RectangleBox[{2, 1}], 
-   RectangleBox[{3, 1}], RectangleBox[{4, 1}], RectangleBox[{5, 2}], 
-   RectangleBox[{8, 2}], RectangleBox[{12, 2}], RectangleBox[{21, 2}], 
-   RectangleBox[{6, 3}], RectangleBox[{9, 3}], RectangleBox[{13, 3}], 
-   RectangleBox[{22, 3}], RectangleBox[{7, 4}], RectangleBox[{10, 4}], 
-   RectangleBox[{11, 4}], RectangleBox[{20, 4}], RectangleBox[{14, 5}], 
-   RectangleBox[{19, 5}], RectangleBox[{25, 5}], RectangleBox[{26, 5}], 
-   RectangleBox[{15, 6}], RectangleBox[{17, 6}], RectangleBox[{23, 6}], 
-   RectangleBox[{27, 6}], RectangleBox[{16, 7}], RectangleBox[{18, 7}], 
-   RectangleBox[{24, 7}], RectangleBox[{28, 7}], RectangleBox[{1, 8}], 
-   RectangleBox[{5, 8}], RectangleBox[{6, 8}], RectangleBox[{7, 8}], 
-   RectangleBox[{4, 9}], RectangleBox[{10, 9}], RectangleBox[{14, 9}], 
-   RectangleBox[{23, 9}], RectangleBox[{2, 10}], RectangleBox[{8, 10}], 
-   RectangleBox[{15, 10}], RectangleBox[{24, 10}], RectangleBox[{3, 11}], 
-   RectangleBox[{9, 11}], RectangleBox[{16, 11}], RectangleBox[{25, 11}], 
-   RectangleBox[{11, 12}], RectangleBox[{18, 12}], RectangleBox[{21, 12}], 
-   RectangleBox[{26, 12}], RectangleBox[{12, 13}], RectangleBox[{19, 13}], 
-   RectangleBox[{22, 13}], RectangleBox[{27, 13}], RectangleBox[{13, 14}], 
-   RectangleBox[{17, 14}], RectangleBox[{20, 14}], RectangleBox[{28, 14}], 
-   RectangleBox[{1, 15}], RectangleBox[{8, 15}], RectangleBox[{9, 15}], 
-   RectangleBox[{10, 15}], RectangleBox[{2, 16}], RectangleBox[{5, 16}], 
-   RectangleBox[{18, 16}], RectangleBox[{27, 16}], RectangleBox[{3, 17}], 
-   RectangleBox[{6, 17}], RectangleBox[{19, 17}], RectangleBox[{28, 17}], 
-   RectangleBox[{4, 18}], RectangleBox[{7, 18}], RectangleBox[{17, 18}], 
-   RectangleBox[{26, 18}], RectangleBox[{11, 19}], RectangleBox[{16, 19}], 
-   RectangleBox[{22, 19}], RectangleBox[{23, 19}], RectangleBox[{12, 20}], 
-   RectangleBox[{14, 20}], RectangleBox[{20, 20}], RectangleBox[{24, 20}], 
-   RectangleBox[{13, 21}], RectangleBox[{15, 21}], RectangleBox[{21, 21}], 
-   RectangleBox[{25, 21}], RectangleBox[{7, 22}], RectangleBox[{8, 22}], 
-   RectangleBox[{23, 22}], RectangleBox[{28, 22}], RectangleBox[{2, 23}], 
-   RectangleBox[{16, 23}], RectangleBox[{19, 23}], RectangleBox[{20, 23}], 
-   RectangleBox[{1, 24}], RectangleBox[{11, 24}], RectangleBox[{12, 24}], 
-   RectangleBox[{13, 24}], RectangleBox[{3, 25}], RectangleBox[{14, 25}], 
-   RectangleBox[{17, 25}], RectangleBox[{21, 25}], RectangleBox[{4, 26}], 
-   RectangleBox[{15, 26}], RectangleBox[{18, 26}], RectangleBox[{22, 26}], 
-   RectangleBox[{5, 27}], RectangleBox[{9, 27}], RectangleBox[{24, 27}], 
-   RectangleBox[{26, 27}], RectangleBox[{6, 28}], RectangleBox[{10, 28}], 
-   RectangleBox[{25, 28}], RectangleBox[{27, 28}], RectangleBox[{1, 29}], 
-   RectangleBox[{14, 29}], RectangleBox[{15, 29}], RectangleBox[{16, 29}], 
-   RectangleBox[{4, 30}], RectangleBox[{9, 30}], RectangleBox[{21, 30}], 
-   RectangleBox[{28, 30}], RectangleBox[{2, 31}], RectangleBox[{10, 31}], 
-   RectangleBox[{22, 31}], RectangleBox[{26, 31}], RectangleBox[{3, 32}], 
-   RectangleBox[{8, 32}], RectangleBox[{20, 32}], RectangleBox[{27, 32}], 
-   RectangleBox[{5, 33}], RectangleBox[{13, 33}], RectangleBox[{19, 33}], 
-   RectangleBox[{23, 33}], RectangleBox[{6, 34}], RectangleBox[{11, 34}], 
-   RectangleBox[{17, 34}], RectangleBox[{24, 34}], RectangleBox[{7, 35}], 
-   RectangleBox[{12, 35}], RectangleBox[{18, 35}], RectangleBox[{25, 35}], 
-   RectangleBox[{8, 36}], RectangleBox[{13, 36}], RectangleBox[{16, 36}], 
-   RectangleBox[{26, 36}], RectangleBox[{2, 37}], RectangleBox[{6, 37}], 
-   RectangleBox[{21, 37}], RectangleBox[{23, 37}], RectangleBox[{1, 38}], 
-   RectangleBox[{17, 38}], RectangleBox[{18, 38}], RectangleBox[{19, 38}], 
-   RectangleBox[{3, 39}], RectangleBox[{7, 39}], RectangleBox[{22, 39}], 
-   RectangleBox[{24, 39}], RectangleBox[{4, 40}], RectangleBox[{5, 40}], 
-   RectangleBox[{20, 40}], RectangleBox[{25, 40}], RectangleBox[{9, 41}], 
-   RectangleBox[{11, 41}], RectangleBox[{14, 41}], RectangleBox[{27, 41}], 
-   RectangleBox[{10, 42}], RectangleBox[{12, 42}], RectangleBox[{15, 42}], 
-   RectangleBox[{28, 42}], RectangleBox[{1, 43}], RectangleBox[{20, 43}], 
-   RectangleBox[{21, 43}], RectangleBox[{22, 43}], RectangleBox[{4, 44}], 
-   RectangleBox[{13, 44}], RectangleBox[{24, 44}], RectangleBox[{27, 44}], 
-   RectangleBox[{2, 45}], RectangleBox[{11, 45}], RectangleBox[{25, 45}], 
-   RectangleBox[{28, 45}], RectangleBox[{3, 46}], RectangleBox[{12, 46}], 
-   RectangleBox[{23, 46}], RectangleBox[{26, 46}], RectangleBox[{5, 47}], 
-   RectangleBox[{10, 47}], RectangleBox[{16, 47}], RectangleBox[{17, 47}], 
-   RectangleBox[{6, 48}], RectangleBox[{8, 48}], RectangleBox[{14, 48}], 
-   RectangleBox[{18, 48}], RectangleBox[{7, 49}], RectangleBox[{9, 49}], 
-   RectangleBox[{15, 49}], RectangleBox[{19, 49}], RectangleBox[{1, 50}], 
-   RectangleBox[{23, 50}], RectangleBox[{24, 50}], RectangleBox[{25, 50}], 
-   RectangleBox[{3, 51}], RectangleBox[{10, 51}], RectangleBox[{13, 51}], 
-   RectangleBox[{18, 51}], RectangleBox[{2, 52}], RectangleBox[{9, 52}], 
-   RectangleBox[{12, 52}], RectangleBox[{17, 52}], RectangleBox[{4, 53}], 
-   RectangleBox[{8, 53}], RectangleBox[{11, 53}], RectangleBox[{19, 53}], 
-   RectangleBox[{5, 54}], RectangleBox[{14, 54}], RectangleBox[{22, 54}], 
-   RectangleBox[{28, 54}], RectangleBox[{6, 55}], RectangleBox[{15, 55}], 
-   RectangleBox[{20, 55}], RectangleBox[{26, 55}], RectangleBox[{7, 56}], 
-   RectangleBox[{16, 56}], RectangleBox[{21, 56}], RectangleBox[{27, 56}], 
-   RectangleBox[{8, 57}], RectangleBox[{17, 57}], RectangleBox[{22, 57}], 
-   RectangleBox[{25, 57}], RectangleBox[{3, 58}], RectangleBox[{5, 58}], 
-   RectangleBox[{11, 58}], RectangleBox[{15, 58}], RectangleBox[{1, 59}], 
-   RectangleBox[{26, 59}], RectangleBox[{27, 59}], RectangleBox[{28, 59}], 
-   RectangleBox[{2, 60}], RectangleBox[{7, 60}], RectangleBox[{13, 60}], 
-   RectangleBox[{14, 60}], RectangleBox[{4, 61}], RectangleBox[{6, 61}], 
-   RectangleBox[{12, 61}], RectangleBox[{16, 61}], RectangleBox[{9, 62}], 
-   RectangleBox[{18, 62}], RectangleBox[{20, 62}], RectangleBox[{23, 62}], 
-   RectangleBox[{10, 63}], RectangleBox[{19, 63}], RectangleBox[{21, 63}], 
-   RectangleBox[{24, 63}]},
+ GraphicsBox[{
+   RectangleBox[NCache[{Rational[1, 2], Rational[1, 2]}, {0.5, 0.5}]], 
+   RectangleBox[NCache[{Rational[3, 2], Rational[1, 2]}, {1.5, 0.5}]], 
+   RectangleBox[NCache[{Rational[5, 2], Rational[1, 2]}, {2.5, 0.5}]], 
+   RectangleBox[NCache[{Rational[7, 2], Rational[1, 2]}, {3.5, 0.5}]], 
+   RectangleBox[NCache[{Rational[9, 2], Rational[3, 2]}, {4.5, 1.5}]], 
+   RectangleBox[NCache[{Rational[11, 2], Rational[3, 2]}, {5.5, 1.5}]], 
+   RectangleBox[NCache[{Rational[13, 2], Rational[3, 2]}, {6.5, 1.5}]], 
+   RectangleBox[NCache[{Rational[15, 2], Rational[3, 2]}, {7.5, 1.5}]], 
+   RectangleBox[NCache[{Rational[17, 2], Rational[5, 2]}, {8.5, 2.5}]], 
+   RectangleBox[NCache[{Rational[19, 2], Rational[5, 2]}, {9.5, 2.5}]], 
+   RectangleBox[NCache[{Rational[21, 2], Rational[5, 2]}, {10.5, 2.5}]], 
+   RectangleBox[NCache[{Rational[23, 2], Rational[5, 2]}, {11.5, 2.5}]], 
+   RectangleBox[NCache[{Rational[25, 2], Rational[7, 2]}, {12.5, 3.5}]], 
+   RectangleBox[NCache[{Rational[27, 2], Rational[7, 2]}, {13.5, 3.5}]], 
+   RectangleBox[NCache[{Rational[29, 2], Rational[7, 2]}, {14.5, 3.5}]], 
+   RectangleBox[NCache[{Rational[31, 2], Rational[7, 2]}, {15.5, 3.5}]], 
+   RectangleBox[NCache[{Rational[33, 2], Rational[9, 2]}, {16.5, 4.5}]], 
+   RectangleBox[NCache[{Rational[35, 2], Rational[9, 2]}, {17.5, 4.5}]], 
+   RectangleBox[NCache[{Rational[37, 2], Rational[9, 2]}, {18.5, 4.5}]], 
+   RectangleBox[NCache[{Rational[39, 2], Rational[9, 2]}, {19.5, 4.5}]], 
+   RectangleBox[NCache[{Rational[41, 2], Rational[11, 2]}, {20.5, 5.5}]], 
+   RectangleBox[NCache[{Rational[43, 2], Rational[11, 2]}, {21.5, 5.5}]], 
+   RectangleBox[NCache[{Rational[45, 2], Rational[11, 2]}, {22.5, 5.5}]], 
+   RectangleBox[NCache[{Rational[47, 2], Rational[11, 2]}, {23.5, 5.5}]], 
+   RectangleBox[NCache[{Rational[49, 2], Rational[13, 2]}, {24.5, 6.5}]], 
+   RectangleBox[NCache[{Rational[51, 2], Rational[13, 2]}, {25.5, 6.5}]], 
+   RectangleBox[NCache[{Rational[53, 2], Rational[13, 2]}, {26.5, 6.5}]], 
+   RectangleBox[NCache[{Rational[55, 2], Rational[13, 2]}, {27.5, 6.5}]], 
+   RectangleBox[NCache[{Rational[1, 2], Rational[15, 2]}, {0.5, 7.5}]], 
+   RectangleBox[NCache[{Rational[9, 2], Rational[15, 2]}, {4.5, 7.5}]], 
+   RectangleBox[NCache[{Rational[17, 2], Rational[15, 2]}, {8.5, 7.5}]], 
+   RectangleBox[NCache[{Rational[25, 2], Rational[15, 2]}, {12.5, 7.5}]], 
+   RectangleBox[NCache[{Rational[7, 2], Rational[17, 2]}, {3.5, 8.5}]], 
+   RectangleBox[NCache[{Rational[27, 2], Rational[17, 2]}, {13.5, 8.5}]], 
+   RectangleBox[NCache[{Rational[33, 2], Rational[17, 2]}, {16.5, 8.5}]], 
+   RectangleBox[NCache[{Rational[45, 2], Rational[17, 2]}, {22.5, 8.5}]], 
+   RectangleBox[NCache[{Rational[3, 2], Rational[19, 2]}, {1.5, 9.5}]], 
+   RectangleBox[NCache[{Rational[11, 2], Rational[19, 2]}, {5.5, 9.5}]], 
+   RectangleBox[NCache[{Rational[41, 2], Rational[19, 2]}, {20.5, 9.5}]], 
+   RectangleBox[NCache[{Rational[53, 2], Rational[19, 2]}, {26.5, 9.5}]], 
+   RectangleBox[NCache[{Rational[5, 2], Rational[21, 2]}, {2.5, 10.5}]], 
+   RectangleBox[NCache[{Rational[19, 2], Rational[21, 2]}, {9.5, 10.5}]], 
+   RectangleBox[NCache[{Rational[49, 2], Rational[21, 2]}, {24.5, 10.5}]], 
+   RectangleBox[NCache[{Rational[37, 2], Rational[21, 2]}, {18.5, 10.5}]], 
+   RectangleBox[NCache[{Rational[29, 2], Rational[23, 2]}, {14.5, 11.5}]], 
+   RectangleBox[NCache[{Rational[51, 2], Rational[23, 2]}, {25.5, 11.5}]], 
+   RectangleBox[NCache[{Rational[15, 2], Rational[23, 2]}, {7.5, 11.5}]], 
+   RectangleBox[NCache[{Rational[39, 2], Rational[23, 2]}, {19.5, 11.5}]], 
+   RectangleBox[NCache[{Rational[13, 2], Rational[25, 2]}, {6.5, 12.5}]], 
+   RectangleBox[NCache[{Rational[35, 2], Rational[25, 2]}, {17.5, 12.5}]], 
+   RectangleBox[NCache[{Rational[23, 2], Rational[25, 2]}, {11.5, 12.5}]], 
+   RectangleBox[NCache[{Rational[47, 2], Rational[25, 2]}, {23.5, 12.5}]], 
+   RectangleBox[NCache[{Rational[21, 2], Rational[27, 2]}, {10.5, 13.5}]], 
+   RectangleBox[NCache[{Rational[43, 2], Rational[27, 2]}, {21.5, 13.5}]], 
+   RectangleBox[NCache[{Rational[31, 2], Rational[27, 2]}, {15.5, 13.5}]], 
+   RectangleBox[NCache[{Rational[55, 2], Rational[27, 2]}, {27.5, 13.5}]], 
+   RectangleBox[NCache[{Rational[1, 2], Rational[29, 2]}, {0.5, 14.5}]], 
+   RectangleBox[NCache[{Rational[11, 2], Rational[29, 2]}, {5.5, 14.5}]], 
+   RectangleBox[NCache[{Rational[19, 2], Rational[29, 2]}, {9.5, 14.5}]], 
+   RectangleBox[NCache[{Rational[27, 2], Rational[29, 2]}, {13.5, 14.5}]], 
+   RectangleBox[NCache[{Rational[3, 2], Rational[31, 2]}, {1.5, 15.5}]], 
+   RectangleBox[NCache[{Rational[9, 2], Rational[31, 2]}, {4.5, 15.5}]], 
+   RectangleBox[NCache[{Rational[51, 2], Rational[31, 2]}, {25.5, 15.5}]], 
+   RectangleBox[NCache[{Rational[47, 2], Rational[31, 2]}, {23.5, 15.5}]], 
+   RectangleBox[NCache[{Rational[5, 2], Rational[33, 2]}, {2.5, 16.5}]], 
+   RectangleBox[NCache[{Rational[17, 2], Rational[33, 2]}, {8.5, 16.5}]], 
+   RectangleBox[NCache[{Rational[35, 2], Rational[33, 2]}, {17.5, 16.5}]], 
+   RectangleBox[NCache[{Rational[55, 2], Rational[33, 2]}, {27.5, 16.5}]], 
+   RectangleBox[NCache[{Rational[7, 2], Rational[35, 2]}, {3.5, 17.5}]], 
+   RectangleBox[NCache[{Rational[25, 2], Rational[35, 2]}, {12.5, 17.5}]], 
+   RectangleBox[NCache[{Rational[43, 2], Rational[35, 2]}, {21.5, 17.5}]], 
+   RectangleBox[NCache[{Rational[39, 2], Rational[35, 2]}, {19.5, 17.5}]], 
+   RectangleBox[NCache[{Rational[29, 2], Rational[37, 2]}, {14.5, 18.5}]], 
+   RectangleBox[NCache[{Rational[49, 2], Rational[37, 2]}, {24.5, 18.5}]], 
+   RectangleBox[NCache[{Rational[23, 2], Rational[37, 2]}, {11.5, 18.5}]], 
+   RectangleBox[NCache[{Rational[45, 2], Rational[37, 2]}, {22.5, 18.5}]], 
+   RectangleBox[NCache[{Rational[13, 2], Rational[39, 2]}, {6.5, 19.5}]], 
+   RectangleBox[NCache[{Rational[33, 2], Rational[39, 2]}, {16.5, 19.5}]], 
+   RectangleBox[NCache[{Rational[31, 2], Rational[39, 2]}, {15.5, 19.5}]], 
+   RectangleBox[NCache[{Rational[53, 2], Rational[39, 2]}, {26.5, 19.5}]], 
+   RectangleBox[NCache[{Rational[21, 2], Rational[41, 2]}, {10.5, 20.5}]], 
+   RectangleBox[NCache[{Rational[41, 2], Rational[41, 2]}, {20.5, 20.5}]], 
+   RectangleBox[NCache[{Rational[15, 2], Rational[41, 2]}, {7.5, 20.5}]], 
+   RectangleBox[NCache[{Rational[37, 2], Rational[41, 2]}, {18.5, 20.5}]], 
+   RectangleBox[NCache[{Rational[25, 2], Rational[43, 2]}, {12.5, 21.5}]], 
+   RectangleBox[NCache[{Rational[11, 2], Rational[43, 2]}, {5.5, 21.5}]], 
+   RectangleBox[NCache[{Rational[45, 2], Rational[43, 2]}, {22.5, 21.5}]], 
+   RectangleBox[NCache[{Rational[55, 2], Rational[43, 2]}, {27.5, 21.5}]], 
+   RectangleBox[NCache[{Rational[3, 2], Rational[45, 2]}, {1.5, 22.5}]], 
+   RectangleBox[NCache[{Rational[49, 2], Rational[45, 2]}, {24.5, 22.5}]], 
+   RectangleBox[NCache[{Rational[35, 2], Rational[45, 2]}, {17.5, 22.5}]], 
+   RectangleBox[NCache[{Rational[31, 2], Rational[45, 2]}, {15.5, 22.5}]], 
+   RectangleBox[NCache[{Rational[1, 2], Rational[47, 2]}, {0.5, 23.5}]], 
+   RectangleBox[NCache[{Rational[29, 2], Rational[47, 2]}, {14.5, 23.5}]], 
+   RectangleBox[NCache[{Rational[13, 2], Rational[47, 2]}, {6.5, 23.5}]], 
+   RectangleBox[NCache[{Rational[21, 2], Rational[47, 2]}, {10.5, 23.5}]], 
+   RectangleBox[NCache[{Rational[5, 2], Rational[49, 2]}, {2.5, 24.5}]], 
+   RectangleBox[NCache[{Rational[33, 2], Rational[49, 2]}, {16.5, 24.5}]], 
+   RectangleBox[NCache[{Rational[43, 2], Rational[49, 2]}, {21.5, 24.5}]], 
+   RectangleBox[NCache[{Rational[15, 2], Rational[49, 2]}, {7.5, 24.5}]], 
+   RectangleBox[NCache[{Rational[7, 2], Rational[51, 2]}, {3.5, 25.5}]], 
+   RectangleBox[NCache[{Rational[41, 2], Rational[51, 2]}, {20.5, 25.5}]], 
+   RectangleBox[NCache[{Rational[51, 2], Rational[51, 2]}, {25.5, 25.5}]], 
+   RectangleBox[NCache[{Rational[23, 2], Rational[51, 2]}, {11.5, 25.5}]], 
+   RectangleBox[NCache[{Rational[9, 2], Rational[53, 2]}, {4.5, 26.5}]], 
+   RectangleBox[NCache[{Rational[19, 2], Rational[53, 2]}, {9.5, 26.5}]], 
+   RectangleBox[NCache[{Rational[53, 2], Rational[53, 2]}, {26.5, 26.5}]], 
+   RectangleBox[NCache[{Rational[39, 2], Rational[53, 2]}, {19.5, 26.5}]], 
+   RectangleBox[NCache[{Rational[17, 2], Rational[55, 2]}, {8.5, 27.5}]], 
+   RectangleBox[NCache[{Rational[27, 2], Rational[55, 2]}, {13.5, 27.5}]], 
+   RectangleBox[NCache[{Rational[37, 2], Rational[55, 2]}, {18.5, 27.5}]], 
+   RectangleBox[NCache[{Rational[47, 2], Rational[55, 2]}, {23.5, 27.5}]], 
+   RectangleBox[NCache[{Rational[1, 2], Rational[57, 2]}, {0.5, 28.5}]], 
+   RectangleBox[NCache[{Rational[33, 2], Rational[57, 2]}, {16.5, 28.5}]], 
+   RectangleBox[NCache[{Rational[41, 2], Rational[57, 2]}, {20.5, 28.5}]], 
+   RectangleBox[NCache[{Rational[49, 2], Rational[57, 2]}, {24.5, 28.5}]], 
+   RectangleBox[NCache[{Rational[7, 2], Rational[59, 2]}, {3.5, 29.5}]], 
+   RectangleBox[NCache[{Rational[19, 2], Rational[59, 2]}, {9.5, 29.5}]], 
+   RectangleBox[NCache[{Rational[15, 2], Rational[59, 2]}, {7.5, 29.5}]], 
+   RectangleBox[NCache[{Rational[55, 2], Rational[59, 2]}, {27.5, 29.5}]], 
+   RectangleBox[NCache[{Rational[3, 2], Rational[61, 2]}, {1.5, 30.5}]], 
+   RectangleBox[NCache[{Rational[27, 2], Rational[61, 2]}, {13.5, 30.5}]], 
+   RectangleBox[NCache[{Rational[23, 2], Rational[61, 2]}, {11.5, 30.5}]], 
+   RectangleBox[NCache[{Rational[39, 2], Rational[61, 2]}, {19.5, 30.5}]], 
+   RectangleBox[NCache[{Rational[5, 2], Rational[63, 2]}, {2.5, 31.5}]], 
+   RectangleBox[NCache[{Rational[11, 2], Rational[63, 2]}, {5.5, 31.5}]], 
+   RectangleBox[NCache[{Rational[31, 2], Rational[63, 2]}, {15.5, 31.5}]], 
+   RectangleBox[NCache[{Rational[47, 2], Rational[63, 2]}, {23.5, 31.5}]], 
+   RectangleBox[NCache[{Rational[9, 2], Rational[65, 2]}, {4.5, 32.5}]], 
+   RectangleBox[NCache[{Rational[21, 2], Rational[65, 2]}, {10.5, 32.5}]], 
+   RectangleBox[NCache[{Rational[35, 2], Rational[65, 2]}, {17.5, 32.5}]], 
+   RectangleBox[NCache[{Rational[45, 2], Rational[65, 2]}, {22.5, 32.5}]], 
+   RectangleBox[NCache[{Rational[17, 2], Rational[67, 2]}, {8.5, 33.5}]], 
+   RectangleBox[NCache[{Rational[29, 2], Rational[67, 2]}, {14.5, 33.5}]], 
+   RectangleBox[NCache[{Rational[43, 2], Rational[67, 2]}, {21.5, 33.5}]], 
+   RectangleBox[NCache[{Rational[53, 2], Rational[67, 2]}, {26.5, 33.5}]], 
+   RectangleBox[NCache[{Rational[25, 2], Rational[69, 2]}, {12.5, 34.5}]], 
+   RectangleBox[NCache[{Rational[13, 2], Rational[69, 2]}, {6.5, 34.5}]], 
+   RectangleBox[NCache[{Rational[51, 2], Rational[69, 2]}, {25.5, 34.5}]], 
+   RectangleBox[NCache[{Rational[37, 2], Rational[69, 2]}, {18.5, 34.5}]], 
+   RectangleBox[NCache[{Rational[11, 2], Rational[71, 2]}, {5.5, 35.5}]], 
+   RectangleBox[NCache[{Rational[21, 2], Rational[71, 2]}, {10.5, 35.5}]], 
+   RectangleBox[NCache[{Rational[49, 2], Rational[71, 2]}, {24.5, 35.5}]], 
+   RectangleBox[NCache[{Rational[39, 2], Rational[71, 2]}, {19.5, 35.5}]], 
+   RectangleBox[NCache[{Rational[3, 2], Rational[73, 2]}, {1.5, 36.5}]], 
+   RectangleBox[NCache[{Rational[17, 2], Rational[73, 2]}, {8.5, 36.5}]], 
+   RectangleBox[NCache[{Rational[15, 2], Rational[73, 2]}, {7.5, 36.5}]], 
+   RectangleBox[NCache[{Rational[45, 2], Rational[73, 2]}, {22.5, 36.5}]], 
+   RectangleBox[NCache[{Rational[1, 2], Rational[75, 2]}, {0.5, 37.5}]], 
+   RectangleBox[NCache[{Rational[43, 2], Rational[75, 2]}, {21.5, 37.5}]], 
+   RectangleBox[NCache[{Rational[51, 2], Rational[75, 2]}, {25.5, 37.5}]], 
+   RectangleBox[NCache[{Rational[35, 2], Rational[75, 2]}, {17.5, 37.5}]], 
+   RectangleBox[NCache[{Rational[5, 2], Rational[77, 2]}, {2.5, 38.5}]], 
+   RectangleBox[NCache[{Rational[25, 2], Rational[77, 2]}, {12.5, 38.5}]], 
+   RectangleBox[NCache[{Rational[23, 2], Rational[77, 2]}, {11.5, 38.5}]], 
+   RectangleBox[NCache[{Rational[53, 2], Rational[77, 2]}, {26.5, 38.5}]], 
+   RectangleBox[NCache[{Rational[7, 2], Rational[79, 2]}, {3.5, 39.5}]], 
+   RectangleBox[NCache[{Rational[9, 2], Rational[79, 2]}, {4.5, 39.5}]], 
+   RectangleBox[NCache[{Rational[31, 2], Rational[79, 2]}, {15.5, 39.5}]], 
+   RectangleBox[NCache[{Rational[37, 2], Rational[79, 2]}, {18.5, 39.5}]], 
+   RectangleBox[NCache[{Rational[19, 2], Rational[81, 2]}, {9.5, 40.5}]], 
+   RectangleBox[NCache[{Rational[29, 2], Rational[81, 2]}, {14.5, 40.5}]], 
+   RectangleBox[NCache[{Rational[33, 2], Rational[81, 2]}, {16.5, 40.5}]], 
+   RectangleBox[NCache[{Rational[47, 2], Rational[81, 2]}, {23.5, 40.5}]], 
+   RectangleBox[NCache[{Rational[27, 2], Rational[83, 2]}, {13.5, 41.5}]], 
+   RectangleBox[NCache[{Rational[13, 2], Rational[83, 2]}, {6.5, 41.5}]], 
+   RectangleBox[NCache[{Rational[41, 2], Rational[83, 2]}, {20.5, 41.5}]], 
+   RectangleBox[NCache[{Rational[55, 2], Rational[83, 2]}, {27.5, 41.5}]], 
+   RectangleBox[NCache[{Rational[1, 2], Rational[85, 2]}, {0.5, 42.5}]], 
+   RectangleBox[NCache[{Rational[31, 2], Rational[85, 2]}, {15.5, 42.5}]], 
+   RectangleBox[NCache[{Rational[15, 2], Rational[85, 2]}, {7.5, 42.5}]], 
+   RectangleBox[NCache[{Rational[23, 2], Rational[85, 2]}, {11.5, 42.5}]], 
+   RectangleBox[NCache[{Rational[7, 2], Rational[87, 2]}, {3.5, 43.5}]], 
+   RectangleBox[NCache[{Rational[21, 2], Rational[87, 2]}, {10.5, 43.5}]], 
+   RectangleBox[NCache[{Rational[53, 2], Rational[87, 2]}, {26.5, 43.5}]], 
+   RectangleBox[NCache[{Rational[47, 2], Rational[87, 2]}, {23.5, 43.5}]], 
+   RectangleBox[NCache[{Rational[3, 2], Rational[89, 2]}, {1.5, 44.5}]], 
+   RectangleBox[NCache[{Rational[29, 2], Rational[89, 2]}, {14.5, 44.5}]], 
+   RectangleBox[NCache[{Rational[37, 2], Rational[89, 2]}, {18.5, 44.5}]], 
+   RectangleBox[NCache[{Rational[55, 2], Rational[89, 2]}, {27.5, 44.5}]], 
+   RectangleBox[NCache[{Rational[5, 2], Rational[91, 2]}, {2.5, 45.5}]], 
+   RectangleBox[NCache[{Rational[13, 2], Rational[91, 2]}, {6.5, 45.5}]], 
+   RectangleBox[NCache[{Rational[45, 2], Rational[91, 2]}, {22.5, 45.5}]], 
+   RectangleBox[NCache[{Rational[39, 2], Rational[91, 2]}, {19.5, 45.5}]], 
+   RectangleBox[NCache[{Rational[9, 2], Rational[93, 2]}, {4.5, 46.5}]], 
+   RectangleBox[NCache[{Rational[27, 2], Rational[93, 2]}, {13.5, 46.5}]], 
+   RectangleBox[NCache[{Rational[49, 2], Rational[93, 2]}, {24.5, 46.5}]], 
+   RectangleBox[NCache[{Rational[43, 2], Rational[93, 2]}, {21.5, 46.5}]], 
+   RectangleBox[NCache[{Rational[17, 2], Rational[95, 2]}, {8.5, 47.5}]], 
+   RectangleBox[NCache[{Rational[11, 2], Rational[95, 2]}, {5.5, 47.5}]], 
+   RectangleBox[NCache[{Rational[33, 2], Rational[95, 2]}, {16.5, 47.5}]], 
+   RectangleBox[NCache[{Rational[51, 2], Rational[95, 2]}, {25.5, 47.5}]], 
+   RectangleBox[NCache[{Rational[25, 2], Rational[97, 2]}, {12.5, 48.5}]], 
+   RectangleBox[NCache[{Rational[19, 2], Rational[97, 2]}, {9.5, 48.5}]], 
+   RectangleBox[NCache[{Rational[41, 2], Rational[97, 2]}, {20.5, 48.5}]], 
+   RectangleBox[NCache[{Rational[35, 2], Rational[97, 2]}, {17.5, 48.5}]], 
+   RectangleBox[NCache[{Rational[1, 2], Rational[99, 2]}, {0.5, 49.5}]], 
+   RectangleBox[NCache[{Rational[45, 2], Rational[99, 2]}, {22.5, 49.5}]], 
+   RectangleBox[NCache[{Rational[53, 2], Rational[99, 2]}, {26.5, 49.5}]], 
+   RectangleBox[NCache[{Rational[37, 2], Rational[99, 2]}, {18.5, 49.5}]], 
+   RectangleBox[NCache[{Rational[5, 2], Rational[101, 2]}, {2.5, 50.5}]], 
+   RectangleBox[NCache[{Rational[27, 2], Rational[101, 2]}, {13.5, 50.5}]], 
+   RectangleBox[NCache[{Rational[21, 2], Rational[101, 2]}, {10.5, 50.5}]], 
+   RectangleBox[NCache[{Rational[51, 2], Rational[101, 2]}, {25.5, 50.5}]], 
+   RectangleBox[NCache[{Rational[3, 2], Rational[103, 2]}, {1.5, 51.5}]], 
+   RectangleBox[NCache[{Rational[19, 2], Rational[103, 2]}, {9.5, 51.5}]], 
+   RectangleBox[NCache[{Rational[13, 2], Rational[103, 2]}, {6.5, 51.5}]], 
+   RectangleBox[NCache[{Rational[43, 2], Rational[103, 2]}, {21.5, 51.5}]], 
+   RectangleBox[NCache[{Rational[7, 2], Rational[105, 2]}, {3.5, 52.5}]], 
+   RectangleBox[NCache[{Rational[11, 2], Rational[105, 2]}, {5.5, 52.5}]], 
+   RectangleBox[NCache[{Rational[29, 2], Rational[105, 2]}, {14.5, 52.5}]], 
+   RectangleBox[NCache[{Rational[35, 2], Rational[105, 2]}, {17.5, 52.5}]], 
+   RectangleBox[NCache[{Rational[9, 2], Rational[107, 2]}, {4.5, 53.5}]], 
+   RectangleBox[NCache[{Rational[33, 2], Rational[107, 2]}, {16.5, 53.5}]], 
+   RectangleBox[NCache[{Rational[23, 2], Rational[107, 2]}, {11.5, 53.5}]], 
+   RectangleBox[NCache[{Rational[55, 2], Rational[107, 2]}, {27.5, 53.5}]], 
+   RectangleBox[NCache[{Rational[17, 2], Rational[109, 2]}, {8.5, 54.5}]], 
+   RectangleBox[NCache[{Rational[41, 2], Rational[109, 2]}, {20.5, 54.5}]], 
+   RectangleBox[NCache[{Rational[31, 2], Rational[109, 2]}, {15.5, 54.5}]], 
+   RectangleBox[NCache[{Rational[39, 2], Rational[109, 2]}, {19.5, 54.5}]], 
+   RectangleBox[NCache[{Rational[25, 2], Rational[111, 2]}, {12.5, 55.5}]], 
+   RectangleBox[NCache[{Rational[49, 2], Rational[111, 2]}, {24.5, 55.5}]], 
+   RectangleBox[NCache[{Rational[15, 2], Rational[111, 2]}, {7.5, 55.5}]], 
+   RectangleBox[NCache[{Rational[47, 2], Rational[111, 2]}, {23.5, 55.5}]], 
+   RectangleBox[NCache[{Rational[11, 2], Rational[113, 2]}, {5.5, 56.5}]], 
+   RectangleBox[NCache[{Rational[43, 2], Rational[113, 2]}, {21.5, 56.5}]], 
+   RectangleBox[NCache[{Rational[23, 2], Rational[113, 2]}, {11.5, 56.5}]], 
+   RectangleBox[NCache[{Rational[37, 2], Rational[113, 2]}, {18.5, 56.5}]], 
+   RectangleBox[NCache[{Rational[5, 2], Rational[115, 2]}, {2.5, 57.5}]], 
+   RectangleBox[NCache[{Rational[9, 2], Rational[115, 2]}, {4.5, 57.5}]], 
+   RectangleBox[NCache[{Rational[29, 2], Rational[115, 2]}, {14.5, 57.5}]], 
+   RectangleBox[NCache[{Rational[41, 2], Rational[115, 2]}, {20.5, 57.5}]], 
+   RectangleBox[NCache[{Rational[1, 2], Rational[117, 2]}, {0.5, 58.5}]], 
+   RectangleBox[NCache[{Rational[39, 2], Rational[117, 2]}, {19.5, 58.5}]], 
+   RectangleBox[NCache[{Rational[47, 2], Rational[117, 2]}, {23.5, 58.5}]], 
+   RectangleBox[NCache[{Rational[55, 2], Rational[117, 2]}, {27.5, 58.5}]], 
+   RectangleBox[NCache[{Rational[3, 2], Rational[119, 2]}, {1.5, 59.5}]], 
+   RectangleBox[NCache[{Rational[25, 2], Rational[119, 2]}, {12.5, 59.5}]], 
+   RectangleBox[NCache[{Rational[21, 2], Rational[119, 2]}, {10.5, 59.5}]], 
+   RectangleBox[NCache[{Rational[33, 2], Rational[119, 2]}, {16.5, 59.5}]], 
+   RectangleBox[NCache[{Rational[7, 2], Rational[121, 2]}, {3.5, 60.5}]], 
+   RectangleBox[NCache[{Rational[17, 2], Rational[121, 2]}, {8.5, 60.5}]], 
+   RectangleBox[NCache[{Rational[13, 2], Rational[121, 2]}, {6.5, 60.5}]], 
+   RectangleBox[NCache[{Rational[49, 2], Rational[121, 2]}, {24.5, 60.5}]], 
+   RectangleBox[NCache[{Rational[19, 2], Rational[123, 2]}, {9.5, 61.5}]], 
+   RectangleBox[NCache[{Rational[51, 2], Rational[123, 2]}, {25.5, 61.5}]], 
+   RectangleBox[NCache[{Rational[31, 2], Rational[123, 2]}, {15.5, 61.5}]], 
+   RectangleBox[NCache[{Rational[45, 2], Rational[123, 2]}, {22.5, 61.5}]], 
+   RectangleBox[NCache[{Rational[27, 2], Rational[125, 2]}, {13.5, 62.5}]], 
+   RectangleBox[NCache[{Rational[35, 2], Rational[125, 2]}, {17.5, 62.5}]], 
+   RectangleBox[NCache[{Rational[15, 2], Rational[125, 2]}, {7.5, 62.5}]], 
+   RectangleBox[NCache[{Rational[53, 2], Rational[125, 2]}, {26.5, 62.5}]]},
   Frame->True,
+  FrameLabel->{
+    FormBox["\"Team\"", TraditionalForm], 
+    FormBox["\"Match\"", TraditionalForm]},
   GridLines->
    FrontEndValueCache[{
-    Range, Range}, {{1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12., 13., 
-     14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27., 
-     28., 29.}, CompressedData["
-1:eJw1yDlOggEUhdFLR2lBYUEBhhhDCEFwYv4VHFCmuAQSarbAklkCBYfXnPfd
-+u7wvy8lKXK909RjKvOGFd6yyhrv2OA9H9hki212+Mgue3ziM1/4yjf2OeCQ
-I4454ZTFxSPzrpkPzcw0M9fMp2a+NPOtmR/NLDTzq5k/zSw1s9LMWjMbzWyL
-Mz9SKSo=
+    Range, Range}, {{0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 
+     11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.5, 20.5, 21.5, 22.5, 
+     23.5, 24.5, 25.5, 26.5, 27.5, 28.5}, CompressedData["
+1:eJw1yTlOQgEARdFvYklFYWFhQgghxBhkksGBB8rggCQugYSaLbA0lsIyLC3+
+8TUnN6+2O/zsL4qiSPG/87T0l5euCqu84jVvWGOdDTbZ4i3v2C493rPDLnvs
+c8AHDjnimBM+8onPfOG0NCk9MTPNzDXzqpk3zSw0s9TMSjNrzbxr5kMzn5r5
+0sxGM9+a2ept/gBrAjnZ
      "]}],
-  ImageSize->{379.94444444444446`, Automatic},
-  PlotRange->{{1, 29}, {1, 64}},
-  Ticks->{Range, Range}]], "Output",
- CellChangeTimes->{{3.6009944756778326`*^9, 3.6009944944002347`*^9}, {
-  3.6009945517071924`*^9, 3.6009945630216885`*^9}}]
+  PlotRange->NCache[{{
+      Rational[1, 2], 
+      Rational[57, 2]}, {
+      Rational[1, 2], 
+      Rational[127, 2]}}, {{0.5, 28.5}, {0.5, 63.5}}]]], "Output",
+ CellChangeTimes->{
+  3.600997626104654*^9, 3.600997935715737*^9, {3.6009980286122704`*^9, 
+   3.6009981099911757`*^9}, {3.600998223162139*^9, 3.600998233974301*^9}, 
+   3.6009982697810187`*^9, 3.6009983903338723`*^9, {3.600998501735666*^9, 
+   3.6009985148653617`*^9}}],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {
+     TemplateBox[{"\"Round \"","1","\", match \"","1","\": Teams \"",TagBox[
+        InterpretationBox["\" 1\"", 1, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 2\"", 2, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 3\"", 3, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\" 4\"", 4, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","1","\", match \"","2","\": Teams \"",TagBox[
+        InterpretationBox["\" 5\"", 5, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 6\"", 6, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 7\"", 7, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\" 8\"", 8, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","1","\", match \"","3","\": Teams \"",TagBox[
+        InterpretationBox["\" 9\"", 9, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"10\"", 10, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"11\"", 11, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"12\"", 12, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","1","\", match \"","4","\": Teams \"",TagBox[
+        InterpretationBox["\"13\"", 13, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"14\"", 14, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"15\"", 15, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"16\"", 16, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","1","\", match \"","5","\": Teams \"",TagBox[
+        InterpretationBox["\"17\"", 17, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"18\"", 18, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"19\"", 19, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"20\"", 20, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","1","\", match \"","6","\": Teams \"",TagBox[
+        InterpretationBox["\"21\"", 21, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"22\"", 22, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"23\"", 23, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"24\"", 24, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","1","\", match \"","7","\": Teams \"",TagBox[
+        InterpretationBox["\"25\"", 25, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"26\"", 26, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"27\"", 27, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"28\"", 28, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","2","\", match \"","1","\": Teams \"",TagBox[
+        InterpretationBox["\" 1\"", 1, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 5\"", 5, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 9\"", 9, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"13\"", 13, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","2","\", match \"","2","\": Teams \"",TagBox[
+        InterpretationBox["\" 4\"", 4, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"14\"", 14, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"17\"", 17, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"23\"", 23, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","2","\", match \"","3","\": Teams \"",TagBox[
+        InterpretationBox["\" 2\"", 2, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 6\"", 6, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"21\"", 21, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"27\"", 27, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","2","\", match \"","4","\": Teams \"",TagBox[
+        InterpretationBox["\" 3\"", 3, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"10\"", 10, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"25\"", 25, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"19\"", 19, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","2","\", match \"","5","\": Teams \"",TagBox[
+        InterpretationBox["\"15\"", 15, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"26\"", 26, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 8\"", 8, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"20\"", 20, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","2","\", match \"","6","\": Teams \"",TagBox[
+        InterpretationBox["\" 7\"", 7, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"18\"", 18, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"12\"", 12, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"24\"", 24, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","2","\", match \"","7","\": Teams \"",TagBox[
+        InterpretationBox["\"11\"", 11, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"22\"", 22, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"16\"", 16, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"28\"", 28, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","3","\", match \"","1","\": Teams \"",TagBox[
+        InterpretationBox["\" 1\"", 1, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 6\"", 6, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"10\"", 10, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"14\"", 14, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","3","\", match \"","2","\": Teams \"",TagBox[
+        InterpretationBox["\" 2\"", 2, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 5\"", 5, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"26\"", 26, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"24\"", 24, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","3","\", match \"","3","\": Teams \"",TagBox[
+        InterpretationBox["\" 3\"", 3, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 9\"", 9, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"18\"", 18, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"28\"", 28, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","3","\", match \"","4","\": Teams \"",TagBox[
+        InterpretationBox["\" 4\"", 4, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"13\"", 13, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"22\"", 22, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"20\"", 20, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","3","\", match \"","5","\": Teams \"",TagBox[
+        InterpretationBox["\"15\"", 15, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"25\"", 25, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"12\"", 12, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"23\"", 23, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","3","\", match \"","6","\": Teams \"",TagBox[
+        InterpretationBox["\" 7\"", 7, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"17\"", 17, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"16\"", 16, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"27\"", 27, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","3","\", match \"","7","\": Teams \"",TagBox[
+        InterpretationBox["\"11\"", 11, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"21\"", 21, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 8\"", 8, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"19\"", 19, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","4","\", match \"","1","\": Teams \"",TagBox[
+        InterpretationBox["\"13\"", 13, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 6\"", 6, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"23\"", 23, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"28\"", 28, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","4","\", match \"","2","\": Teams \"",TagBox[
+        InterpretationBox["\" 2\"", 2, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"25\"", 25, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"18\"", 18, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"16\"", 16, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","4","\", match \"","3","\": Teams \"",TagBox[
+        InterpretationBox["\" 1\"", 1, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"15\"", 15, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 7\"", 7, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"11\"", 11, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","4","\", match \"","4","\": Teams \"",TagBox[
+        InterpretationBox["\" 3\"", 3, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"17\"", 17, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"22\"", 22, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\" 8\"", 8, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","4","\", match \"","5","\": Teams \"",TagBox[
+        InterpretationBox["\" 4\"", 4, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"21\"", 21, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"26\"", 26, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"12\"", 12, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","4","\", match \"","6","\": Teams \"",TagBox[
+        InterpretationBox["\" 5\"", 5, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"10\"", 10, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"27\"", 27, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"20\"", 20, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","4","\", match \"","7","\": Teams \"",TagBox[
+        InterpretationBox["\" 9\"", 9, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"14\"", 14, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"19\"", 19, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"24\"", 24, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","5","\", match \"","1","\": Teams \"",TagBox[
+        InterpretationBox["\" 1\"", 1, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"17\"", 17, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"21\"", 21, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"25\"", 25, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","5","\", match \"","2","\": Teams \"",TagBox[
+        InterpretationBox["\" 4\"", 4, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"10\"", 10, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 8\"", 8, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"28\"", 28, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","5","\", match \"","3","\": Teams \"",TagBox[
+        InterpretationBox["\" 2\"", 2, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"14\"", 14, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"12\"", 12, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"20\"", 20, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","5","\", match \"","4","\": Teams \"",TagBox[
+        InterpretationBox["\" 3\"", 3, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 6\"", 6, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"16\"", 16, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"24\"", 24, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","5","\", match \"","5","\": Teams \"",TagBox[
+        InterpretationBox["\" 5\"", 5, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"11\"", 11, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"18\"", 18, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"23\"", 23, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","5","\", match \"","6","\": Teams \"",TagBox[
+        InterpretationBox["\" 9\"", 9, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"15\"", 15, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"22\"", 22, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"27\"", 27, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","5","\", match \"","7","\": Teams \"",TagBox[
+        InterpretationBox["\"13\"", 13, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 7\"", 7, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"26\"", 26, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"19\"", 19, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","6","\", match \"","1","\": Teams \"",TagBox[
+        InterpretationBox["\" 6\"", 6, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"11\"", 11, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"25\"", 25, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"20\"", 20, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","6","\", match \"","2","\": Teams \"",TagBox[
+        InterpretationBox["\" 2\"", 2, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 9\"", 9, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 8\"", 8, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"23\"", 23, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","6","\", match \"","3","\": Teams \"",TagBox[
+        InterpretationBox["\" 1\"", 1, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"22\"", 22, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"26\"", 26, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"18\"", 18, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","6","\", match \"","4","\": Teams \"",TagBox[
+        InterpretationBox["\" 3\"", 3, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"13\"", 13, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"12\"", 12, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"27\"", 27, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","6","\", match \"","5","\": Teams \"",TagBox[
+        InterpretationBox["\" 4\"", 4, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 5\"", 5, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"16\"", 16, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"19\"", 19, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","6","\", match \"","6","\": Teams \"",TagBox[
+        InterpretationBox["\"10\"", 10, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"15\"", 15, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"17\"", 17, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"24\"", 24, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","6","\", match \"","7","\": Teams \"",TagBox[
+        InterpretationBox["\"14\"", 14, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 7\"", 7, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"21\"", 21, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"28\"", 28, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","7","\", match \"","1","\": Teams \"",TagBox[
+        InterpretationBox["\" 1\"", 1, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"16\"", 16, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 8\"", 8, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"12\"", 12, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","7","\", match \"","2","\": Teams \"",TagBox[
+        InterpretationBox["\" 4\"", 4, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"11\"", 11, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"27\"", 27, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"24\"", 24, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","7","\", match \"","3","\": Teams \"",TagBox[
+        InterpretationBox["\" 2\"", 2, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"15\"", 15, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"19\"", 19, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"28\"", 28, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","7","\", match \"","4","\": Teams \"",TagBox[
+        InterpretationBox["\" 3\"", 3, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 7\"", 7, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"23\"", 23, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"20\"", 20, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","7","\", match \"","5","\": Teams \"",TagBox[
+        InterpretationBox["\" 5\"", 5, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"14\"", 14, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"25\"", 25, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"22\"", 22, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","7","\", match \"","6","\": Teams \"",TagBox[
+        InterpretationBox["\" 9\"", 9, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 6\"", 6, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"17\"", 17, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"26\"", 26, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","7","\", match \"","7","\": Teams \"",TagBox[
+        InterpretationBox["\"13\"", 13, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"10\"", 10, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"21\"", 21, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"18\"", 18, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","8","\", match \"","1","\": Teams \"",TagBox[
+        InterpretationBox["\" 1\"", 1, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"23\"", 23, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"27\"", 27, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"19\"", 19, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","8","\", match \"","2","\": Teams \"",TagBox[
+        InterpretationBox["\" 3\"", 3, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"14\"", 14, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"11\"", 11, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"26\"", 26, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","8","\", match \"","3","\": Teams \"",TagBox[
+        InterpretationBox["\" 2\"", 2, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"10\"", 10, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 7\"", 7, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"22\"", 22, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","8","\", match \"","4","\": Teams \"",TagBox[
+        InterpretationBox["\" 4\"", 4, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 6\"", 6, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"15\"", 15, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"18\"", 18, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","8","\", match \"","5","\": Teams \"",TagBox[
+        InterpretationBox["\" 5\"", 5, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"17\"", 17, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"12\"", 12, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"28\"", 28, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","8","\", match \"","6","\": Teams \"",TagBox[
+        InterpretationBox["\" 9\"", 9, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"21\"", 21, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"16\"", 16, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"20\"", 20, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","8","\", match \"","7","\": Teams \"",TagBox[
+        InterpretationBox["\"13\"", 13, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"25\"", 25, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 8\"", 8, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"24\"", 24, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","9","\", match \"","1","\": Teams \"",TagBox[
+        InterpretationBox["\" 6\"", 6, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"22\"", 22, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"12\"", 12, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"19\"", 19, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","9","\", match \"","2","\": Teams \"",TagBox[
+        InterpretationBox["\" 3\"", 3, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 5\"", 5, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"15\"", 15, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"21\"", 21, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","9","\", match \"","3","\": Teams \"",TagBox[
+        InterpretationBox["\" 1\"", 1, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"20\"", 20, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"24\"", 24, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"28\"", 28, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","9","\", match \"","4","\": Teams \"",TagBox[
+        InterpretationBox["\" 2\"", 2, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"13\"", 13, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"11\"", 11, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"17\"", 17, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","9","\", match \"","5","\": Teams \"",TagBox[
+        InterpretationBox["\" 4\"", 4, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 9\"", 9, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 7\"", 7, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"25\"", 25, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","9","\", match \"","6","\": Teams \"",TagBox[
+        InterpretationBox["\"10\"", 10, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"26\"", 26, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"16\"", 16, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"23\"", 23, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Round \"","9","\", match \"","7","\": Teams \"",TagBox[
+        InterpretationBox["\"14\"", 14, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\"18\"", 18, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"",TagBox[
+        InterpretationBox["\" 8\"", 8, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\", \"","\"and \"",
+       TagBox[
+        InterpretationBox["\"27\"", 27, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ]},
+      "RowDefault"]}
+   },
+   DefaultBaseStyle->"Column",
+   GridBoxAlignment->{"Columns" -> {{Left}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+  "Column"]], "Output",
+ CellChangeTimes->{
+  3.600997626104654*^9, 3.600997935715737*^9, {3.6009980286122704`*^9, 
+   3.6009981099911757`*^9}, {3.600998223162139*^9, 3.600998233974301*^9}, 
+   3.6009982697810187`*^9, 3.6009983903338723`*^9, {3.600998501735666*^9, 
+   3.6009985148833747`*^9}}],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\" 1\"", 1, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","1","\"; \"","\"round \"","2","\", match \"","1",
+       "\"; \"","\"round \"","3","\", match \"","1","\"; \"","\"round \"","4",
+       "\", match \"","3","\"; \"","\"round \"","5","\", match \"","1",
+       "\"; \"","\"round \"","6","\", match \"","3","\"; \"","\"round \"","7",
+       "\", match \"","1","\"; \"","\"round \"","8","\", match \"","1",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","3"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\" 2\"", 2, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","1","\"; \"","\"round \"","2","\", match \"","3",
+       "\"; \"","\"round \"","3","\", match \"","2","\"; \"","\"round \"","4",
+       "\", match \"","2","\"; \"","\"round \"","5","\", match \"","3",
+       "\"; \"","\"round \"","6","\", match \"","2","\"; \"","\"round \"","7",
+       "\", match \"","3","\"; \"","\"round \"","8","\", match \"","3",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","4"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\" 3\"", 3, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","1","\"; \"","\"round \"","2","\", match \"","4",
+       "\"; \"","\"round \"","3","\", match \"","3","\"; \"","\"round \"","4",
+       "\", match \"","4","\"; \"","\"round \"","5","\", match \"","4",
+       "\"; \"","\"round \"","6","\", match \"","4","\"; \"","\"round \"","7",
+       "\", match \"","4","\"; \"","\"round \"","8","\", match \"","2",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","2"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\" 4\"", 4, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","1","\"; \"","\"round \"","2","\", match \"","2",
+       "\"; \"","\"round \"","3","\", match \"","4","\"; \"","\"round \"","4",
+       "\", match \"","5","\"; \"","\"round \"","5","\", match \"","2",
+       "\"; \"","\"round \"","6","\", match \"","5","\"; \"","\"round \"","7",
+       "\", match \"","2","\"; \"","\"round \"","8","\", match \"","4",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","5"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\" 5\"", 5, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","2","\"; \"","\"round \"","2","\", match \"","1",
+       "\"; \"","\"round \"","3","\", match \"","2","\"; \"","\"round \"","4",
+       "\", match \"","6","\"; \"","\"round \"","5","\", match \"","5",
+       "\"; \"","\"round \"","6","\", match \"","5","\"; \"","\"round \"","7",
+       "\", match \"","5","\"; \"","\"round \"","8","\", match \"","5",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","2"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\" 6\"", 6, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","2","\"; \"","\"round \"","2","\", match \"","3",
+       "\"; \"","\"round \"","3","\", match \"","1","\"; \"","\"round \"","4",
+       "\", match \"","1","\"; \"","\"round \"","5","\", match \"","4",
+       "\"; \"","\"round \"","6","\", match \"","1","\"; \"","\"round \"","7",
+       "\", match \"","6","\"; \"","\"round \"","8","\", match \"","4",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","1"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\" 7\"", 7, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","2","\"; \"","\"round \"","2","\", match \"","6",
+       "\"; \"","\"round \"","3","\", match \"","6","\"; \"","\"round \"","4",
+       "\", match \"","3","\"; \"","\"round \"","5","\", match \"","7",
+       "\"; \"","\"round \"","6","\", match \"","7","\"; \"","\"round \"","7",
+       "\", match \"","4","\"; \"","\"round \"","8","\", match \"","3",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","5"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\" 8\"", 8, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","2","\"; \"","\"round \"","2","\", match \"","5",
+       "\"; \"","\"round \"","3","\", match \"","7","\"; \"","\"round \"","4",
+       "\", match \"","4","\"; \"","\"round \"","5","\", match \"","2",
+       "\"; \"","\"round \"","6","\", match \"","2","\"; \"","\"round \"","7",
+       "\", match \"","1","\"; \"","\"round \"","8","\", match \"","7",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","7"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\" 9\"", 9, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","3","\"; \"","\"round \"","2","\", match \"","1",
+       "\"; \"","\"round \"","3","\", match \"","3","\"; \"","\"round \"","4",
+       "\", match \"","7","\"; \"","\"round \"","5","\", match \"","6",
+       "\"; \"","\"round \"","6","\", match \"","2","\"; \"","\"round \"","7",
+       "\", match \"","6","\"; \"","\"round \"","8","\", match \"","6",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","5"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"10\"", 10, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","3","\"; \"","\"round \"","2","\", match \"","4",
+       "\"; \"","\"round \"","3","\", match \"","1","\"; \"","\"round \"","4",
+       "\", match \"","6","\"; \"","\"round \"","5","\", match \"","2",
+       "\"; \"","\"round \"","6","\", match \"","6","\"; \"","\"round \"","7",
+       "\", match \"","7","\"; \"","\"round \"","8","\", match \"","3",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","6"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"11\"", 11, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","3","\"; \"","\"round \"","2","\", match \"","7",
+       "\"; \"","\"round \"","3","\", match \"","7","\"; \"","\"round \"","4",
+       "\", match \"","3","\"; \"","\"round \"","5","\", match \"","5",
+       "\"; \"","\"round \"","6","\", match \"","1","\"; \"","\"round \"","7",
+       "\", match \"","2","\"; \"","\"round \"","8","\", match \"","2",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","4"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"12\"", 12, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","3","\"; \"","\"round \"","2","\", match \"","6",
+       "\"; \"","\"round \"","3","\", match \"","5","\"; \"","\"round \"","4",
+       "\", match \"","5","\"; \"","\"round \"","5","\", match \"","3",
+       "\"; \"","\"round \"","6","\", match \"","4","\"; \"","\"round \"","7",
+       "\", match \"","1","\"; \"","\"round \"","8","\", match \"","5",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","1"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"13\"", 13, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","4","\"; \"","\"round \"","2","\", match \"","1",
+       "\"; \"","\"round \"","3","\", match \"","4","\"; \"","\"round \"","4",
+       "\", match \"","1","\"; \"","\"round \"","5","\", match \"","7",
+       "\"; \"","\"round \"","6","\", match \"","4","\"; \"","\"round \"","7",
+       "\", match \"","7","\"; \"","\"round \"","8","\", match \"","7",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","4"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"14\"", 14, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","4","\"; \"","\"round \"","2","\", match \"","2",
+       "\"; \"","\"round \"","3","\", match \"","1","\"; \"","\"round \"","4",
+       "\", match \"","7","\"; \"","\"round \"","5","\", match \"","3",
+       "\"; \"","\"round \"","6","\", match \"","7","\"; \"","\"round \"","7",
+       "\", match \"","5","\"; \"","\"round \"","8","\", match \"","2",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","7"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"15\"", 15, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","4","\"; \"","\"round \"","2","\", match \"","5",
+       "\"; \"","\"round \"","3","\", match \"","5","\"; \"","\"round \"","4",
+       "\", match \"","3","\"; \"","\"round \"","5","\", match \"","6",
+       "\"; \"","\"round \"","6","\", match \"","6","\"; \"","\"round \"","7",
+       "\", match \"","3","\"; \"","\"round \"","8","\", match \"","4",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","2"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"16\"", 16, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","4","\"; \"","\"round \"","2","\", match \"","7",
+       "\"; \"","\"round \"","3","\", match \"","6","\"; \"","\"round \"","4",
+       "\", match \"","2","\"; \"","\"round \"","5","\", match \"","4",
+       "\"; \"","\"round \"","6","\", match \"","5","\"; \"","\"round \"","7",
+       "\", match \"","1","\"; \"","\"round \"","8","\", match \"","6",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","6"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"17\"", 17, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","5","\"; \"","\"round \"","2","\", match \"","2",
+       "\"; \"","\"round \"","3","\", match \"","6","\"; \"","\"round \"","4",
+       "\", match \"","4","\"; \"","\"round \"","5","\", match \"","1",
+       "\"; \"","\"round \"","6","\", match \"","6","\"; \"","\"round \"","7",
+       "\", match \"","6","\"; \"","\"round \"","8","\", match \"","5",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","4"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"18\"", 18, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","5","\"; \"","\"round \"","2","\", match \"","6",
+       "\"; \"","\"round \"","3","\", match \"","3","\"; \"","\"round \"","4",
+       "\", match \"","2","\"; \"","\"round \"","5","\", match \"","5",
+       "\"; \"","\"round \"","6","\", match \"","3","\"; \"","\"round \"","7",
+       "\", match \"","7","\"; \"","\"round \"","8","\", match \"","4",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","7"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"19\"", 19, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","5","\"; \"","\"round \"","2","\", match \"","4",
+       "\"; \"","\"round \"","3","\", match \"","7","\"; \"","\"round \"","4",
+       "\", match \"","7","\"; \"","\"round \"","5","\", match \"","7",
+       "\"; \"","\"round \"","6","\", match \"","5","\"; \"","\"round \"","7",
+       "\", match \"","3","\"; \"","\"round \"","8","\", match \"","1",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","1"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"20\"", 20, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","5","\"; \"","\"round \"","2","\", match \"","5",
+       "\"; \"","\"round \"","3","\", match \"","4","\"; \"","\"round \"","4",
+       "\", match \"","6","\"; \"","\"round \"","5","\", match \"","3",
+       "\"; \"","\"round \"","6","\", match \"","1","\"; \"","\"round \"","7",
+       "\", match \"","4","\"; \"","\"round \"","8","\", match \"","6",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","3"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"21\"", 21, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","6","\"; \"","\"round \"","2","\", match \"","3",
+       "\"; \"","\"round \"","3","\", match \"","7","\"; \"","\"round \"","4",
+       "\", match \"","5","\"; \"","\"round \"","5","\", match \"","1",
+       "\"; \"","\"round \"","6","\", match \"","7","\"; \"","\"round \"","7",
+       "\", match \"","7","\"; \"","\"round \"","8","\", match \"","6",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","2"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"22\"", 22, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","6","\"; \"","\"round \"","2","\", match \"","7",
+       "\"; \"","\"round \"","3","\", match \"","4","\"; \"","\"round \"","4",
+       "\", match \"","4","\"; \"","\"round \"","5","\", match \"","6",
+       "\"; \"","\"round \"","6","\", match \"","3","\"; \"","\"round \"","7",
+       "\", match \"","5","\"; \"","\"round \"","8","\", match \"","3",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","1"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"23\"", 23, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","6","\"; \"","\"round \"","2","\", match \"","2",
+       "\"; \"","\"round \"","3","\", match \"","5","\"; \"","\"round \"","4",
+       "\", match \"","1","\"; \"","\"round \"","5","\", match \"","5",
+       "\"; \"","\"round \"","6","\", match \"","2","\"; \"","\"round \"","7",
+       "\", match \"","4","\"; \"","\"round \"","8","\", match \"","1",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","6"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"24\"", 24, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","6","\"; \"","\"round \"","2","\", match \"","6",
+       "\"; \"","\"round \"","3","\", match \"","2","\"; \"","\"round \"","4",
+       "\", match \"","7","\"; \"","\"round \"","5","\", match \"","4",
+       "\"; \"","\"round \"","6","\", match \"","6","\"; \"","\"round \"","7",
+       "\", match \"","2","\"; \"","\"round \"","8","\", match \"","7",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","3"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"25\"", 25, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","7","\"; \"","\"round \"","2","\", match \"","4",
+       "\"; \"","\"round \"","3","\", match \"","5","\"; \"","\"round \"","4",
+       "\", match \"","2","\"; \"","\"round \"","5","\", match \"","1",
+       "\"; \"","\"round \"","6","\", match \"","1","\"; \"","\"round \"","7",
+       "\", match \"","5","\"; \"","\"round \"","8","\", match \"","7",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","5"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"26\"", 26, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","7","\"; \"","\"round \"","2","\", match \"","5",
+       "\"; \"","\"round \"","3","\", match \"","2","\"; \"","\"round \"","4",
+       "\", match \"","5","\"; \"","\"round \"","5","\", match \"","7",
+       "\"; \"","\"round \"","6","\", match \"","3","\"; \"","\"round \"","7",
+       "\", match \"","6","\"; \"","\"round \"","8","\", match \"","2",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","6"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"27\"", 27, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","7","\"; \"","\"round \"","2","\", match \"","3",
+       "\"; \"","\"round \"","3","\", match \"","6","\"; \"","\"round \"","4",
+       "\", match \"","6","\"; \"","\"round \"","5","\", match \"","6",
+       "\"; \"","\"round \"","6","\", match \"","4","\"; \"","\"round \"","7",
+       "\", match \"","2","\"; \"","\"round \"","8","\", match \"","1",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","7"},
+      "RowDefault"]},
+    {
+     TemplateBox[{"\"Team \"",TagBox[
+        InterpretationBox["\"28\"", 28, Editable -> False], 
+        PaddedForm[#, 2, NumberSigns -> {"", ""}]& ],"\": \"","\"round \"",
+       "1","\", match \"","7","\"; \"","\"round \"","2","\", match \"","7",
+       "\"; \"","\"round \"","3","\", match \"","3","\"; \"","\"round \"","4",
+       "\", match \"","1","\"; \"","\"round \"","5","\", match \"","2",
+       "\"; \"","\"round \"","6","\", match \"","7","\"; \"","\"round \"","7",
+       "\", match \"","3","\"; \"","\"round \"","8","\", match \"","5",
+       "\"; \"","\"and \"","\"round \"","9","\", match \"","3"},
+      "RowDefault"]}
+   },
+   DefaultBaseStyle->"Column",
+   GridBoxAlignment->{"Columns" -> {{Left}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+  "Column"]], "Output",
+ CellChangeTimes->{
+  3.600997626104654*^9, 3.600997935715737*^9, {3.6009980286122704`*^9, 
+   3.6009981099911757`*^9}, {3.600998223162139*^9, 3.600998233974301*^9}, 
+   3.6009982697810187`*^9, 3.6009983903338723`*^9, {3.600998501735666*^9, 
+   3.6009985149203997`*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[{{}, {{}, {}, 
+    {RGBColor[0.24720000000000014`, 0.24, 0.6], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR18sMfOh9EKDtj5DFBaDwefA0pb4OALQGlbHHwR
+KO2Mgy8BoRtccfBloLQnDj7UHw2+OPhKUL4/nA8AeAAWkw==
+      "]]}, 
+    {RGBColor[0.6, 0.24, 0.4428931686004542], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR18sMfOh9EqDtj5DFDaAAefA0qb4+ALQGl7HHwR
+CN3ghIMvAeW74eDLQGkvHHwFKO2Hg68ENc8fzgcA5SQWpQ==
+      "]]}, 
+    {RGBColor[0.6, 0.5470136627990908, 0.24], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR18sMfOh9FqDtj5DFDaEAefA0pb4uALQGkHHHwR
+CN3gjIMvAaXdcfBloOo9cfAVoLQvDr4SVL0/nA8A0DwWsQ==
+      "]]}, 
+    {RGBColor[0.24, 0.6, 0.33692049419863584`], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR18sMfOh9FKDtj5DFDaCAefA0pb4eALQGk7HHwR
+KO2Cgy8Bpd1w8GUgdIMXDr4ClO+Hg68E5fvD+QBp9Bat
+      "]]}, 
+    {RGBColor[0.24, 0.3531726744018182, 0.6], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjQM4YOd/sIfQCjj4MHUGOPgcUNoaB18AQjc44OCL
+QGkXHHwJqHp3HHwZKO2Ngw/zhy8OvhLUPH84HwDp2BTP
+      "]]}, 
+    {RGBColor[0.6, 0.24, 0.5632658430022722], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjQM4YOd/sIfQKjj4MHV6OPgcUNoMB18ASjvg4ItA
+aSccfAko7YGDLwOhG7xw8BWgfB8cfCUo3x/OBwBEwBTD
+      "]]}, 
+    {RGBColor[0.6, 0.42664098839727194`, 0.24], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjQM4YOd/sIfQWjj4MHUmOPgcUNoCB18AQjc44uCL
+QGlXHHwJKO2Ogy8Dpb1w8BWg9vnh4CtB+f5wPgDCjBTp
+      "]]}, 
+    {RGBColor[0.2634521802031821, 0.6, 0.24], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjQM4YOd/sIfQGjj4MHWmOPgcUNoSB18AStvh4ItA
+6AYnHHwJKN8VB18GSvvg4CtA1fvj4Cth8AH9uBXf
+      "]]}, 
+    {RGBColor[0.24, 0.47354534880363613`, 0.6], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR1wOGDnf7CH0Ao4+AxQ2hAHH2aODQ6+AJR2xMEX
+gdANTjj4ElDaAwdfBqreGwcf6o8GPxx8JSjfH84HAOKEFeU=
+      "]]}, 
+    {RGBColor[0.5163614825959097, 0.24, 0.6], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR1wOGDnf7CH0Go4+AxQWg8HH2aONQ6+AJS2w8EX
+gdANLjj4ElC+Bw6+DJT2wsFXgNL+OPhKUPMQfADiyBTn
+      "]]}, 
+    {RGBColor[0.6, 0.3062683139954558, 0.24], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR1wOGDnf7CH0Do4+AxQ2hQHH2aOBQ6+AIRucMDB
+F4HSTjj4ElDaDQdfBmqeJw6+ApT2w8FXgqr3h/MB9OAU8w==
+      "]]}, 
+    {RGBColor[0.3838248546049982, 0.6, 0.24], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR1wOGDnf7CH0Fo4+AxQ2hgHH2aOFQ6+AJS2x8EX
+gdANzjj4ElC+Kw6+DJT2xsFXgKr3wcFXgvL94XwAEuMV7Q==
+      "]]}, 
+    {RGBColor[0.24, 0.5939180232054561, 0.6], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR0IOGDnf7CH0Ao4+AxQ2ggHnwNKm+HgQ+1pcMTB
+F4HynXHwJaB8Dxx8GSjtg4MP84cfDr4S1Dx/OB8AjucV7w==
+      "]]}, 
+    {RGBColor[0.39598880819409377`, 0.24, 0.6], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR0IOGDnf7CH0Eo4+AxQWg8HnwNK2+Dgw+yxx8EX
+gdKuOPgSELrBHQdfBsr3xMFXgPL9cfCVMPgA0lwV8Q==
+      "]]}, 
+    {RGBColor[0.6, 0.24, 0.2941043604063603], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR0IOGDnf7CH0Bo4+AxQ2hgHnwNKW+Dgw+xxxMEX
+gdANLjj4ElC+Gw6+DJTvhYOvAKV9cfCVoOr94XwAQgMV/Q==
+      "]]}, 
+    {RGBColor[0.5041975290068142, 0.6, 0.24], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR0IOGDnf7CH0Do4+AxQ2gQHnwNKm+Pgw+xxwMEX
+gdIuOPgSELrBFQdfBsr3xsFXgNL+OPhKUPUIPgDGSBUH
+      "]]}, 
+    {RGBColor[0.24, 0.6, 0.48570930239273163`], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR2IOGDnf7CH0Eo4+AxQ2gQHnwNKW+LgC0BpWxx8
+qDsaXHDwJaC0Bw6+DJT2xsFXgNJ+OPhKUPv84XwAmXQT/Q==
+      "]]}, 
+    {RGBColor[0.2756161337922776, 0.24, 0.6], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR2IOGDnf7CH0Fo4+AxQ2hAHnwNKm+PgC0DoBgcc
+fJg7nHHwJaDqPXDwZaB8Lxx8BSjfHwdfCYMPAIzXFwc=
+      "]]}, 
+    {RGBColor[0.6, 0.24, 0.4144770348081764], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR2IOGDnf7CH0Go4+AxQ2hQHnwNK2+DgC0DoBkcc
+fJg7XHDwJaDq3XDwZaC0Jw6+AlS9Dw6+EpTvD+cDAE/bFgk=
+      "]]}, 
+    {RGBColor[0.6, 0.5754297965913696, 0.24], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR2IOGDnf7CH0Bo4+AxQ2ggHnwNKW+PgC0Bpexx8
+mDuccPAloLQ7Dr4MhG7wxsFXgPJ9cfCVoHx/OB8Ah4QVBQ==
+      "]]}, 
+    {RGBColor[0.24, 0.6, 0.36533662799091565`], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR1IOGDnf7CH0Co4+AxQ2hQHnwNKW+HgC0BpWxx8
+ESjtioMPdWeDBw6+DJTvjYOvAKV9cfCVoOr94XwAzZQVDQ==
+      "]]}, 
+    {RGBColor[0.24, 0.32475654060953846`, 0.6], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR1IOGDnf7CH0Do4+AxQ2ggHnwNKW+LgC0BpRxx8
+ESjtjIMPdWeDOw6+DJT2wsFXgKr3wcFXgvL94XwAuGAVEw==
+      "]]}, 
+    {RGBColor[0.6, 0.24, 0.5348497092099924], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR1IOGDnf7CH0Eo4+AxQ2hgHnwNKm+HgC0DoBgcc
+fBEo3wkHH+ZOdxx8GSjtiYOvAKX9cfCVoPYh+AA/fxT7
+      "]]}, 
+    {RGBColor[0.6, 0.45505712218955346`, 0.24], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR1IOGDnf7CH0Fo4+AxQ2gAHnwNK2+DgC0BpBxx8
+EQjd4IKDD3OnGw6+DJT2wcFXgJrni4OvBOX7w/kA1aQVFQ==
+      "]]}, 
+    {RGBColor[0.24, 0.6, 0.24496395358909184`], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR3IOGDnf7CH0Go4+AxQ2hgHnwNKm+PgC0BpWxx8
+ESjthIMvAaEb3HHwYf7wwcFXgKr3w8FXgvL94XwAr5AVCw==
+      "]]}, 
+    {RGBColor[0.24, 0.4451292150113622, 0.6], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR3IOGDnf7CH0Bo4+AxQ2gAHnwNKW+HgC0DoBkcc
+fBEo7YyDLwGlPXDwof5o8MTBV4DS/jj4SlD1CD4AGHcVFw==
+      "]]}, 
+    {RGBColor[0.5447776163881838, 0.24, 0.6], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR3IOGDnf7CH0Co4+AxQ2gQHnwNKW+PgC0BpRxx8
+EQjd4IyDLwGl3XDwYf7wxMFXgJrnj4OvhMEHANdkFRU=
+      "]]}, 
+    {RGBColor[0.6, 0.3346844477877375, 0.24], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQjR3IOGDnf7CH0Do4+AxQ2hAHnwNKm+HgC0BpOxx8
+ESjtioMvAaEb3HDwYf7wxsFXgKr3xcFXgvL94XwAuWAVEw==
+      "]]}}, {}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->True,
+  AxesLabel->{None, None},
+  AxesOrigin->{0, 0},
+  Method->{},
+  PlotRange->{{0, 63.}, {0, 9.}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{{1.26, 1.26}, {0.18, 0.18}}]], "Output",
+ CellChangeTimes->{
+  3.600997626104654*^9, 3.600997935715737*^9, {3.6009980286122704`*^9, 
+   3.6009981099911757`*^9}, {3.600998223162139*^9, 3.600998233974301*^9}, 
+   3.6009982697810187`*^9, 3.6009983903338723`*^9, {3.600998501735666*^9, 
+   3.600998514954422*^9}}]
 }, Open  ]]
 }, Open  ]]
 },
@@ -941,34 +2717,37 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[557, 20, 846, 14, 87, "Text"],
-Cell[1406, 36, 148, 2, 31, "Input"],
 Cell[CellGroupData[{
-Cell[1579, 42, 108, 1, 43, "Subsection"],
+Cell[579, 22, 108, 1, 43, "Subsection"],
+Cell[690, 25, 934, 15, 87, "Text"],
+Cell[1627, 42, 148, 2, 31, "Input"],
 Cell[CellGroupData[{
-Cell[1712, 47, 8435, 226, 432, "Input"],
-Cell[10150, 275, 5515, 133, 132, "Output"]
+Cell[1800, 48, 12697, 320, 475, "Input"],
+Cell[14500, 370, 5515, 133, 132, "Output"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[15714, 414, 115, 1, 43, "Subsection"],
+Cell[20064, 509, 115, 1, 43, "Subsection"],
 Cell[CellGroupData[{
-Cell[15854, 419, 2794, 71, 332, "Input"],
-Cell[18651, 492, 6252, 154, 192, "Output"]
+Cell[20204, 514, 5176, 126, 332, "Input"],
+Cell[25383, 642, 6252, 154, 192, "Output"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[24952, 652, 109, 1, 43, "Subsection"],
+Cell[31684, 802, 109, 1, 43, "Subsection"],
 Cell[CellGroupData[{
-Cell[25086, 657, 4403, 106, 412, "Input"],
-Cell[29492, 765, 574, 9, 132, "Output"]
+Cell[31818, 807, 8856, 204, 752, "Input"],
+Cell[40677, 1013, 597, 9, 132, "Output"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[30115, 780, 102, 1, 43, "Subsection"],
+Cell[41323, 1028, 102, 1, 43, "Subsection"],
 Cell[CellGroupData[{
-Cell[30242, 785, 1244, 35, 52, "Input"],
-Cell[31489, 822, 6980, 101, 854, "Output"]
+Cell[41450, 1033, 6409, 169, 292, "Input"],
+Cell[47862, 1204, 20058, 277, 447, "Output"],
+Cell[67923, 1483, 40282, 767, 957, "Output"],
+Cell[108208, 2252, 18563, 319, 432, "Output"],
+Cell[126774, 2573, 6036, 126, 248, "Output"]
 }, Open  ]]
 }, Open  ]]
 }
