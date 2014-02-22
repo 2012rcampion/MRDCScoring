@@ -51,18 +51,21 @@
 					}
 				}
 				
-				var buttonDiv = $('#buttons');
+				var teamsDiv = $('#teams');
 				for(var i = 0; i < 4; i++) {
-					var button = $('<button></button>');
-					button.html('Team ' + (1+i));
-					button.data('color', i)
-					button.css({'background-color': teamColors[i]});
-					button.on('click', function() {
-						currentColor = +$(this).data('color');
+					var listItem = $('<li></li>');
+					listItem.html(
+						'<span class=\'name\'>Team ' + (1+i) + '</span>' + 
+						': <span class=\'score\'>0</span>'
+					);
+					listItem.data('team', i)
+					listItem.css({'background-color': teamColors[i]});
+					listItem.on('click', function() {
+						currentColor = +$(this).data('team');
 						$(this).siblings().removeClass('selected');
 						$(this).addClass('selected');
 					});
-					buttonDiv.append(button)
+					teamsDiv.append(listItem);
 				}
 				
 				var canvas = $('canvas#canvas')[0];
@@ -100,6 +103,11 @@
 							context.restore();
 						}
 					}
+					var teams = $('#teams').children();
+					for(var i = 0; i < teams.length; i++) {
+						$(teams[i]).find('.name').html(data.teams[i].name);
+						$(teams[i]).find('.score').html(data.teams[i].score);
+					}
 				});
 				
 				//socket.emit('scoreEvent',{});
@@ -108,9 +116,13 @@
 		</script>
 	</head>
 	<body>
-		<div id='field'>
-			<canvas id='canvas'></canvas>
-			<table id='board'></table>
+		<div id='top'>
+			<div id='field'>
+				<table id='board'></table>
+				<canvas id='canvas'></canvas>	
+			</div>
+			<ul id='teams'>
+			</ul>
 		</div>
 		<div id='buttons'></div>
 	</body>

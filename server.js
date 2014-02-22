@@ -3,6 +3,8 @@ var http    = require('http');
 var socket  = require('socket.io');
 var fs      = require('fs');
 
+var scoreInterval = 10;
+
 var fieldFileName = __dirname + '/field.config';
 
 try {
@@ -23,8 +25,8 @@ field.width  = parseInt(height_width[1]);
 field.colors   = new Array(field.height);
 field.points   = new Array(field.height);
 field.indicies = new Array(field.height);
-field.squares  = []
-field.adjacent = []
+field.squares  = [];
+field.adjacent = [];
 
 for(var i = 0; i < field.height; i++) {
 	var chars = lines[i+1].split(',');
@@ -156,8 +158,11 @@ field.teamCorners = [
 
 field.maxTeams = field.teamCorners.length;
 
+field.scoreTimers = new Array(field.territories);
+
 for(var i = 0; i < field.maxTeams; i++ ) {
 	field.state[field.teamCorners[i]] = i;
+	field.scoreTimers[field.teamCorners[i]] = "corner";
 }
 
 //console.log(field);
@@ -176,7 +181,7 @@ teams[3].name = 'Terry Jones';
 
 var app = express();
 var server = http.createServer(app);
-var io = socket.listen(server);
+var io = socket.listen(server, {log: false});
 
 server.listen(80);
 
@@ -189,11 +194,23 @@ app.get('/jquery.js', function(req, res) {
 });*/
 app.use(express.static(__dirname));
 
+stateUpdate = function() {
+	io.sockets.emit('stateUpdate', {
+		'field':{
+			'territories':field.territories,
+			'state':field.state,
+			'colors':field.colors,
+			'borders':field.borders
+		},
+		'teams':teams
+	});
+}
+
 io.sockets.on('connection', function (socket) {
-	socket.emit('stateUpdate', {'field':field, 'teams':teams})
+	stateUpdate();
 	
 	socket.on('scoreEvent', function (data) {
-		console.log(data);
+		//console.log(data);
 		if(data.team < 0 || data.team >= field.maxTeams) {
 			return
 		}
@@ -238,6 +255,18 @@ io.sockets.on('connection', function (socket) {
 								continue;
 							}
 							field.state[current] = field.state[current] % field.maxTeams;
+							if(field.scoreTimers[current] == undefined) {
+								field.scoreTimers[current] = setInterval(
+									function(territory) {
+										teams[field.state[territory]].score +=
+											field.points[territory];
+										stateUpdate();
+									},
+									1000*scoreInterval,
+									current
+								);
+								//console.log(field.scoreTimers[current]);
+							}
 							//visited.push(current);
 							var adj = field.adjacent[current];
 							for(var i = 0; i < adj.length; i++) {
@@ -247,17 +276,15 @@ io.sockets.on('connection', function (socket) {
 							}
 						}
 					}
+					for(var i = 0; i < field.state.length; i++) {
+						if(field.state[i] >= field.maxTeams) {
+							clearInterval(field.scoreTimers[i]);
+							field.scoreTimers[i] = undefined;
+						}
+					}
 				}
 			}
 		}
-		socket.emit('stateUpdate', {
-			'field':{
-				'territories':field.territories,
-				'state':field.state,
-				'colors':field.colors,
-				'borders':field.borders
-			},
-			'teams':teams
-		});
+		stateUpdate();
 	});
 });

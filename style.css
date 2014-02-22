@@ -1,14 +1,15 @@
+#top {
+	overflow: auto;
+}
+
 #board {
 	padding: 0px;
 	border-spacing: 0px;
 	z-index:10;
 }
 
-#board tr {
-	padding: 0px;
-}
 
-#board tr td {
+#board * {
 	padding: 0px;
 }
 
@@ -18,20 +19,33 @@
 	z-index:0;
 }
 
-#canvas,#board {
+#board, #canvas {
 	position:absolute;
 	left:0px;
 	top:0px;
 }
 
 #field {
-	position:relative;
+	position: relative;
+	float:left;
+	/*z-index: -1;*/
+}
+
+#teams {
+	float: left;
+}
+
+ul {
+	list-style-type: none;
+	margin: 0px 10px;
+	padding: 0px;
 }
 
 body {
-	background-color:#dddddd;
+	background-color:#ff00ff;
 }
 
-button.selected {
+li.selected {
 	font-weight:bold;
 }
+
