@@ -5,7 +5,7 @@
 		<script src='jquery-1.10.2.js'></script>
 		<script src='/socket.io/socket.io.js'></script>
 		<script>
-			socket = io.connect('http://localhost');
+			socket = io.connect(location.hostname);
 			currentColor = -1;
 			teamColors = [
 				'#ff0000',
@@ -25,7 +25,7 @@
 				'S':'#9370db',
 			};
 			size = 11;
-			squareDim = 50; //pixels
+			squareDim = 54; //pixels
 				
 			$(document).ready(function() {
 				$('#field').css({width:size*squareDim, height:size*squareDim});
@@ -116,14 +116,16 @@
 		</script>
 	</head>
 	<body>
-		<div id='top'>
-			<div id='field'>
-				<table id='board'></table>
-				<canvas id='canvas'></canvas>	
-			</div>
-			<ul id='teams'>
-			</ul>
+		<div id='field'>
+			<table id='board'></table>
+			<canvas id='canvas'></canvas>	
 		</div>
-		<div id='buttons'></div>
+		<ul id='teams'>
+		</ul>
+		<ul id='buttons'>
+			<li>ACTION 1</li>
+			<li>ACTION 2</li>
+		</ul>
+		<div style="border:1px dotted red;width:1022px;height:598px;position:fixed;left:0;top:0;z-index:-100;background-color:magenta">
 	</body>
 </html>

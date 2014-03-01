@@ -1,13 +1,8 @@
-#top {
-	overflow: auto;
-}
-
 #board {
 	padding: 0px;
 	border-spacing: 0px;
 	z-index:10;
 }
-
 
 #board * {
 	padding: 0px;
@@ -28,6 +23,7 @@
 #field {
 	position: relative;
 	float:left;
+	margin:3px;
 	/*z-index: -1;*/
 }
 
@@ -42,7 +38,7 @@ ul {
 }
 
 body {
-	background-color:#ff00ff;
+	margin:0px;
 }
 
 li.selected {

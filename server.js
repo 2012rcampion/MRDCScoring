@@ -145,45 +145,61 @@ for(var i = 0; i < field.territories; i++) {
 }
 
 field.state = new Array(field.territories);
-for(var i = 0; i < field.territories; i++) {
-	field.state[i] = -1;
-}
+field.scoreTimers = new Array(field.territories);
 
 field.teamCorners = [
 	field.indicies[0][0],
 	field.indicies[0][field.width-1],
-	field.indicies[field.height-1][field.width-1],
-	field.indicies[field.height-1][0]		
+	field.indicies[field.height-1][0],
+	field.indicies[field.height-1][field.width-1]
 ];
 
 field.maxTeams = field.teamCorners.length;
 
-field.scoreTimers = new Array(field.territories);
-
-for(var i = 0; i < field.maxTeams; i++ ) {
-	field.state[field.teamCorners[i]] = i;
-	field.scoreTimers[field.teamCorners[i]] = "corner";
+function initField() {
+	for(var i = 0; i < field.territories; i++) {
+		field.state[i] = -1;
+		field.scoreTimers[i] = undefined;
+	}
+	for(var i = 0; i < field.maxTeams; i++ ) {
+		field.state[field.teamCorners[i]] = i;
+		field.scoreTimers[field.teamCorners[i]] = "corner";
+	}
 }
-
-//console.log(field);
+initField();
+console.log('Field OK');
 
 var teams = new Array(field.maxTeams);
-for(var i = 0; i < teams.length; i++) {
-	teams[i] = {
-		score: 0,
-		multiplier: 1
-	};
+
+function initTeams(numTeams) {
+	if(numTeams > field.maxTeams) {
+		console.error('Too many teams');
+		teams.length = field.maxTeams;
+	}
+	else {
+		teams.length = numTeams;
+	}
+	for(var i = 0; i < teams.length; i++) {
+		teams[i] = {
+			score: 0,
+			multiplier: 1
+		};
+	}
 }
+
+initTeams(4);
 teams[0].name = 'John Cleese';
 teams[1].name = 'Terry Gilliam';
 teams[2].name = 'Eric Idle';
 teams[3].name = 'Terry Jones';
+console.log('Teams OK');
 
 var app = express();
 var server = http.createServer(app);
 var io = socket.listen(server, {log: false});
 
-server.listen(80);
+server.listen(8080);
+console.log('Listening OK');
 
 /*app.get('/', function (req, res) {
 	res.sendfile(__dirname + '/index.html');
@@ -207,6 +223,7 @@ stateUpdate = function() {
 }
 
 io.sockets.on('connection', function (socket) {
+	//console.log(socket);
 	stateUpdate();
 	
 	socket.on('scoreEvent', function (data) {

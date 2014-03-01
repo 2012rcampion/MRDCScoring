@@ -1,0 +1,48 @@
+<html>
+	<head>
+		<title>Control Panel</title>
+		<script src='jquery-1.10.2.js'></script>
+		<script src='/socket.io/socket.io.js'></script>
+		<script>
+			socket = io.connect(location.hostname);
+			
+			$(document).ready(function() {
+				
+				var teamsDiv = $('#teams');
+				for(var i = 0; i < 4; i++) {
+					var listItem = $('<li></li>');
+					listItem.html(
+						'<span class=\'name\'>Team ' + (1+i) + '</span>' + 
+						': <span class=\'score\'>0</span>'
+					);
+					listItem.data('team', i)
+					listItem.on('click', function() {
+						currentColor = +$(this).data('team');
+						$(this).siblings().removeClass('selected');
+						$(this).addClass('selected');
+					});
+					teamsDiv.append(listItem);
+				}
+				
+				
+				
+				socket.on('stateUpdate', function(data) {
+					
+					var teams = $('#teams').children();
+					for(var i = 0; i < teams.length; i++) {
+						$(teams[i]).find('.name').html(data.teams[i].name);
+						$(teams[i]).find('.score').html(data.teams[i].score);
+					}
+				});
+				
+				//socket.emit('scoreEvent',{});
+			
+			});
+		</script>
+	</head>
+	<body>
+		</div>
+		<div id='teams'></div>
+		<div style="border:1px dotted red;width:1022px;height:766px;position:fixed;left:0;top:0;z-index:-100;background-color:magenta">
+	</body>
+</html>
