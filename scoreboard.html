@@ -110,7 +110,9 @@
 					}
 				});
 				
-				//socket.emit('scoreEvent',{});
+				socket.on('timeUpdate', function(data) {
+					$('#time').html(data)
+				});
 			
 			});
 		</script>

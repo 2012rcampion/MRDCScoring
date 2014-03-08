@@ -35,7 +35,9 @@
 					}
 				});
 				
-				//socket.emit('scoreEvent',{});
+				socket.on('timeUpdate', function(data) {
+					$('#time').html(data)
+				});
 			
 			});
 		</script>
@@ -43,6 +45,13 @@
 	<body>
 		</div>
 		<div id='teams'></div>
+		<span id='time'></span>
+		<div id='actions'>
+			<button onclick="socket.emit('toggleTimer')">Start/Stop</button>
+			<button id='resetTimer'>Reset</button>
+			<button id='setTimer'>Set to:</button>
+			<input id='timerInput'></input>
+		</div>
 		<div style="border:1px dotted red;width:1022px;height:766px;position:fixed;left:0;top:0;z-index:-100;background-color:magenta">
 	</body>
 </html>

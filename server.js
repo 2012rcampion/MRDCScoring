@@ -1,9 +1,12 @@
-var express = require('express');
-var http    = require('http');
-var socket  = require('socket.io');
-var fs      = require('fs');
+var express  = require('express');
+var http     = require('http');
+var socket   = require('socket.io');
+var fs       = require('fs');
+var mongoose = require('mongoose');
 
-var scoreInterval = 10;
+//all times in ms
+var scoreInterval = 10*1000; //10s
+var matchTime = 7*60*1000; //7m
 
 var fieldFileName = __dirname + '/field.config';
 
@@ -117,7 +120,6 @@ for(var i = 0; i < field.territories; i++) {
 			var a = toAdd[k];
 			for(var l = 0; l < border.length; l++) {
 				var b = border[l];
-				//console.log(a,b);
 				if(a[0].x == b[1].x && a[0].y == b[1].y &&
 				   a[1].x == b[0].x && a[1].y == b[0].y) {
 					border.splice(l, 1);
@@ -159,15 +161,13 @@ field.maxTeams = field.teamCorners.length;
 function initField() {
 	for(var i = 0; i < field.territories; i++) {
 		field.state[i] = -1;
-		field.scoreTimers[i] = undefined;
+		field.scoreTimers[i] = -1;
 	}
 	for(var i = 0; i < field.maxTeams; i++ ) {
 		field.state[field.teamCorners[i]] = i;
-		field.scoreTimers[field.teamCorners[i]] = "corner";
+		field.scoreTimers[field.teamCorners[i]] = -2;
 	}
 }
-initField();
-console.log('Field OK');
 
 var teams = new Array(field.maxTeams);
 
@@ -187,28 +187,29 @@ function initTeams(numTeams) {
 	}
 }
 
+// Initialize services
+var app = express();
+app.use(express.static(__dirname));
+
+var server = http.createServer(app);
+
+var io = socket.listen(server, {log: false});
+
+mongoose.connect('mongodb://localhost/jsdc');
+
+
+// Initialize game
+
+initField();
 initTeams(4);
 teams[0].name = 'John Cleese';
 teams[1].name = 'Terry Gilliam';
 teams[2].name = 'Eric Idle';
 teams[3].name = 'Terry Jones';
-console.log('Teams OK');
 
-var app = express();
-var server = http.createServer(app);
-var io = socket.listen(server, {log: false});
-
-server.listen(8080);
-console.log('Listening OK');
-
-/*app.get('/', function (req, res) {
-	res.sendfile(__dirname + '/index.html');
-});
-
-app.get('/jquery.js', function(req, res) {
-	res.sendfile(__dirname + '/jquery-1.10.2.js');
-});*/
-app.use(express.static(__dirname));
+var gameTime = matchTime;
+var realTime = 0;
+var running = false;
 
 stateUpdate = function() {
 	io.sockets.emit('stateUpdate', {
@@ -222,18 +223,56 @@ stateUpdate = function() {
 	});
 }
 
-io.sockets.on('connection', function (socket) {
+timeUpdate = function() {
+	if(running) {
+		var current = gameTime - (Date.now() - realTime);
+		if(current < 0) {
+			current = 0;
+			gameTime = 0;
+			running = false;
+			realTime = Date.now();
+		}
+		io.sockets.emit('timeUpdate', current);
+	}
+	else {
+		io.sockets.emit('timeUpdate', gameTime);
+	}
+}
+
+//tick function, runs at ~5Hz
+setInterval(function() {
+	timeUpdate();
+	if(running) {
+		var currentTime = Date.now();
+		var update = false;
+		for(var i = 0; i < field.territories; i++) {
+			if(field.scoreTimers[i] > 0 && currentTime - field.scoreTimers[i] > scoreInterval) {
+				teams[field.state[i]].score += field.points[i];
+				field.scoreTimers[i] += scoreInterval;
+				update = true;
+			}
+		}
+		if(update) {
+			stateUpdate();
+		}
+	}
+}, 200);
+	
+io.sockets.on('connection', function(socket) {
 	//console.log(socket);
 	stateUpdate();
 	
-	socket.on('scoreEvent', function (data) {
+	socket.on('scoreEvent', function(data) {
+		var received = Date.now();
 		//console.log(data);
 		if(data.team < 0 || data.team >= field.maxTeams) {
 			return
 		}
 		if(data.type == 'capture') {
+			//attempt to capture territory
 			var index = field.indicies[data.row][data.col];
-			if(index >= 0 && field.teamCorners.indexOf(index) < 0) {
+			if(index >= 0 && index < field.territories && field.teamCorners.indexOf(index) < 0) {
+				//determine if territory can be captured via flood fill
 				var corner = field.teamCorners[data.team];
 				var visited = [index];
 				var next = field.adjacent[index].slice(0);
@@ -256,15 +295,17 @@ io.sockets.on('connection', function (socket) {
 					}
 				}
 				if(success) {
+					//'index' now belongs to 'team'
 					field.state[index] = data.team;
+					//deactivate all the territories
 					for(var i = 0; i < field.state.length; i++) {
 						if(field.state[i] >= 0) {
 							field.state[i] = field.state[i] % field.maxTeams + field.maxTeams;
 						}
 					}
+					//for each team, flood-fill activate the territories
 					for(var team = 0; team < field.maxTeams; team++) {
 						var corner = field.teamCorners[team];
-						//var visited = [];
 						var next = [corner];
 						while(next.length > 0) {
 							var current = next.pop();
@@ -272,22 +313,13 @@ io.sockets.on('connection', function (socket) {
 								continue;
 							}
 							field.state[current] = field.state[current] % field.maxTeams;
-							if(field.scoreTimers[current] == undefined) {
-								field.scoreTimers[current] = setInterval(
-									function(territory) {
-										teams[field.state[territory]].score +=
-											field.points[territory];
-										stateUpdate();
-									},
-									1000*scoreInterval,
-									current
-								);
-								//console.log(field.scoreTimers[current]);
+							if(field.scoreTimers[current] == -1) {
+								//set timer
+								field.scoreTimers[current] = received;
 							}
-							//visited.push(current);
 							var adj = field.adjacent[current];
 							for(var i = 0; i < adj.length; i++) {
-								if(/*visited.indexOf(adj[i]) < 0 &&*/ next.indexOf(adj[i]) < 0) {
+								if(next.indexOf(adj[i]) < 0) {
 									next.push(adj[i]);
 								}
 							}
@@ -295,8 +327,8 @@ io.sockets.on('connection', function (socket) {
 					}
 					for(var i = 0; i < field.state.length; i++) {
 						if(field.state[i] >= field.maxTeams) {
-							clearInterval(field.scoreTimers[i]);
-							field.scoreTimers[i] = undefined;
+							//unset timer
+							field.scoreTimers[i] = -1;
 						}
 					}
 				}
@@ -304,4 +336,31 @@ io.sockets.on('connection', function (socket) {
 		}
 		stateUpdate();
 	});
+	
+	socket.on('toggleTimer', function(data) {
+		var currentTime = Date.now();
+		running = !running;
+		if(running) {
+			var offset = currentTime - realTime;
+			for(var i = 0; i < field.territories; i++) {
+				if(field.scoreTimers[i] > 0) {
+					if(field.scoreTimers[i] > realTime) {
+						field.scoreTimers[i] = currentTime;
+					}
+					else {
+						field.scoreTimers[i] += offset;
+					}
+				}
+			}
+		}
+		else {
+			gameTime -= currentTime - realTime; 
+		}
+		realTime = currentTime;
+	});
+	
 });
+
+// Start server
+server.listen(8080);
+console.log('Listening...');
