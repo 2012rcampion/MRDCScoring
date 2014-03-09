@@ -8,6 +8,7 @@ var mongoose = require('mongoose');
 var scoreInterval = 10*1000; //10s
 var matchTime = 7*60*1000; //7m
 
+//begin parsing field definition
 var fieldFileName = __dirname + '/field.config';
 
 try {
@@ -47,9 +48,10 @@ for(var i = 0; i < field.height; i++) {
 	field.indicies[i] = new Array(field.width);
 }
 
-
+//field is parsed, now create all of the structures we need
 var index = 0;
 
+// recursive method to find all contiguous territories
 function floodFill(i, j, type, idx) {
 	if(0 <= i && i < field.height && 0 <= j && j < field.width && field.colors[i][j] != ' ') {
 		if(field.indicies[i][j] >= 0) {
@@ -75,7 +77,8 @@ function floodFill(i, j, type, idx) {
 		}
 	}
 }
-		
+
+// all blank cells are not part of any territory		
 for(var i = 0; i < field.height; i++) {
 	for(var j = 0; j < field.width; j++) {
 		if(field.colors[i][j] == ' ') {
@@ -94,6 +97,7 @@ for(var i = 0; i < field.height; i++) {
 
 field.territories = field.squares.length;
 
+// turn the color and point value matricies into lists indexed by territory id
 var colors2 = new Array(field.territories);
 var points2 = new Array(field.territories);
 for(var i = 0; i < field.territories; i++) {
@@ -104,6 +108,7 @@ for(var i = 0; i < field.territories; i++) {
 field.colors = colors2;
 field.points = points2;
 
+// find paths around all of the territory borders, for use in drawing
 field.borders = new Array(field.territories);
 for(var i = 0; i < field.territories; i++) {
 	var border = []
@@ -146,6 +151,7 @@ for(var i = 0; i < field.territories; i++) {
 	}
 }
 
+//more field definitions
 field.state = new Array(field.territories);
 field.scoreTimers = new Array(field.territories);
 
@@ -156,8 +162,16 @@ field.teamCorners = [
 	field.indicies[field.height-1][field.width-1]
 ];
 
+field.ramps = [
+	{start:{row:3, col:3}, end:{row:4, col:4}, state:'stopped'},
+	{start:{row:3, col:8}, end:{row:4, col:7}, state:'forward'},
+	{start:{row:8, col:3}, end:{row:7, col:4}, state:'backward'},
+	{start:{row:8, col:8}, end:{row:7, col:7}, state:'reversing'}
+];
+
 field.maxTeams = field.teamCorners.length;
 
+//initialization function
 function initField() {
 	for(var i = 0; i < field.territories; i++) {
 		field.state[i] = -1;
@@ -196,6 +210,11 @@ var server = http.createServer(app);
 var io = socket.listen(server, {log: false});
 
 mongoose.connect('mongodb://localhost/jsdc');
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function callback () {
+	console.log('Database connected');
+});
 
 
 // Initialize game
@@ -206,6 +225,7 @@ teams[0].name = 'John Cleese';
 teams[1].name = 'Terry Gilliam';
 teams[2].name = 'Eric Idle';
 teams[3].name = 'Terry Jones';
+teams[0].multiplier = 10;
 
 var gameTime = matchTime;
 var realTime = 0;
@@ -217,7 +237,9 @@ stateUpdate = function() {
 			'territories':field.territories,
 			'state':field.state,
 			'colors':field.colors,
-			'borders':field.borders
+			'borders':field.borders,
+			'ramps':field.ramps,
+			'maxTeams':field.maxTeams
 		},
 		'teams':teams
 	});
@@ -247,7 +269,7 @@ setInterval(function() {
 		var update = false;
 		for(var i = 0; i < field.territories; i++) {
 			if(field.scoreTimers[i] > 0 && currentTime - field.scoreTimers[i] > scoreInterval) {
-				teams[field.state[i]].score += field.points[i];
+				teams[field.state[i]].score += field.points[i]*teams[field.state[i]].multiplier;
 				field.scoreTimers[i] += scoreInterval;
 				update = true;
 			}

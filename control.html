@@ -4,9 +4,21 @@
 		<script src='jquery-1.10.2.js'></script>
 		<script src='/socket.io/socket.io.js'></script>
 		<script>
-			socket = io.connect(location.hostname);
-			
 			$(document).ready(function() {
+				
+				socket = io.connect(location.hostname);
+				
+				$('#toggleTimer').on('click', function() {
+					socket.emit('toggleTimer');
+				});
+				
+				$('#resetTimer').on('click', function() {
+					socket.emit('resetTimer');
+				});
+				
+				$('#setTimer').on('click', function() {
+					socket.emit('toggleTimer');
+				});
 				
 				var teamsDiv = $('#teams');
 				for(var i = 0; i < 4; i++) {
@@ -36,7 +48,9 @@
 				});
 				
 				socket.on('timeUpdate', function(data) {
-					$('#time').html(data)
+					var m = Math.floor(data/60000);
+					var s = Math.floor(data/1000)-60*m;
+					$('#time').html(m+':'+('0'+s).slice(-2));
 				});
 			
 			});
@@ -47,10 +61,11 @@
 		<div id='teams'></div>
 		<span id='time'></span>
 		<div id='actions'>
-			<button onclick="socket.emit('toggleTimer')">Start/Stop</button>
+			<button id='toggleTimer'>Start/Stop</button>
 			<button id='resetTimer'>Reset</button>
 			<button id='setTimer'>Set to:</button>
-			<input id='timerInput'></input>
+			<input id='timerInput'></input><br/>
+			<button id='resetScores'>Reset Scores</button>
 		</div>
 		<div style="border:1px dotted red;width:1022px;height:766px;position:fixed;left:0;top:0;z-index:-100;background-color:magenta">
 	</body>

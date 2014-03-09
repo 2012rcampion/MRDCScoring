@@ -25,7 +25,7 @@
 				'S':'#9370db',
 			};
 			size = 11;
-			squareDim = 54; //pixels
+			squareDim = 50; //pixels
 				
 			$(document).ready(function() {
 				$('#field').css({width:size*squareDim, height:size*squareDim});
@@ -103,6 +103,39 @@
 							context.restore();
 						}
 					}
+					for(var i = 0; i < f.maxTeams; i++) {
+						var x1 = f.ramps[i].start.col * squareDim;
+						var y1 = f.ramps[i].start.row * squareDim;
+						var x2 = f.ramps[i].end.col * squareDim;
+						var y2 = f.ramps[i].end.row * squareDim;
+						if(f.ramps[i].state == 'forward') {
+							var x0 = x1;
+							var y0 = y1;
+							x1 = x2;
+							y1 = y2;
+							x2 = x0;
+							y2 = y0;
+						}
+						context.beginPath();
+						context.moveTo(x1, y1);
+						context.lineTo(x2, y2);
+						context.strokeStyle = '#222222';
+						context.lineWidth = squareDim;
+						context.lineCap = 'square';
+						context.stroke();
+						
+						if(f.ramps[i].state != 'stopped') {
+							context.beginPath();
+							for(var j = 0; j < 3; j++) {
+								context.moveTo((0.1+0.4*j)*x1+(0.9-0.4*j)*x2, (-.3+0.4*j)*y1+(1.3-0.4*j)*y2);
+								context.lineTo((0.3+0.4*j)*x1+(0.7-0.4*j)*x2, (0.3+0.4*j)*y1+(0.7-0.4*j)*y2);
+								context.lineTo((-.3+0.4*j)*x1+(1.3-0.4*j)*x2, (0.1+0.4*j)*y1+(0.9-0.4*j)*y2);
+								context.closePath();
+							}
+							context.fillStyle = '#ffcc00';
+							context.fill();
+						}
+					}
 					var teams = $('#teams').children();
 					for(var i = 0; i < teams.length; i++) {
 						$(teams[i]).find('.name').html(data.teams[i].name);
@@ -111,7 +144,9 @@
 				});
 				
 				socket.on('timeUpdate', function(data) {
-					$('#time').html(data)
+					var m = Math.floor(data/60000);
+					var s = Math.floor(data/1000)-60*m;
+					$('#time').html(m+':'+('0'+s).slice(-2));
 				});
 			
 			});
@@ -128,6 +163,7 @@
 			<li>ACTION 1</li>
 			<li>ACTION 2</li>
 		</ul>
-		<div style="border:1px dotted red;width:1022px;height:598px;position:fixed;left:0;top:0;z-index:-100;background-color:magenta">
+		<span id='time'></span>
+		<div style="border:1px dotted red;width:1022px;height:567px;position:fixed;left:0;top:0;z-index:-100;background-color:magenta">
 	</body>
 </html>
