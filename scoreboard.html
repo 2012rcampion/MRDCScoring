@@ -2,7 +2,7 @@
 	<head>
 		<title>Scoreboard</title>
 		<link rel='stylesheet' type='text/css' href='style.css'/>
-		<script src='jquery-1.10.2.js'></script>
+		<script src='jquery-1.11.0.js'></script>
 		<script src='/socket.io/socket.io.js'></script>
 		<script>
 			socket = io.connect(location.hostname);
@@ -39,8 +39,7 @@
 						cell.on('click', function() {
 							var x = +$(this).data('col');
 							var y = +$(this).data('row');
-							socket.emit('scoreEvent', {
-								type:'capture',
+							socket.emit('capture', {
 								team:currentColor,
 								row:y,
 								col:x
@@ -75,6 +74,33 @@
 				context.fillStyle = '#444444';
 				context.fillRect(0, 0, size*squareDim, size*squareDim);
 				
+				$('#startTimer').on('click', function() {
+					socket.emit('startTimer');
+				});
+				
+				$('#stopTimer').on('click', function() {
+					socket.emit('stopTimer');
+				});
+				
+				$('#resetTimer').on('click', function() {
+					socket.emit('resetTimer');
+				});
+				
+				$('#setTimer').on('click', function() {
+					socket.emit('setTimer',$('#timerInput').val());
+				});
+				
+				$('#resetGame').on('click', function() {
+					socket.emit('resetGame');
+				});
+				
+				$('#createTeam').on('click', function() {
+					socket.emit('createTeam', {
+						name: $('#newTeamName').val(),
+						multiplier: +($('#newTeamMultiplier'))
+					});
+				});
+				
 				socket.on('stateUpdate', function(data) {
 					var f = data.field;
 					console.log(data);
@@ -103,7 +129,7 @@
 							context.restore();
 						}
 					}
-					for(var i = 0; i < f.maxTeams; i++) {
+					for(var i = 0; i < f.teams; i++) {
 						var x1 = f.ramps[i].start.col * squareDim;
 						var y1 = f.ramps[i].start.row * squareDim;
 						var x2 = f.ramps[i].end.col * squareDim;
@@ -148,6 +174,19 @@
 					var s = Math.floor(data/1000)-60*m;
 					$('#time').html(m+':'+('0'+s).slice(-2));
 				});
+				
+				socket.on('teamsUpdate', function(data) {
+					teamData = data;
+					var teamList = $('#teamList');
+					teamList.find('li').remove();
+					for(var i = 0; i < teamData.length; i++) {
+						var t = teamData[i];
+						var teamDiv = $('<li></li>');
+						teamDiv.text(teamData[i].name +
+							(t.multiplier == 1 ? '' : ' (x'+t.multiplier+')'));
+						teamList.append(teamDiv);
+					}
+				});
 			
 			});
 		</script>
@@ -157,13 +196,32 @@
 			<table id='board'></table>
 			<canvas id='canvas'></canvas>	
 		</div>
-		<ul id='teams'>
-		</ul>
-		<ul id='buttons'>
-			<li>ACTION 1</li>
-			<li>ACTION 2</li>
-		</ul>
-		<span id='time'></span>
-		<div style="border:1px dotted red;width:1022px;height:567px;position:fixed;left:0;top:0;z-index:-100;background-color:magenta">
+		<div id='sidebar'>
+			<ul id='teams'>
+			</ul>
+		</div>
+		<div id='bottom'>
+			<h2>Current Game</h2>
+			<span id='time'></span>
+			<button id='startTimer'>Start</button>
+			<button id='stopTimer'>Pause</button>
+			<button id='resetTimer'>Reset</button>
+			<button id='setTimer'>Set to:</button>
+			<input id='timerInput'></input><br/>
+			
+			<ul id='teams'></ul>
+			<button id='resetGame'>Reset Game</button><br/>
+			
+			<h2>Teams</h2>
+			
+			<ul id='teamList'>
+			</ul>
+			New team:<br/>
+			Name: <input id='newTeamName'></input><br/>
+			Multiplier: <input id='newTeamMultiplier'></input>(defaults to 1)
+			<button id='createTeam'>Create Team</button>
+		</div>
+		
+		<div style="border:1px dotted red;width:1022px;height:567px;position:fixed;left:0;top:0;z-index:-100;background-color:#ffeeff">
 	</body>
 </html>

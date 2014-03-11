@@ -9,8 +9,6 @@
 }
 
 #canvas {
-	/*width:550px;
-	height:550px;*/
 	z-index:0;
 }
 
@@ -28,7 +26,17 @@
 }
 
 #teams {
-	float: left;
+	margin: 10px;
+	padding: 0px;
+	/*float: left;*/
+}
+
+#sidebar {
+	float:left;
+}
+
+#bottom {
+	clear:both;
 }
 
 ul {

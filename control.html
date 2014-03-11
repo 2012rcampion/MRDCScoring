@@ -1,15 +1,21 @@
 <html>
 	<head>
 		<title>Control Panel</title>
-		<script src='jquery-1.10.2.js'></script>
+		<script src='jquery-1.11.0.js'></script>
 		<script src='/socket.io/socket.io.js'></script>
 		<script>
+			var teamData = [];
+			
 			$(document).ready(function() {
 				
 				socket = io.connect(location.hostname);
 				
-				$('#toggleTimer').on('click', function() {
-					socket.emit('toggleTimer');
+				$('#startTimer').on('click', function() {
+					socket.emit('startTimer');
+				});
+				
+				$('#stopTimer').on('click', function() {
+					socket.emit('stopTimer');
 				});
 				
 				$('#resetTimer').on('click', function() {
@@ -17,7 +23,15 @@
 				});
 				
 				$('#setTimer').on('click', function() {
-					socket.emit('toggleTimer');
+					socket.emit('setTimer',$('#timerInput').val());
+				});
+				
+				$('#resetGame').on('click', function() {
+					socket.emit('resetGame');
+				});
+				
+				$('#createTeam').on('click', function() {
+					socket.emit('setTimer',$('#timerInput').val());
 				});
 				
 				var teamsDiv = $('#teams');
@@ -52,21 +66,44 @@
 					var s = Math.floor(data/1000)-60*m;
 					$('#time').html(m+':'+('0'+s).slice(-2));
 				});
+				
+				socket.on('teamsUpdate', function(data) {
+					teamData = data;
+					var teamList = $('#teamList');
+					teamList.find('li').remove();
+					for(var i = 0; i < teamData.length; i++) {
+						var t = teamData[i];
+						var teamDiv = $('<li></li>');
+						teamDiv.text(teamData[i].name +
+							(t.multiplier == 1 ? '' : ' (x'+t.multiplier+')'));
+						teamList.append(teamDiv);
+					}
+				});
 			
 			});
 		</script>
 	</head>
 	<body>
-		</div>
-		<div id='teams'></div>
+		<h2>Current Game</h2>
 		<span id='time'></span>
-		<div id='actions'>
-			<button id='toggleTimer'>Start/Stop</button>
-			<button id='resetTimer'>Reset</button>
-			<button id='setTimer'>Set to:</button>
-			<input id='timerInput'></input><br/>
-			<button id='resetScores'>Reset Scores</button>
-		</div>
+		<button id='startTimer'>Start</button>
+		<button id='stopTimer'>Pause</button>
+		<button id='resetTimer'>Reset</button>
+		<button id='setTimer'>Set to:</button>
+		<input id='timerInput'></input><br/>
+		
+		<ul id='teams'></ul>
+		<button id='resetGame'>Reset Game</button><br/>
+		
+		<h2>Teams</h2>
+		
+		<ul id='teamList'>
+		</ul>
+		New team:<br/>
+		Name: <input id='newTeamName'></input><br/>
+		Multiplier: <input id='newTeamMultiplier'></input>(defaults to 1)
+		<button id='createTeam'>Create Team</button>
+		
 		<div style="border:1px dotted red;width:1022px;height:766px;position:fixed;left:0;top:0;z-index:-100;background-color:magenta">
 	</body>
 </html>
