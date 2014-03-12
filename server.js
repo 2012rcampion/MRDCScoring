@@ -265,7 +265,6 @@ function updateTeams() {
 }
 
 function createTeam(data) {
-	console.log('createTeam()');
 	if(data.multiplier == 0) {
 		data.multiplier = 1;
 	}
@@ -278,10 +277,10 @@ function createTeam(data) {
 }
 
 function modifyTeam(data) {
-	console.log('modifyTeam()');
 	if(data.multiplier == 0) {
 		data.multiplier = 1;
 	}
+	data._id = mongodb.ObjectID(data._id);
 	db.collection('teams', function(err, collection) {
 		collection.update({_id:data._id}, data, {w:1}, function(err, result) {
 			console.log(result);
@@ -291,11 +290,8 @@ function modifyTeam(data) {
 }
 
 function removeTeam(data) {
-	console.log('removeTeam()');
-	console.log(data);
-	console.log({_id:data});
 	db.collection('teams', function(err, collection) {
-		collection.remove({_id:data}, {w:1}, function(err, result) {
+		collection.remove({_id:mongodb.ObjectID(data)}, function(err, result) {
 			console.log(result);
 			updateTeams();
 		});

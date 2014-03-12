@@ -52,3 +52,10 @@ body {
 li.selected {
 	font-weight:bold;
 }
+
+#teamList {
+	column-count:auto;
+	-webkit-column-count:auto;
+	column-width:200px;
+	-webkit-column-width:150px;
+}

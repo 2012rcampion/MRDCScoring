@@ -97,6 +97,8 @@
 				});
 				
 				$('#teamSelector').on('change', function() {
+					$('#newTeamName').val('');
+					$('#newTeamMultiplier').val('');
 					var id = $(this).val();
 					for(var i = 0; i < teamData.length; i++) {
 						var t = teamData[i];
@@ -223,13 +225,18 @@
 					teamList.find('li').remove();
 					var teamSelector = $('#teamSelector');
 					teamSelector.find('option').remove();
-					teamSelector.append($('<option>'));
+					//teamSelector.append($('<option>'));
 					for(var i = 0; i < teamData.length; i++) {
 						var t = teamData[i];
 						teamList.append(
 							$('<li>')
 							.text(t.name +
 							(t.multiplier == 1 ? '' : ' (x'+t.multiplier+')'))
+							.data('id', t._id)
+							.on('click', function() {
+								$('#teamSelector').val($(this).data('id'))
+									.trigger('change');
+							})
 						);
 						teamSelector.append(
 							$('<option>')
@@ -237,6 +244,7 @@
 							.text(t.name)
 						);
 					}
+					teamSelector.trigger('change');
 				});
 			
 			});
