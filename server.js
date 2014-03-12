@@ -229,8 +229,8 @@ function initTeams() {
 }
 
 //communication functions
-function stateUpdate() {
-	io.sockets.emit('stateUpdate', {
+function updateState() {
+	io.sockets.emit('updateState', {
 		'field':{
 			'territories':field.territories,
 			'state':field.state,
@@ -244,25 +244,65 @@ function stateUpdate() {
 	});
 }
 
-function timeUpdate() {
+function updateTime() {
 	if(running) {
 		var current = gameTime - (Date.now() - realTime);
-		io.sockets.emit('timeUpdate', current);
+		io.sockets.emit('updateTime', current);
 	}
 	else {
-		io.sockets.emit('timeUpdate', gameTime);
+		io.sockets.emit('updateTime', gameTime);
 	}
 }
 
-function teamsUpdate() {
+function updateTeams() {
 	db.collection('teams', function(err, collection) {
 		collection.find({}, function(err, cursor) {
 			cursor.toArray(function(err, teams) {
-				io.sockets.emit('teamsUpdate', teams)
+				io.sockets.emit('updateTeams', teams)
 			});
 		});
 	});
 }
+
+function createTeam(data) {
+	console.log('createTeam()');
+	if(data.multiplier == 0) {
+		data.multiplier = 1;
+	}
+	db.collection('teams', function(err, collection) {
+		collection.insert(data, {w:1}, function(err, result) {
+			console.log(result);
+			updateTeams();
+		});
+	});	
+}
+
+function modifyTeam(data) {
+	console.log('modifyTeam()');
+	if(data.multiplier == 0) {
+		data.multiplier = 1;
+	}
+	db.collection('teams', function(err, collection) {
+		collection.update({_id:data._id}, data, {w:1}, function(err, result) {
+			console.log(result);
+			updateTeams();
+		});
+	});	
+}
+
+function removeTeam(data) {
+	console.log('removeTeam()');
+	console.log(data);
+	console.log({_id:data});
+	db.collection('teams', function(err, collection) {
+		collection.remove({_id:data}, {w:1}, function(err, result) {
+			console.log(result);
+			updateTeams();
+		});
+	});	
+}
+
+
 
 //game actions
 function startTimer() {
@@ -311,12 +351,13 @@ function setTimer(data) {
 	gameTime = 1000*time;
 }
 
-function resetScores() {
+function resetGame() {
 	for(var i = 0; i < teams.length; i++) {
 		teams[i].score = 0;
 	}
-	stateUpdate();
-}
+	initField();
+	updateState();
+} 
 
 function main() {
 	// Start server
@@ -337,7 +378,7 @@ function main() {
 
 //tick function, runs at ~5Hz
 	setInterval(function() {
-		timeUpdate();
+		updateTime();
 		if(running) {
 			var currentTime = Date.now();
 			if(gameTime - (currentTime - realTime) <= 0) {
@@ -354,15 +395,15 @@ function main() {
 				}
 			}
 			if(update) {
-				stateUpdate();
+				updateState();
 			}
 		}
 	}, 200);
 	
 	io.sockets.on('connection', function(socket) {
 		//console.log(socket);
-		stateUpdate();
-		teamsUpdate();
+		updateState();
+		updateTeams();
 		
 		socket.on('capture', function(data) {
 			var received = Date.now();
@@ -433,7 +474,7 @@ function main() {
 					}
 				}
 			}
-			stateUpdate();
+			updateState();
 		});
 		
 		socket.on('capture', function(data) {
@@ -505,15 +546,17 @@ function main() {
 					}
 				}
 			}
-			stateUpdate();
+			updateState();
 		});
 		
 		socket.on('startTimer', startTimer);
 		socket.on('stopTimer', stopTimer);
 		socket.on('resetTimer', resetTimer);
 		socket.on('setTimer', setTimer);
-		socket.on('resetScores', resetScores);
-		
+		socket.on('resetGame', resetGame);
+		socket.on('createTeam', createTeam);
+		socket.on('modifyTeam', modifyTeam);
+		socket.on('removeTeam', removeTeam);
 	});
 }
 

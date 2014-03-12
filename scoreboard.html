@@ -96,14 +96,54 @@
 					socket.emit('resetGame');
 				});
 				
-				$('#createTeam').on('click', function() {
-					socket.emit('createTeam', {
+				$('#teamSelector').on('change', function() {
+					var id = $(this).val();
+					for(var i = 0; i < teamData.length; i++) {
+						var t = teamData[i];
+						if(t._id == id) {
+							$('#newTeamName').val(t.name);
+							$('#newTeamMultiplier').val(t.multiplier);
+							break;
+						}
+					}
+				});
+				
+				$('#modifyTeam').on('click', function() {
+					if(!$('#teamSelector').val()) {
+						alert('You must first select a team');
+						return;
+					}
+					if($('#newTeamName').val() == "") {
+						alert('You must enter a name for the team');
+						return;
+					}
+					socket.emit('modifyTeam', {
+						_id: $('#teamSelector').val(),
 						name: $('#newTeamName').val(),
-						multiplier: +($('#newTeamMultiplier'))
+						multiplier: +($('#newTeamMultiplier').val())
 					});
 				});
 				
-				socket.on('stateUpdate', function(data) {
+				$('#removeTeam').on('click', function() {
+					if(!$('#teamSelector').val()) {
+						alert('You must first select a team');
+						return;
+					}
+					socket.emit('removeTeam', $('#teamSelector').val());
+				});
+				
+				$('#createTeam').on('click', function() {
+					if($('#newTeamName').val() == "") {
+						alert('You must enter a name for the team');
+						return;
+					}
+					socket.emit('createTeam', {
+						name: $('#newTeamName').val(),
+						multiplier: +($('#newTeamMultiplier').val())
+					});
+				});
+				
+				socket.on('updateState', function(data) {
 					var f = data.field;
 					console.log(data);
 					context.clearRect(0, 0, size*squareDim, size*squareDim);
@@ -171,22 +211,31 @@
 					}
 				});
 				
-				socket.on('timeUpdate', function(data) {
+				socket.on('updateTime', function(data) {
 					var m = Math.floor(data/60000);
 					var s = Math.floor(data/1000)-60*m;
 					$('#time').html(m+':'+('0'+s).slice(-2));
 				});
 				
-				socket.on('teamsUpdate', function(data) {
+				socket.on('updateTeams', function(data) {
 					teamData = data;
 					var teamList = $('#teamList');
 					teamList.find('li').remove();
+					var teamSelector = $('#teamSelector');
+					teamSelector.find('option').remove();
+					teamSelector.append($('<option>'));
 					for(var i = 0; i < teamData.length; i++) {
 						var t = teamData[i];
-						var teamDiv = $('<li></li>');
-						teamDiv.text(teamData[i].name +
-							(t.multiplier == 1 ? '' : ' (x'+t.multiplier+')'));
-						teamList.append(teamDiv);
+						teamList.append(
+							$('<li>')
+							.text(t.name +
+							(t.multiplier == 1 ? '' : ' (x'+t.multiplier+')'))
+						);
+						teamSelector.append(
+							$('<option>')
+							.val(t._id)
+							.text(t.name)
+						);
 					}
 				});
 			
@@ -209,7 +258,7 @@
 			<button id='stopTimer'>Pause</button>
 			<button id='resetTimer'>Reset</button>
 			<button id='setTimer'>Set to:</button>
-			<input id='timerInput'></input><br/>
+			<input id='timerInput'/><br/>
 			
 			<ul id='teams'></ul>
 			<button id='resetGame'>Reset Game</button><br/>
@@ -218,10 +267,14 @@
 			
 			<ul id='teamList'>
 			</ul>
-			New team:<br/>
-			Name: <input id='newTeamName'></input><br/>
-			Multiplier: <input id='newTeamMultiplier'></input>(defaults to 1)
-			<button id='createTeam'>Create Team</button>
+			
+			<select id='teamSelector'>
+			</select>
+			Name: <input id='newTeamName'/>
+			Multiplier: <input id='newTeamMultiplier' size=1/>
+			<button id='modifyTeam'>Edit</button>
+			<button id='removeTeam'>Delete</button>
+			<button id='createTeam'>New Team</button>
 		</div>
 		
 		<div style="border:1px dotted red;width:1022px;height:567px;position:fixed;left:0;top:0;z-index:-100;background-color:#ffeeff">

@@ -39,7 +39,7 @@
 	clear:both;
 }
 
-ul {
+#sidebar ul {
 	list-style-type: none;
 	margin: 0px 10px;
 	padding: 0px;
@@ -52,4 +52,3 @@ body {
 li.selected {
 	font-weight:bold;
 }
-
