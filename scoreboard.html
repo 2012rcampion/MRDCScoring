@@ -84,6 +84,14 @@
 					socket.emit('resetGame');
 				});
 				
+				$('#pushCompleted').on('click', function() {
+					socket.emit('pushCompleted');
+				});
+				
+				$('#popUpcoming').on('click', function() {
+					socket.emit('popUpcoming');
+				});
+				
 				$('#teamSelector').on('change', function() {
 					$('#newTeamName').val('');
 					$('#newTeamMultiplier').val('');
@@ -211,9 +219,8 @@
 					var list = $('#teams');
 					list.find('li').remove();
 					for(var i = 0; i < data.teams.length; i++) {
-						list.append(
-							$('<li>')
-							.text(teamData[data.teams[i]].name + ':')
+						var li = $('<li>')
+							.text(data.teams[i].name + ':')
 							.append($('<span>').text(data.scores[i].score))
 							.data('team', i)
 							.css({'background-color': teamColors[i]})
@@ -221,8 +228,11 @@
 								currentColor = +$(this).data('team');
 								$(this).siblings().removeClass('selected');
 								$(this).addClass('selected');
-							})
-						);
+							});
+						if(i == currentColor) {
+							li.addClass('selected');
+						}
+						list.append(li);
 					}
 				});
 				
@@ -302,6 +312,14 @@
 						list.append(li);
 					}
 				});
+				
+				socket.on('updateCompleted', function(data) {
+					var list = $('#completedList');
+					list.find('li').remove();
+					for(var i = 0; i < data.length; i++) {
+						list.append($('<li>').text(JSON.stringify(data[i])));
+					}
+				});
 			
 			});
 		</script>
@@ -337,10 +355,8 @@
 			<button id='resetGame'>Reset Game</button><br/>
 			
 			<h2>Teams</h2>
-			
 			<ul id='teamList'>
 			</ul>
-			
 			<select id='teamSelector' class='teamSelector'>
 			</select>
 			Name: <input id='newTeamName'/>
@@ -349,8 +365,14 @@
 			<button id='removeTeam'>Delete</button>
 			<button id='createTeam'>New Team</button>
 			
-			<h2>Upcoming Matches</h2>
+			<h2>Previous Matches</h2>
+			<ul id='completedList'>
+			</ul>
 			
+			<button id='pushCompleted'>Complete Current Match</button>
+			<button id='popUpcoming'>Discard Current Match</button>
+			
+			<h2>Upcoming Matches</h2>
 			<ul id='upcomingList'>
 			</ul>
 		</div>

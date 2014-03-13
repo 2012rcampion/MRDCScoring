@@ -251,17 +251,8 @@ function initScores() {
 //communication functions
 function updateState() {
 	io.sockets.emit('updateState', {
-		/*'field':{
-			'territories':field.territories,
-			'state':field.state,
-			'colors':field.colors,
-			'borders':field.borders,
-			'ramps':field.ramps,
-			'teams':field.maxTeams
-		},*/
 		'field':field,
 		'teams':teams,
-		//'running':running,
 		'scores':scores
 	});
 }
@@ -339,13 +330,16 @@ function addUpcomingTeam(data) {
 	db.upcoming.findAndModify({_id:data._id}, [['_id', 1]],
 		{$push:{teams:data.team}}, {w:1}, function(err, result) {
 			if(result.teams.length == 0) {
-				db.upcoming.stats(function(err, stats) {
-					db.upcoming.insert({teams:[], order:stats.count}, {w:1},
-						function(err, result) {
-							updateUpcoming();
-						}
-					);
-				});
+				db.upcoming.aggregate(
+					{$group:{_id:1, max:{$max:"$order"}}},
+					function(err, result) {
+						db.upcoming.insert({teams:[], order:(result[0].max + 1)},
+							{w:1}, function(err, result) {
+								updateUpcoming();
+							}
+						);
+					}
+				);
 			}
 			else {
 				updateUpcoming();
@@ -369,8 +363,8 @@ function removeUpcomingTeam(data) {
 			if(result === null) {
 				return;
 			}
-			if(result.teams.length == 0) {
-				db.upcoming.remove(result, {w:1, 'new':true}, function(err, result) {
+			if(result.teams.length == 1) {
+				db.upcoming.remove({_id:data._id}, {w:1}, function(err, result) {
 					updateUpcoming();
 				});
 			}
@@ -381,50 +375,66 @@ function removeUpcomingTeam(data) {
 	);	
 }
 
-// ----- COMPLETED -----
-
-function updateCompleted() {
-	db.collection('teams', function(err, collection) {
-		collection.find({}, function(err, cursor) {
-			cursor.toArray(function(err, completed) {
-				io.sockets.emit('updateTeams', completed)
-			});
+function popUpcoming() {
+	db.upcoming.find({}, {sort:[['order', 1]]}, function(err, results) {
+		results.nextObject(function(err, result) {
+			for(var i = 0; i < result.teams.length; i++) {
+				result.teams[i] = mongodb.ObjectID(result.teams[i]);
+			}
+			console.log(result);
+			if(result.teams.length > 0) {
+				db.teams.find({_id:{$in:(result.teams)}}, function(err, results) {
+					results.toArray(function(err, results) {
+						console.log(results);
+						if(results.length == 0) {
+							return;
+						}
+						teams = results;
+						resetGame();
+						db.upcoming.remove({_id:result._id}, {w:1}, function(err, results) {
+							updateUpcoming();
+						});
+					});
+				});
+			}
+			else {
+				teams = [];
+				resetGame();
+			}
 		});
 	});
 }
 
-function createCompleted(data) {
-	db.collection('completed', function(err, collection) {
-		collection.insert(data, {w:1}, function(err, result) {
-			console.log(result);
-			updateCompleted();
+// ----- COMPLETED -----
+
+function updateCompleted() {
+	db.completed.find({}, function(err, cursor) {
+		cursor.toArray(function(err, completed) {
+			io.sockets.emit('updateCompleted', completed)
 		});
-	});	
+	});
 }
 
-function modifyCompleted(data) {
-	if(data.multiplier == 0) {
-		data.multiplier = 1;
+function pushCompleted() {
+	if(teams.length == 0) {
+		return popUpcoming();
 	}
-	data._id = mongodb.ObjectID(data._id);
-	db.collection('completed', function(err, collection) {
-		collection.update({_id:data._id}, data, {w:1}, function(err, result) {
-			console.log(result);
+	db.completed.insert({'teams':teams, 'scores':scores, 'time':realTime},
+		{w:1}, function(err, result) {
+			teams = [];
+			scores = [];
 			updateCompleted();
-		});
-	});	
+			popUpcoming();
+		}
+	);
 }
 
 function removeCompleted(data) {
-	db.collection('completed', function(err, collection) {
-		collection.remove({_id:mongodb.ObjectID(data)}, {w:1}, function(err, result) {
-			console.log(result);
-			updateCompleted();
-		});
-	});	
+	db.completed.remove({_id:mongodb.ObjectID(data)}, {w:1}, function(err, result) {
+		console.log(result);
+		updateCompleted();
+	});
 }
-
-
 
 //game actions
 function startTimer() {
@@ -478,6 +488,7 @@ function resetGame() {
 	initScores();
 	initField();
 	updateState();
+	updateTime();
 } 
 
 function main() {
@@ -501,25 +512,38 @@ function main() {
 
 	//tick function, runs at ~5Hz
 	setInterval(function() {
-		updateTime();
 		if(running) {
-			if(gameTime == 0) {
-				return;
-			}
 			var currentTime = Date.now();
+			var update = false;
 			if(gameTime - (currentTime - realTime) <= 0) {
 				stopTimer();
 				gameTime = 0;
-				return;
-			}
-			var update = false;
-			for(var i = 0; i < field.territories; i++) {
-				if(field.scoreTimers[i] > 0 && currentTime - field.scoreTimers[i] > scoreInterval) {
-					teams[field.state[i]].score += field.points[i]*teams[field.state[i]].multiplier;
-					field.scoreTimers[i] += scoreInterval;
-					update = true;
+				update = true;
+				for(var i = 0; i < field.territories; i++) {
+					if(field.scoreTimers[i] > 0) {
+						scores[field.state[i]].score
+								+= field.points[i]
+								* teams[field.state[i]].multiplier
+								* endBonusMultiplier;
+						field.scoreTimers[i] = -1;
+					}
 				}
 			}
+			else {
+				for(var i = 0; i < field.territories; i++) {
+					if(
+						field.scoreTimers[i] > 0
+						&& currentTime - field.scoreTimers[i] > scoreInterval
+					) {
+						scores[field.state[i]].score
+							+= field.points[i]
+							* teams[field.state[i]].multiplier;
+						field.scoreTimers[i] += scoreInterval;
+						update = true;
+					}
+				}
+			}
+			updateTime();
 			if(update) {
 				updateState();
 			}
@@ -532,10 +556,7 @@ function main() {
 			updateState();
 			updateTeams();
 			updateUpcoming();
-			
-			setTimeout(function() {
-				
-			}, 100);
+			updateTime();
 		},100);
 			
 		socket.on('capture', function(data) {
@@ -695,8 +716,9 @@ function main() {
 		socket.on('addUpcomingTeam', addUpcomingTeam);
 		socket.on('removeUpcomingTeam', removeUpcomingTeam);
 		socket.on('reorderUpcoming', reorderUpcoming);
+		socket.on('popUpcoming', popUpcoming);
 		
-		socket.on('createCompleted', createCompleted);
+		socket.on('pushCompleted', pushCompleted);
 		socket.on('removeCompleted', removeCompleted);
 	});
 }
