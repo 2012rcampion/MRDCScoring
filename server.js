@@ -847,22 +847,22 @@ fs.readFile(fieldFileName, {encoding:'utf8'}, parseField);
 
   2 (green) 3 (blue)
 
-ramp commands:
-	cueServerRampUp(index)
-	cueServerRampDown(index)
-	cueServerRampOff(index)
-	cueServerRampLightOn(index)
-	cueServerRampLightOff(index)
-
-server commands:
-	cueServerInit()
-	cueServerReset()
-	cueServerEmergencyStop()
-
-lighting commands:
-	cueServerLightsOn() // whole course
-	cueServerLightsOff()
-	cueServerLightsFlashOn() // just flashing lights
-	cueServerLightsFlashOff()
-
 */
+
+//ramp commands:
+function cueServerRampUp(index) {}
+function cueServerRampDown(index) {}
+function cueServerRampOff(index) {}
+function cueServerRampLightOn(index) {}
+function cueServerRampLightOff(index) {}
+
+//server commands:
+function cueServerInit() {}
+function cueServerReset() {}
+function cueServerEmergencyStop() {}
+
+//lighting commands:
+function cueServerLightsOn() {}// whole course
+function cueServerLightsOff() {}
+function cueServerLightsFlashOn() {}// just flashing lights
+function cueServerLightsFlashOff() {}
