@@ -13,7 +13,7 @@ var scoreInterval = 10000; //10s
 var matchTime = 7*60000; //7m
 var rampReversalDelay = 15000; //15s
 
-var rampFlashPatterns = {'up':[2000, 1000], 'reversing':[500, 500]};
+var rampFlashPatterns = {'up':[1000, 500], 'reversing':[250, 250]};
 
 var endBonusMultiplier = 10;
 
@@ -217,7 +217,8 @@ function initDB() {
 			for(var i = 0; i < collections.length; i++) {
 				db[collections[i].collectionName] = collections[i];
 			}
-			setImmediate(main);
+			cueServerInit();
+			setTimeout(main,1000);
 		});
 	});
 }
@@ -441,7 +442,7 @@ function removeCompleted(data) {
 	});
 }
 
-//game actions
+// timer functions
 function startTimer() {
 	if(gameTime <= 0 || running) {
 		return;
@@ -459,7 +460,19 @@ function startTimer() {
 			}
 		}
 	}
+	for(var i = 0; i < field.maxTeams; i++) {
+		if(field.ramps[i].state != 'stopped') {
+			if(field.ramps[i].state == 'down') {
+				cueServerRampDown(i);
+			}
+			else {
+				cueServerRampUp(i);
+			}
+		}
+	}
 	realTime = currentTime;
+	cueServerLightsOn();
+	updateState();
 }
 		
 function stopTimer() {
@@ -469,7 +482,12 @@ function stopTimer() {
 	var currentTime = Date.now();
 	running = false;
 	gameTime -= currentTime - realTime; 
+	for(var i = 0; i < field.maxTeams; i++) {
+		cueServerRampOff(i);
+	}
 	realTime = currentTime;
+	cueServerLightsOff();
+	updateState();
 }
 
 function resetTimer() {
@@ -488,6 +506,8 @@ function setTimer(data) {
 	gameTime = 1000*time;
 }
 
+//other game functions
+
 function setScore(data) {
 
 }
@@ -500,9 +520,14 @@ function resetGame() {
 	updateTime();
 } 
 
+//ramp functions
+
 function flashRamp(i, state) {
-	var r = field.ramps[i];
 	if(rampFlashPatterns[state]) {
+		if(field.ramps[i].state != state) {
+			console.log('wrong flash state, '+field.ramps[i].state+' != '+state);
+			return;
+		}
 		field.ramps[i].visible = !field.ramps[i].visible;
 		if(field.ramps[i].visible) {
 			cueServerRampLightOn(i);
@@ -510,43 +535,56 @@ function flashRamp(i, state) {
 		else {
 			cueServerRampLightOff(i);
 		}
-		setTimeout(flashRamp, i, state, rampFlashPatterns[r.state][r?1:0]);
+		setTimeout(flashRamp,
+			rampFlashPatterns[state][field.ramps[i].visible?0:1],
+			i, state
+		);
+		updateState();
 	}
-}
-
-function downRamp(i) {
-	if(i >= 0) {
-		if(field.ramps[i].state == 'down') {
-			return;
-		}
-		field.ramps[i].state = 'down';
-		cueServerRampDown(i);
-		field.ramps[i].visible = true;
-		flashRamp(i, 'down');
-		if(!scores[i].ramp) {
-			scores[i].ramp = true;
-			scores[i].score += rampValue;
-		}
+	else {
+		console.log('illegal flash state');
 	}
 }
 
 function upRamp(i) {
 	if(i >= 0) {
-		if(field.ramps[i].state == 'reversing') {
-			return;
-		}
 		if(field.ramps[i].state == 'up') {
 			return;
 		}
+		field.ramps[i].state = 'up';
+		cueServerRampDown(i);
+		field.ramps[i].visible = false;
+		flashRamp(i, 'up');
+		if(!scores[i].ramp) {
+			scores[i].ramp = true;
+			scores[i].score += rampValue;
+		}
+		updateState();
+	}
+}
+
+function downRamp(i) {
+	if(i >= 0) {
+		if(field.ramps[i].state == 'reversing') {
+			return;
+		}
+		if(field.ramps[i].state == 'down') {
+			return;
+		}
 		field.ramps[i].state = 'reversing';
-		field.ramps[i].visible = true;
+		field.ramps[i].visible = false;
 		flashRamp(i, 'reversing');
 		setTimeout(function() {
-			field.ramps[i].state = 'up';
+			if(field.ramps[i].state != 'reversing') {
+				return;
+			}
+			field.ramps[i].state = 'down';
 			cueServerRampUp(i);
 			field.ramps[i].visible = true;
 			cueServerRampLightOn(i);
+			updateState();
 		}, rampReversalDelay);
+		updateState();
 	}
 }
 
@@ -554,6 +592,7 @@ function getCone(i) {
 	if(i >= 0 && !scores[i].cone) {
 		scores[i].cone = true;
 		scores[i].score += coneValue;
+		updateState();
 	}
 }
 
@@ -561,6 +600,7 @@ function dropWall(i) {
 	if(i >= 0 && !scores[i].wall) {
 		scores[i].wall = true;
 		scores[i].score += wallValue;
+		updateState();
 	}
 }
 
@@ -568,18 +608,21 @@ function openDoor(i) {
 	if(i >= 0 && !scores[i].door) {
 		scores[i].door = true;
 		scores[i].score += doorValue;
+		updateState();
 	}
 }
 
 function personalFoul(i) {
 	if(i >= 0) {
 		scores[i].score += personalFoulValue;
+		updateState();
 	}
 }
 
 function technicalFoul(i) {
 	if(i >= 0) {
 		scores[i].score += technicalFoulValue;
+		updateState();
 	}
 }
 
@@ -620,6 +663,10 @@ function main() {
 						field.scoreTimers[i] = -1;
 					}
 				}
+				for(var i = 0; i < field.maxTeams; i++) {
+					field.ramps[i].state = 'stopped';
+					field.ramps[i].visible = false;
+				}
 			}
 			else {
 				for(var i = 0; i < field.territories; i++) {
@@ -648,6 +695,7 @@ function main() {
 			updateState(true);
 			updateTeams();
 			updateUpcoming();
+			updateCompleted();
 			updateTime();
 		},100);
 			
@@ -862,7 +910,7 @@ function cueServerReset() {}
 function cueServerEmergencyStop() {}
 
 //lighting commands:
-function cueServerLightsOn() {}// whole course
+function cueServerLightsOn() {} // whole course
 function cueServerLightsOff() {}
-function cueServerLightsFlashOn() {}// just flashing lights
+function cueServerLightsFlashOn() {} // just flashing lights
 function cueServerLightsFlashOff() {}
