@@ -462,6 +462,7 @@ function startTimer() {
 	}
 	for(var i = 0; i < field.maxTeams; i++) {
 		if(field.ramps[i].state != 'stopped') {
+			field.ramps[i].visible = true;
 			if(field.ramps[i].state == 'down') {
 				cueServerRampDown(i);
 			}
@@ -528,12 +529,14 @@ function flashRamp(i, state) {
 			console.log('wrong flash state, '+field.ramps[i].state+' != '+state);
 			return;
 		}
-		field.ramps[i].visible = !field.ramps[i].visible;
-		if(field.ramps[i].visible) {
-			cueServerRampLightOn(i);
-		}
-		else {
-			cueServerRampLightOff(i);
+		if(running) {
+			field.ramps[i].visible = !field.ramps[i].visible;
+			if(field.ramps[i].visible) {
+				cueServerRampLightOn(i);
+			}
+			else {
+				cueServerRampLightOff(i);
+			}
 		}
 		setTimeout(flashRamp,
 			rampFlashPatterns[state][field.ramps[i].visible?0:1],
@@ -547,7 +550,7 @@ function flashRamp(i, state) {
 }
 
 function upRamp(i) {
-	if(i >= 0) {
+	if(i >= 0 && running) {
 		if(field.ramps[i].state == 'up') {
 			return;
 		}
@@ -564,7 +567,7 @@ function upRamp(i) {
 }
 
 function downRamp(i) {
-	if(i >= 0) {
+	if(i >= 0 && running) {
 		if(field.ramps[i].state == 'reversing') {
 			return;
 		}
