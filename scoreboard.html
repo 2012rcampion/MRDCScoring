@@ -279,8 +279,8 @@
 									.text('x')
 									.data('team', u.teams[j])
 									.on('click', function() {
-										socket.emit('removeTeamUpdate', {
-											_id:($(this).parent('li').data('id')),
+										socket.emit('removeUpcomingTeam', {
+											_id:($(this).closest('li').data('id')),
 											team:($(this).data('team'))
 										});
 									})

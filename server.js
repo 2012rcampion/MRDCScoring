@@ -329,9 +329,6 @@ function reorderUpcoming(ids) {
 		db.upcoming.update({_id: mongodb.ObjectID(ids[i])}, {$set:{order:i}},
 			{w:1}, function(err, result) {
 				console.log(i);
-				if(i == ids.length - 1) {
-					updateUpcoming();
-				}
 			}
 		);
 	}
@@ -359,10 +356,21 @@ function addUpcomingTeam(data) {
 
 function removeUpcomingTeam(data) {
 	data._id = mongodb.ObjectID(data._id);
+	console.log({_id:data._id});
+	console.log({$pull:{teams:data.team}});
 	db.upcoming.findAndModify({_id:data._id}, [['_id', 1]],
-		{$pull:{teams:data.team}}, {w:1, new:true}, function(err, result) {
+		{$pull:{teams:data.team}}, {w:1}, function(err, result) {
+			if(err) {
+				console.error(err);
+				return;
+			}
+			console.log(err);
+			console.log(result);
+			if(result === null) {
+				return;
+			}
 			if(result.teams.length == 0) {
-				db.upcoming.remove(result, {w:1}, function(err, result) {
+				db.upcoming.remove(result, {w:1, 'new':true}, function(err, result) {
 					updateUpcoming();
 				});
 			}
