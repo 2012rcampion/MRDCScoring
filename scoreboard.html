@@ -3,9 +3,10 @@
 		<title>Scoreboard</title>
 		<link rel='stylesheet' type='text/css' href='style.css'/>
 		<script src='jquery-1.11.0.js'></script>
+		<script src='jquery-ui.js'></script>
 		<script src='/socket.io/socket.io.js'></script>
 		<script>
-			socket = io.connect(location.hostname);
+			socket = {};
 			currentColor = -1;
 			teamColors = [
 				'#ff0000',
@@ -30,6 +31,8 @@
 			var teamData = [];
 				
 			$(document).ready(function() {
+				socket = io.connect(location.hostname);
+				
 				$('#field').css({width:size*squareDim, height:size*squareDim});
 				for(var i = 0; i < size; i++) {
 					var row = $('<tr></tr>');
@@ -53,22 +56,7 @@
 				}
 				
 				var teamsDiv = $('#teams');
-				for(var i = 0; i < 4; i++) {
-					var listItem = $('<li></li>');
-					listItem.html(
-						'<span class=\'name\'>Team ' + (1+i) + '</span>' + 
-						': <span class=\'score\'>0</span>'
-					);
-					listItem.data('team', i)
-					listItem.css({'background-color': teamColors[i]});
-					listItem.on('click', function() {
-						currentColor = +$(this).data('team');
-						$(this).siblings().removeClass('selected');
-						$(this).addClass('selected');
-					});
-					teamsDiv.append(listItem);
-				}
-				
+								
 				var canvas = $('canvas#canvas')[0];
 				canvas.width = size*squareDim;
 				canvas.height = size*squareDim;
@@ -145,6 +133,18 @@
 					});
 				});
 				
+				$('#upcomingList').sortable({
+					axis:'y', 
+					update:function(event, ui) {
+						var children = $(this).children();
+						var ids = [];
+						for(var i = 0; i < children.length; i++) {
+							ids[i] = $(children[i]).data('id');
+						}
+						socket.emit('reorderUpcoming', ids);
+					}
+				});
+				
 				socket.on('updateState', function(data) {
 					var f = data.field;
 					console.log(data);
@@ -167,13 +167,15 @@
 						var color = f.state[i];
 						if(color >= 0) {
 							context.strokeStyle = teamColors[color];
+							context.globalAlpha = 0.75;
 							context.save();
 							context.clip();
 							context.stroke();
 							context.restore();
+							context.globalAlpha = 1;
 						}
 					}
-					for(var i = 0; i < f.teams; i++) {
+					for(var i = 0; i < f.maxTeams; i++) {
 						var x1 = f.ramps[i].start.col * squareDim;
 						var y1 = f.ramps[i].start.row * squareDim;
 						var x2 = f.ramps[i].end.col * squareDim;
@@ -206,29 +208,41 @@
 							context.fill();
 						}
 					}
-					var teams = $('#teams').children();
-					for(var i = 0; i < teams.length; i++) {
-						$(teams[i]).find('.name').html(data.teams[i].name);
-						$(teams[i]).find('.score').html(data.teams[i].score);
+					var list = $('#teams');
+					list.find('li').remove();
+					for(var i = 0; i < data.teams.length; i++) {
+						list.append(
+							$('<li>')
+							.text(teamData[data.teams[i]].name + ':')
+							.append($('<span>').text(data.scores[i].score))
+							.data('team', i)
+							.css({'background-color': teamColors[i]})
+							.on('click', function() {
+								currentColor = +$(this).data('team');
+								$(this).siblings().removeClass('selected');
+								$(this).addClass('selected');
+							})
+						);
 					}
 				});
 				
 				socket.on('updateTime', function(data) {
 					var m = Math.floor(data/60000);
 					var s = Math.floor(data/1000)-60*m;
-					$('#time').html(m+':'+('0'+s).slice(-2));
+					$('.time').html(m+':'+('0'+s).slice(-2));
 				});
 				
 				socket.on('updateTeams', function(data) {
 					teamData = data;
-					var teamList = $('#teamList');
-					teamList.find('li').remove();
-					var teamSelector = $('#teamSelector');
-					teamSelector.find('option').remove();
-					//teamSelector.append($('<option>'));
+					var list = $('#teamList');
+					list.find('li').remove();
+					var selector = $('.teamSelector');
+					selector.find('option').remove();
+					//selector.append($('<option>'));
 					for(var i = 0; i < teamData.length; i++) {
 						var t = teamData[i];
-						teamList.append(
+						teamData[t._id] = t;
+						list.append(
 							$('<li>')
 							.text(t.name +
 							(t.multiplier == 1 ? '' : ' (x'+t.multiplier+')'))
@@ -238,13 +252,55 @@
 									.trigger('change');
 							})
 						);
-						teamSelector.append(
+						selector.append(
 							$('<option>')
 							.val(t._id)
 							.text(t.name)
 						);
 					}
-					teamSelector.trigger('change');
+					selector.trigger('change');/*each(function(index, element) {
+						element.trigger('change');
+					});*/
+				});
+				
+				socket.on('updateUpcoming', function(data) {
+					var list = $('#upcomingList');
+					list.find('li').remove();
+					for(var i = 0; i < data.length; i++) {
+						var u = data[i];
+						var li = $('<li>').data('id', u._id);
+						for(var j = 0; j < u.teams.length; j++) {
+							li.append(
+								$('<span>')
+								.text(teamData[u.teams[j]].name)
+								.addClass('upcoming')
+								.append(
+									$('<button>')
+									.text('x')
+									.data('team', u.teams[j])
+									.on('click', function() {
+										socket.emit('removeTeamUpdate', {
+											_id:($(this).parent('li').data('id')),
+											team:($(this).data('team'))
+										});
+									})
+								)
+							);
+						}
+						li.append($('#teamSelector').clone());
+						li.append(
+							$('<button>')
+							.text('Add')
+							.data('id', u._id)
+							.on('click', function() {
+								socket.emit('addUpcomingTeam', {
+									_id:($(this).parent('li').data('id')),
+									team:($(this).prev('select').val())
+								});
+							})
+						);
+						list.append(li);
+					}
 				});
 			
 			});
@@ -256,12 +312,21 @@
 			<canvas id='canvas'></canvas>	
 		</div>
 		<div id='sidebar'>
+			<span class='time'></span>
 			<ul id='teams'>
 			</ul>
+			Ramp:
+			<button id='startRamp'>Activate</button>
+			<button id='stopRamp'>Deactivate</button><br/>
+			<button id='openDoor'>Door</button>
+			<button id='getCone'>Cone</button>
+			<button id='dropWall'>Drop Wall</button><br/>
+			<button id='personalFoul'>Personal Foul</button>
+			<button id='technicalFoul'>Technical Foul</button>
 		</div>
 		<div id='bottom'>
 			<h2>Current Game</h2>
-			<span id='time'></span>
+			<span class='time'></span>
 			<button id='startTimer'>Start</button>
 			<button id='stopTimer'>Pause</button>
 			<button id='resetTimer'>Reset</button>
@@ -276,15 +341,20 @@
 			<ul id='teamList'>
 			</ul>
 			
-			<select id='teamSelector'>
+			<select id='teamSelector' class='teamSelector'>
 			</select>
 			Name: <input id='newTeamName'/>
 			Multiplier: <input id='newTeamMultiplier' size=1/>
 			<button id='modifyTeam'>Edit</button>
 			<button id='removeTeam'>Delete</button>
 			<button id='createTeam'>New Team</button>
+			
+			<h2>Upcoming Matches</h2>
+			
+			<ul id='upcomingList'>
+			</ul>
 		</div>
 		
-		<div style="border:1px dotted red;width:1022px;height:567px;position:fixed;left:0;top:0;z-index:-100;background-color:#ffeeff">
+		<div style="border:1px dotted red;width:1022px;height:567px;position:fixed;left:0;top:0;z-index:-100;background-color:#ffffff">
 	</body>
 </html>

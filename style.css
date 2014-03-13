@@ -21,7 +21,8 @@
 #field {
 	position: relative;
 	float:left;
-	margin:9px;
+	margin:6px;
+	border:solid 3px #888888;
 	/*z-index: -1;*/
 }
 
@@ -47,15 +48,16 @@
 
 body {
 	margin:0px;
+	background-color:#ffeeee;
 }
 
 li.selected {
 	font-weight:bold;
 }
 
-#teamList {
+/*#teamList {
 	column-count:auto;
 	-webkit-column-count:auto;
 	column-width:200px;
 	-webkit-column-width:150px;
-}
+}/*

@@ -12,9 +12,20 @@ var dbURL = 'mongodb://localhost:27017/jsdc';
 var scoreInterval = 10*1000; //10s
 var matchTime = 7*60*1000; //7m
 
+var endBonusMultiplier = 10;
+
+var rampValue = 10; //first time only
+var doorValue = 10; //first time only
+var coneValue = 10; //etc.
+var wallValue = 10;
+
+var personalFoulValue = -50;
+var technicalFoulValue = -50;
+
 //global objects
 var field = {};
 var teams = [];
+var scores = [];
 var db = {};
 
 //global variables
@@ -33,8 +44,7 @@ function parseField(err, data) {
 	
 	field.width  = +(size[0]);
 	field.height = +(size[1]);
-	field.teams  = +(size[2]);
-	
+	field.maxTeams  = +(size[2]);
 	
 	field.colors   = new Array(field.height);
 	field.points   = new Array(field.height);
@@ -45,24 +55,24 @@ function parseField(err, data) {
 	//read in the color/point value arrays
 	for(var i = 0; i < field.height; i++) {
 		var chars = lines[i+1].split(',');
-		/*if(chars.length != field.width) {
+		if(chars.length != field.width) {
 			console.error('Warning, field is not the proper width on line '+(i+1));
-			process.exit();
-		}*/
+			return;
+		}
 		field.colors[i]   = chars;
 		var chars = lines[i+1+field.height].split(',');
-		/*if(chars.length != field.width) {
+		if(chars.length != field.width) {
 			console.error('Warning, field is not the proper width on line '+(i+1+field.width));
-			process.exit();
-		}*/
+			return;
+		}
 		field.points[i]   = chars;
 		field.indicies[i] = new Array(field.width);
 	}
 	
 	//read in the team corners and ramps
-	field.teamCorners = new Array(field.teams);
-	field.ramps       = new Array(field.teams);
-	for(var i = 0; i < field.teams; i++) {
+	field.teamCorners = new Array(field.maxTeams);
+	field.ramps       = new Array(field.maxTeams);
+	for(var i = 0; i < field.maxTeams; i++) {
 		var coords = lines[i+1+2*field.height].split(',');
 		for(var j = 0; j < 6; j++) {
 			coords[j] = +(coords[j]);
@@ -137,7 +147,7 @@ function parseField(err, data) {
 	field.points = points2;
 	
 	//also index the team corners by territory
-	for(var i = 0; i < field.teams; i++) {
+	for(var i = 0; i < field.maxTeams; i++) {
 		var coord = field.teamCorners[i];
 		field.teamCorners[i] = field.indicies[coord.row][coord.col];
 	}
@@ -199,9 +209,13 @@ function initDB() {
 			return console.error(err);
 		}
 		console.log('Connected to ' + dbURL);
-		db = database;
-		
-		setImmediate(main);
+				
+		database.collections(function(err, collections) {
+			for(var i = 0; i < collections.length; i++) {
+				db[collections[i].collectionName] = collections[i];
+			}
+			setImmediate(main);
+		});
 	});
 }
 
@@ -211,19 +225,25 @@ function initField() {
 		field.state[i] = -1;
 		field.scoreTimers[i] = -1;
 	}
-	for(var i = 0; i < field.teams; i++ ) {
+	for(var i = 0; i < field.maxTeams; i++ ) {
 		field.state[field.teamCorners[i]] = i;
 		field.scoreTimers[field.teamCorners[i]] = -2;
 	}
 }
 
-function initTeams() {
-	teams = new Array(field.teams);
-	for(var i = 0; i < teams.length; i++) {
-		teams[i] = {
-			name: '_',
+function initScores() {
+	if(teams.length > field.maxTeams) {
+		console.error("Warning: too many teams, truncating list");
+		teams.length = field.maxTeams;
+	}
+	scores = new Array(teams.length);
+	for(var i = 0; i < scores.length; i++) {
+		scores[i] = {
 			score: 0,
-			multiplier: 1
+			ramp: false,
+			door: false,
+			cone: false,
+			wall: false
 		};
 	}
 }
@@ -231,16 +251,18 @@ function initTeams() {
 //communication functions
 function updateState() {
 	io.sockets.emit('updateState', {
-		'field':{
+		/*'field':{
 			'territories':field.territories,
 			'state':field.state,
 			'colors':field.colors,
 			'borders':field.borders,
 			'ramps':field.ramps,
-			'teams':field.teams
-		},
+			'teams':field.maxTeams
+		},*/
+		'field':field,
 		'teams':teams,
-		'running':running
+		//'running':running,
+		'scores':scores
 	});
 }
 
@@ -254,12 +276,12 @@ function updateTime() {
 	}
 }
 
+// ----- TEAMS -----
+
 function updateTeams() {
-	db.collection('teams', function(err, collection) {
-		collection.find({}, function(err, cursor) {
-			cursor.toArray(function(err, teams) {
-				io.sockets.emit('updateTeams', teams)
-			});
+	db.teams.find({}, function(err, cursor) {
+		cursor.toArray(function(err, teams) {
+			io.sockets.emit('updateTeams', teams)
 		});
 	});
 }
@@ -268,12 +290,10 @@ function createTeam(data) {
 	if(data.multiplier == 0) {
 		data.multiplier = 1;
 	}
-	db.collection('teams', function(err, collection) {
-		collection.insert(data, {w:1}, function(err, result) {
-			console.log(result);
-			updateTeams();
-		});
-	});	
+	db.teams.insert(data, {w:1}, function(err, result) {
+		console.log(result);
+		updateTeams();
+	});
 }
 
 function modifyTeam(data) {
@@ -281,19 +301,117 @@ function modifyTeam(data) {
 		data.multiplier = 1;
 	}
 	data._id = mongodb.ObjectID(data._id);
-	db.collection('teams', function(err, collection) {
-		collection.update({_id:data._id}, data, {w:1}, function(err, result) {
-			console.log(result);
-			updateTeams();
-		});
+	db.teams.update({_id:data._id}, data, {w:1}, function(err, result) {
+		console.log(result);
+		updateTeams();
 	});	
 }
 
 function removeTeam(data) {
+	db.teams.remove({_id:mongodb.ObjectID(data)}, {w:1}, function(err, result) {
+		console.log(result);
+		updateTeams();
+	});
+}
+
+// ----- UPCOMING -----
+
+function updateUpcoming() {
+	db.upcoming.find({}, {sort:'order'}, function(err, cursor) {
+		cursor.toArray(function(err, upcoming) {
+			io.sockets.emit('updateUpcoming', upcoming)
+		});
+	});
+}
+
+function reorderUpcoming(ids) {
+	for(var i = 0; i < ids.length; i++) {
+		db.upcoming.update({_id: mongodb.ObjectID(ids[i])}, {$set:{order:i}},
+			{w:1}, function(err, result) {
+				console.log(i);
+				if(i == ids.length - 1) {
+					updateUpcoming();
+				}
+			}
+		);
+	}
+}
+
+function addUpcomingTeam(data) {
+	data._id = mongodb.ObjectID(data._id);
+	db.upcoming.findAndModify({_id:data._id}, [['_id', 1]],
+		{$push:{teams:data.team}}, {w:1}, function(err, result) {
+			if(result.teams.length == 0) {
+				db.upcoming.stats(function(err, stats) {
+					db.upcoming.insert({teams:[], order:stats.count}, {w:1},
+						function(err, result) {
+							updateUpcoming();
+						}
+					);
+				});
+			}
+			else {
+				updateUpcoming();
+			}
+		}
+	);
+}
+
+function removeUpcomingTeam(data) {
+	data._id = mongodb.ObjectID(data._id);
+	db.upcoming.findAndModify({_id:data._id}, [['_id', 1]],
+		{$pull:{teams:data.team}}, {w:1, new:true}, function(err, result) {
+			if(result.teams.length == 0) {
+				db.upcoming.remove(result, {w:1}, function(err, result) {
+					updateUpcoming();
+				});
+			}
+			else {
+				updateUpcoming();
+			}
+		}
+	);	
+}
+
+// ----- COMPLETED -----
+
+function updateCompleted() {
 	db.collection('teams', function(err, collection) {
-		collection.remove({_id:mongodb.ObjectID(data)}, function(err, result) {
+		collection.find({}, function(err, cursor) {
+			cursor.toArray(function(err, completed) {
+				io.sockets.emit('updateTeams', completed)
+			});
+		});
+	});
+}
+
+function createCompleted(data) {
+	db.collection('completed', function(err, collection) {
+		collection.insert(data, {w:1}, function(err, result) {
 			console.log(result);
-			updateTeams();
+			updateCompleted();
+		});
+	});	
+}
+
+function modifyCompleted(data) {
+	if(data.multiplier == 0) {
+		data.multiplier = 1;
+	}
+	data._id = mongodb.ObjectID(data._id);
+	db.collection('completed', function(err, collection) {
+		collection.update({_id:data._id}, data, {w:1}, function(err, result) {
+			console.log(result);
+			updateCompleted();
+		});
+	});	
+}
+
+function removeCompleted(data) {
+	db.collection('completed', function(err, collection) {
+		collection.remove({_id:mongodb.ObjectID(data)}, {w:1}, function(err, result) {
+			console.log(result);
+			updateCompleted();
 		});
 	});	
 }
@@ -348,9 +466,8 @@ function setTimer(data) {
 }
 
 function resetGame() {
-	for(var i = 0; i < teams.length; i++) {
-		teams[i].score = 0;
-	}
+	resetTimer();
+	initScores();
 	initField();
 	updateState();
 } 
@@ -361,21 +478,26 @@ function main() {
 	console.log('Listening...');
 
 	// Initialize game
-
-	initField();
-	initTeams(field.teams);
+	
+	resetGame();
+	
+	/*initField();
+	initTeams(field.maxTeams);
 	teams[0].name = 'John Cleese';
 	teams[1].name = 'Terry Gilliam';
 	teams[2].name = 'Eric Idle';
 	teams[3].name = 'Terry Jones';
-	teams[0].multiplier = 10;
+	teams[0].multiplier = 10;*/
 
-	resetTimer();
+	//resetTimer();
 
-//tick function, runs at ~5Hz
+	//tick function, runs at ~5Hz
 	setInterval(function() {
 		updateTime();
 		if(running) {
+			if(gameTime == 0) {
+				return;
+			}
 			var currentTime = Date.now();
 			if(gameTime - (currentTime - realTime) <= 0) {
 				stopTimer();
@@ -398,12 +520,19 @@ function main() {
 	
 	io.sockets.on('connection', function(socket) {
 		//console.log(socket);
-		updateState();
-		updateTeams();
-		
+		setTimeout(function() {
+			updateState();
+			updateTeams();
+			updateUpcoming();
+			
+			setTimeout(function() {
+				
+			}, 100);
+		},100);
+			
 		socket.on('capture', function(data) {
 			var received = Date.now();
-			if(data.team < 0 || data.team >= field.teams) {
+			if(data.team < 0 || data.team >= field.maxTeams) {
 				return
 			}
 			//attempt to capture territory
@@ -437,19 +566,19 @@ function main() {
 					//deactivate all the territories
 					for(var i = 0; i < field.state.length; i++) {
 						if(field.state[i] >= 0) {
-							field.state[i] = field.state[i] % field.teams + field.teams;
+							field.state[i] = field.state[i] % field.maxTeams + field.maxTeams;
 						}
 					}
 					//for each team, flood-fill activate the territories
-					for(var team = 0; team < field.teams; team++) {
+					for(var team = 0; team < field.maxTeams; team++) {
 						var corner = field.teamCorners[team];
 						var next = [corner];
 						while(next.length > 0) {
 							var current = next.pop();
-							if(field.state[current] != field.teams + team) {
+							if(field.state[current] != field.maxTeams + team) {
 								continue;
 							}
-							field.state[current] = field.state[current] % field.teams;
+							field.state[current] = field.state[current] % field.maxTeams;
 							if(field.scoreTimers[current] == -1) {
 								//set timer
 								field.scoreTimers[current] = received;
@@ -463,7 +592,7 @@ function main() {
 						}
 					}
 					for(var i = 0; i < field.state.length; i++) {
-						if(field.state[i] >= field.teams) {
+						if(field.state[i] >= field.maxTeams) {
 							//unset timer
 							field.scoreTimers[i] = -1;
 						}
@@ -475,7 +604,7 @@ function main() {
 		
 		socket.on('capture', function(data) {
 			var received = Date.now();
-			if(data.team < 0 || data.team >= field.teams) {
+			if(data.team < 0 || data.team >= field.maxTeams) {
 				return
 			}
 			//attempt to capture territory
@@ -509,19 +638,19 @@ function main() {
 					//deactivate all the territories
 					for(var i = 0; i < field.state.length; i++) {
 						if(field.state[i] >= 0) {
-							field.state[i] = field.state[i] % field.teams + field.teams;
+							field.state[i] = field.state[i] % field.maxTeams + field.maxTeams;
 						}
 					}
 					//for each team, flood-fill activate the territories
-					for(var team = 0; team < field.teams; team++) {
+					for(var team = 0; team < field.maxTeams; team++) {
 						var corner = field.teamCorners[team];
 						var next = [corner];
 						while(next.length > 0) {
 							var current = next.pop();
-							if(field.state[current] != field.teams + team) {
+							if(field.state[current] != field.maxTeams + team) {
 								continue;
 							}
-							field.state[current] = field.state[current] % field.teams;
+							field.state[current] = field.state[current] % field.maxTeams;
 							if(field.scoreTimers[current] == -1) {
 								//set timer
 								field.scoreTimers[current] = received;
@@ -535,7 +664,7 @@ function main() {
 						}
 					}
 					for(var i = 0; i < field.state.length; i++) {
-						if(field.state[i] >= field.teams) {
+						if(field.state[i] >= field.maxTeams) {
 							//unset timer
 							field.scoreTimers[i] = -1;
 						}
@@ -550,9 +679,17 @@ function main() {
 		socket.on('resetTimer', resetTimer);
 		socket.on('setTimer', setTimer);
 		socket.on('resetGame', resetGame);
+		
 		socket.on('createTeam', createTeam);
 		socket.on('modifyTeam', modifyTeam);
 		socket.on('removeTeam', removeTeam);
+		
+		socket.on('addUpcomingTeam', addUpcomingTeam);
+		socket.on('removeUpcomingTeam', removeUpcomingTeam);
+		socket.on('reorderUpcoming', reorderUpcoming);
+		
+		socket.on('createCompleted', createCompleted);
+		socket.on('removeCompleted', removeCompleted);
 	});
 }
 
@@ -568,3 +705,15 @@ var mongoClient = new mongodb.MongoClient(new mongodb.Server('localhost', 27017)
 
 // Read in the config file, start the app
 fs.readFile(fieldFileName, {encoding:'utf8'}, parseField);
+
+/*function cueServerRampUp(index) {
+
+}
+
+function cueServerRampDown(index) {
+
+}
+
+//etc
+
+*/
