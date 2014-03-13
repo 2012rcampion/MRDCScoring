@@ -64,6 +64,50 @@
 				context.fillStyle = '#444444';
 				context.fillRect(0, 0, size*squareDim, size*squareDim);
 				
+				/*<button id='startRamp'>Activate</button>
+				<button id='stopRamp'>Deactivate</button><br/>
+				<button id='openDoor'>Door</button>
+				<button id='getCone'>Cone</button>
+				<button id='dropWall'>Drop Wall</button><br/>
+				<button id='personalFoul'>Personal Foul</button>
+				<button id='technicalFoul'>Technical Foul</button>*/
+				
+				// ramp
+				
+				$('#upRamp').on('click', function() {
+					socket.emit('upRamp', currentColor);
+				});
+				
+				$('#downRamp').on('click', function() {
+					socket.emit('downRamp', currentColor);
+				});
+				
+				// other actions
+				
+				$('#openDoor').on('click', function() {
+					socket.emit('openDoor', currentColor);
+				});
+				
+				$('#getCone').on('click', function() {
+					socket.emit('getCone', currentColor);
+				});
+				
+				$('#dropWall').on('click', function() {
+					socket.emit('dropWall', currentColor);
+				});
+				
+				// fouls
+				
+				$('#personalFoul').on('click', function() {
+					socket.emit('personalFoul', currentColor);
+				});
+				
+				$('#technicalFoul').on('click', function() {
+					socket.emit('technicalFoul', currentColor);
+				});
+				
+				//timer functions
+				
 				$('#startTimer').on('click', function() {
 					socket.emit('startTimer');
 				});
@@ -79,6 +123,8 @@
 				$('#setTimer').on('click', function() {
 					socket.emit('setTimer',$('#timerInput').val());
 				});
+				
+				//game functions
 				
 				$('#resetGame').on('click', function() {
 					socket.emit('resetGame');
@@ -188,7 +234,7 @@
 						var y1 = f.ramps[i].start.row * squareDim;
 						var x2 = f.ramps[i].end.col * squareDim;
 						var y2 = f.ramps[i].end.row * squareDim;
-						if(f.ramps[i].state == 'forward') {
+						if(f.ramps[i].state == 'up') {
 							var x0 = x1;
 							var y0 = y1;
 							x1 = x2;
@@ -204,7 +250,7 @@
 						context.lineCap = 'square';
 						context.stroke();
 						
-						if(f.ramps[i].state != 'stopped') {
+						if(f.ramps[i].visible) {
 							context.beginPath();
 							for(var j = 0; j < 3; j++) {
 								context.moveTo((0.1+0.4*j)*x1+(0.9-0.4*j)*x2, (-.3+0.4*j)*y1+(1.3-0.4*j)*y2);
@@ -334,8 +380,8 @@
 			<ul id='teams'>
 			</ul>
 			Ramp:
-			<button id='startRamp'>Activate</button>
-			<button id='stopRamp'>Deactivate</button><br/>
+			<button id='downRamp'>Activate (Down)</button>
+			<button id='upRamp'>Deactivate (Up)</button><br/>
 			<button id='openDoor'>Door</button>
 			<button id='getCone'>Cone</button>
 			<button id='dropWall'>Drop Wall</button><br/>

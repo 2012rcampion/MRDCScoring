@@ -9,8 +9,11 @@ var fieldFileName = __dirname + '/field.config';
 var dbURL = 'mongodb://localhost:27017/jsdc';
 
 //game parameters, all times in ms
-var scoreInterval = 10*1000; //10s
-var matchTime = 7*60*1000; //7m
+var scoreInterval = 10000; //10s
+var matchTime = 7*60000; //7m
+var rampReversalDelay = 15000; //15s
+
+var rampFlashPatterns = {'up':[2000, 1000], 'reversing':[500, 500]};
 
 var endBonusMultiplier = 10;
 
@@ -228,6 +231,8 @@ function initField() {
 	for(var i = 0; i < field.maxTeams; i++ ) {
 		field.state[field.teamCorners[i]] = i;
 		field.scoreTimers[field.teamCorners[i]] = -2;
+		field.ramps.state = 'stopped';
+		field.ramps.visible = false;
 	}
 }
 
@@ -483,6 +488,10 @@ function setTimer(data) {
 	gameTime = 1000*time;
 }
 
+function setScore(data) {
+
+}
+
 function resetGame() {
 	resetTimer();
 	initScores();
@@ -490,6 +499,89 @@ function resetGame() {
 	updateState();
 	updateTime();
 } 
+
+function flashRamp(i, state) {
+	var r = field.ramps[i];
+	if(rampFlashPatterns[state]) {
+		field.ramps[i].visible = !field.ramps[i].visible;
+		if(field.ramps[i].visible) {
+			cueServerRampLightOn(i);
+		}
+		else {
+			cueServerRampLightOff(i);
+		}
+		setTimeout(flashRamp, i, state, rampFlashPatterns[r.state][r?1:0]);
+	}
+}
+
+function downRamp(i) {
+	if(i >= 0) {
+		if(field.ramps[i].state == 'down') {
+			return;
+		}
+		field.ramps[i].state = 'down';
+		cueServerRampDown(i);
+		field.ramps[i].visible = true;
+		flashRamp(i, 'down');
+		if(!scores[i].ramp) {
+			scores[i].ramp = true;
+			scores[i].score += rampValue;
+		}
+	}
+}
+
+function upRamp(i) {
+	if(i >= 0) {
+		if(field.ramps[i].state == 'reversing') {
+			return;
+		}
+		if(field.ramps[i].state == 'up') {
+			return;
+		}
+		field.ramps[i].state = 'reversing';
+		field.ramps[i].visible = true;
+		flashRamp(i, 'reversing');
+		setTimeout(function() {
+			field.ramps[i].state = 'up';
+			cueServerRampUp(i);
+			field.ramps[i].visible = true;
+			cueServerRampLightOn(i);
+		}, rampReversalDelay);
+	}
+}
+
+function getCone(i) {
+	if(i >= 0 && !scores[i].cone) {
+		scores[i].cone = true;
+		scores[i].score += coneValue;
+	}
+}
+
+function dropWall(i) {
+	if(i >= 0 && !scores[i].wall) {
+		scores[i].wall = true;
+		scores[i].score += wallValue;
+	}
+}
+
+function openDoor(i) {
+	if(i >= 0 && !scores[i].door) {
+		scores[i].door = true;
+		scores[i].score += doorValue;
+	}
+}
+
+function personalFoul(i) {
+	if(i >= 0) {
+		scores[i].score += personalFoulValue;
+	}
+}
+
+function technicalFoul(i) {
+	if(i >= 0) {
+		scores[i].score += technicalFoulValue;
+	}
+}
 
 function main() {
 	// Start server
@@ -553,7 +645,7 @@ function main() {
 	io.sockets.on('connection', function(socket) {
 		//console.log(socket);
 		setTimeout(function() {
-			updateState();
+			updateState(true);
 			updateTeams();
 			updateUpcoming();
 			updateTime();
@@ -708,6 +800,15 @@ function main() {
 		socket.on('resetTimer', resetTimer);
 		socket.on('setTimer', setTimer);
 		socket.on('resetGame', resetGame);
+		socket.on('setScore', setScore);
+		
+		socket.on('upRamp', upRamp);
+		socket.on('downRamp', downRamp);
+		socket.on('getCone', getCone);
+		socket.on('dropWall', dropWall);
+		socket.on('openDoor', openDoor);
+		socket.on('personalFoul', personalFoul);
+		socket.on('technicalFoul', technicalFoul);
 		
 		socket.on('createTeam', createTeam);
 		socket.on('modifyTeam', modifyTeam);
@@ -736,14 +837,32 @@ var mongoClient = new mongodb.MongoClient(new mongodb.Server('localhost', 27017)
 // Read in the config file, start the app
 fs.readFile(fieldFileName, {encoding:'utf8'}, parseField);
 
-/*function cueServerRampUp(index) {
+/*
 
-}
+---projector---
 
-function cueServerRampDown(index) {
+  0 (red)   1 (yellow)
 
-}
 
-//etc
+
+  2 (green) 3 (blue)
+
+ramp commands:
+	cueServerRampUp(index)
+	cueServerRampDown(index)
+	cueServerRampOff(index)
+	cueServerRampLightOn(index)
+	cueServerRampLightOff(index)
+
+server commands:
+	cueServerInit()
+	cueServerReset()
+	cueServerEmergencyStop()
+
+lighting commands:
+	cueServerLightsOn() // whole course
+	cueServerLightsOff()
+	cueServerLightsFlashOn() // just flashing lights
+	cueServerLightsFlashOff()
 
 */
