@@ -80,6 +80,9 @@
 	padding:0 8px;
 	border:0;
 	background-color:white;
+}
+
+button {
 	font-size:inherit;
 }
 
@@ -89,6 +92,31 @@
 
 #bottom {
 	clear:both;
+	font-size:18px;
+	padding:6px;
+}
+
+#bottom ul {
+	list-style-type: none;
+	margin:0;
+	padding:0;
+}
+
+#bottom>button {
+	height:40px;
+	margin:6px;
+	padding:0 8px;
+	border:solid 4px #dddddd;
+	background:white;
+}
+
+#bottom li>span {
+	margin:6px;
+	/*margin-left:12px;*/
+}
+
+li .teamSelector {
+	float:right;
 }
 
 body {
@@ -108,14 +136,14 @@ body {
 }*/
 
 .delete {
-	height:32px;
-	width:32px;
-	border-radius:16px;
+	height:24px;
+	width:24px;
+	border-radius:12px;
 	background-color:#ff7777;
 	color:#ffffff;
 	border:none;
 	margin:6px;
-	font-size:22px;
+	font-size:16px;
 	text-align: center;
 }
 

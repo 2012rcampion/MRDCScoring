@@ -17,7 +17,12 @@ var rampReversalDelay = 15000; //15s
 
 var rampFlashPatterns = {
 	'up'       :{'period':1000, 'dutyCycle':0.75},
-	'reversing':{'period':500, 'dutyCycle':0.50}
+	'reversing':{'period': 500, 'dutyCycle':0.50}
+};
+
+var courseFlashPatterns = {
+	'60seconds':{'period':1000, 'dutyCycle':0.50},
+	'30seconds':{'period': 500, 'dutyCycle':0.50}
 };
 
 var endBonusMultiplier = 10;
@@ -428,14 +433,15 @@ function updateCompleted() {
 
 function pushCompleted() {
 	if(teams.length == 0) {
-		return popUpcoming();
+		return;
 	}
 	db.completed.insert({'teams':teams, 'scores':scores, 'time':realTime},
 		{w:1}, function(err, result) {
 			teams = [];
 			scores = [];
+			resetGame();
 			updateCompleted();
-			popUpcoming();
+			updateState();
 		}
 	);
 }
@@ -679,6 +685,18 @@ function main() {
 						}
 					}
 				}
+				if(time < 60) {
+					var p = courseFlashPatterns['60seconds'];
+					if(time < 30) {
+						p = courseFlashPatterns['30seconds'];
+					}
+					if((time/p.period)%1 < p.dutyCycle) {
+						cueServerLightsFlashOn();
+					}
+					else {
+						cueServerLightsFlashOff();
+					}
+				}
 			}
 			updateTime();
 			if(update) {
@@ -878,7 +896,7 @@ var server = http.createServer(app);
 
 var io = socket.listen(server, {log: false});
 
-var mongoClient = new mongodb.MongoClient(new mongodb.Server('localhost', 27017));
+var mongoClient = new mongodb.MongoClient();
 
 // Read in the config file, start the app
 fs.readFile(fieldFileName, {encoding:'utf8'}, parseField);
