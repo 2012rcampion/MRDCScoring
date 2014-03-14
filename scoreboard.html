@@ -201,7 +201,7 @@
 				
 				socket.on('updateState', function(data) {
 					var f = data.field;
-					console.log(data);
+					//console.log(data);
 					context.clearRect(0, 0, size*squareDim, size*squareDim);
 					context.lineWidth = 16;
 					for(var i = 0; i < f.territories; i++) {
@@ -298,7 +298,11 @@
 					list.find('li').remove();
 					var selector = $('.teamSelector');
 					selector.find('option').remove();
-					//selector.append($('<option>'));
+					selector.append(
+						$('<option>')
+						.text('select team')
+						.val('')
+					);
 					for(var i = 0; i < teamData.length; i++) {
 						var t = teamData[i];
 						teamData[t._id] = t;
@@ -347,8 +351,20 @@
 								)
 							);
 						}
-						li.append($('#teamSelector').clone());
 						li.append(
+							$('#teamSelector')
+							.clone()
+							.on('change', function() {
+								if(!($(this).val())) {
+									return;
+								}
+								socket.emit('addUpcomingTeam', {
+									_id:($(this).parent('li').data('id')),
+									team:($(this).val())
+								});
+							})
+						);
+						/*li.append(
 							$('<button>')
 							.text('Add')
 							.data('id', u._id)
@@ -358,7 +374,7 @@
 									team:($(this).prev('select').val())
 								});
 							})
-						);
+						);*/
 						list.append(li);
 					}
 				});

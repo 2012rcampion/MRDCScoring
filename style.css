@@ -37,6 +37,10 @@
 	padding:0;
 }
 
+#teams button {
+	text-align:left;
+}
+
 #teams li {
 	height:32px;
 	line-height:32px;
@@ -104,16 +108,15 @@ body {
 }*/
 
 .delete {
-	height:24px;
-	width:24px;
-	border-radius:12px;
+	height:32px;
+	width:32px;
+	border-radius:16px;
 	background-color:#ff7777;
 	color:#ffffff;
 	border:none;
-	margin:4px;
-	font-size:20px;
+	margin:6px;
+	font-size:22px;
 	text-align: center;
-	vertical-align: middle;
 }
 
 .delete:before {

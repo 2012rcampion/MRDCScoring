@@ -13,7 +13,10 @@ var scoreInterval = 10000; //10s
 var matchTime = 7*60000; //7m
 var rampReversalDelay = 15000; //15s
 
-var rampFlashPatterns = {'up':[1000, 500], 'reversing':[250, 250]};
+var rampFlashPatterns = {
+	'up'       :{'period':1000, 'dutyCycle':0.75},
+	'reversing':{'period':500, 'dutyCycle':0.50}
+};
 
 var endBonusMultiplier = 10;
 
@@ -523,32 +526,6 @@ function resetGame() {
 
 //ramp functions
 
-function flashRamp(i, state) {
-	if(rampFlashPatterns[state]) {
-		if(field.ramps[i].state != state) {
-			console.log('wrong flash state, '+field.ramps[i].state+' != '+state);
-			return;
-		}
-		if(running) {
-			field.ramps[i].visible = !field.ramps[i].visible;
-			if(field.ramps[i].visible) {
-				cueServerRampLightOn(i);
-			}
-			else {
-				cueServerRampLightOff(i);
-			}
-		}
-		setTimeout(flashRamp,
-			rampFlashPatterns[state][field.ramps[i].visible?0:1],
-			i, state
-		);
-		updateState();
-	}
-	else {
-		console.log('illegal flash state');
-	}
-}
-
 function upRamp(i) {
 	if(i >= 0 && running) {
 		if(field.ramps[i].state == 'up') {
@@ -556,8 +533,7 @@ function upRamp(i) {
 		}
 		field.ramps[i].state = 'up';
 		cueServerRampDown(i);
-		field.ramps[i].visible = false;
-		flashRamp(i, 'up');
+		field.ramps[i].visible = true;
 		if(!scores[i].ramp) {
 			scores[i].ramp = true;
 			scores[i].score += rampValue;
@@ -575,8 +551,7 @@ function downRamp(i) {
 			return;
 		}
 		field.ramps[i].state = 'reversing';
-		field.ramps[i].visible = false;
-		flashRamp(i, 'reversing');
+		field.ramps[i].visible = true;
 		setTimeout(function() {
 			if(field.ramps[i].state != 'reversing') {
 				return;
@@ -648,12 +623,14 @@ function main() {
 
 	//resetTimer();
 
-	//tick function, runs at ~5Hz
+	//tick function, runs at ~10Hz
 	setInterval(function() {
 		if(running) {
 			var currentTime = Date.now();
+			var time = gameTime - (currentTime - realTime);
 			var update = false;
-			if(gameTime - (currentTime - realTime) <= 0) {
+			if(time <= 0) {
+				//end of game
 				stopTimer();
 				gameTime = 0;
 				update = true;
@@ -684,13 +661,29 @@ function main() {
 						update = true;
 					}
 				}
+				for(var i = 0; i < field.maxTeams; i++) {
+					var p = rampFlashPatterns[field.ramps[i].state];
+					if(p) {
+						var v = field.ramps[i].visible;
+						if(v != ((time/p.period)%1 < p.dutyCycle)) {
+							update = true;
+							field.ramps[i].visible = !v;
+							if(v) {
+								cueServerRampLightOff();
+							}
+							else {
+								cueServerRampLightOn();
+							}
+						}
+					}
+				}
 			}
 			updateTime();
 			if(update) {
 				updateState();
 			}
 		}
-	}, 200);
+	}, 100);
 	
 	io.sockets.on('connection', function(socket) {
 		//console.log(socket);
