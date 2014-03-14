@@ -876,7 +876,7 @@ var server = http.createServer(app);
 
 var io = socket.listen(server, {log: false});
 
-var mongoClient = new mongodb.MongoClient(new mongodb.Server('localhost', 27017));
+var mongoClient = new mongodb.MongoClient();
 
 // Read in the config file, start the app
 fs.readFile(fieldFileName, {encoding:'utf8'}, parseField);
