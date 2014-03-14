@@ -116,13 +116,13 @@
 					socket.emit('stopTimer');
 				});
 				
-				$('#resetTimer').on('click', function() {
+				/*$('#resetTimer').on('click', function() {
 					socket.emit('resetTimer');
 				});
 				
 				$('#setTimer').on('click', function() {
 					socket.emit('setTimer',$('#timerInput').val());
-				});
+				});*/
 				
 				//game functions
 				
@@ -434,9 +434,9 @@
 			<span class='time'></span>
 			<button id='startTimer'>Start</button>
 			<button id='stopTimer'>Pause</button>
-			<button id='resetTimer'>Reset</button>
+			<!--<button id='resetTimer'>Reset</button>
 			<button id='setTimer'>Set to:</button>
-			<input id='timerInput'/><br/>
+			<input id='timerInput'/><br/>-->
 			
 			<ul id='teams'></ul>
 			<button id='resetGame'>Reset Game</button><br/>
@@ -456,8 +456,8 @@
 			<ul id='completedList'>
 			</ul>
 			
-			<button id='pushCompleted'>Complete Current Match</button>
-			<button id='popUpcoming'>Discard Current Match</button>
+			<button id='pushCompleted'>Save current match</button>
+			<button id='popUpcoming'>Load next match</button>
 			
 			<h2>Upcoming Matches</h2>
 			<ul id='upcomingList'>
