@@ -298,7 +298,7 @@ function createTeam(data) {
 		data.multiplier = 1;
 	}
 	db.teams.insert(data, {w:1}, function(err, result) {
-		console.log(result);
+		//console.log(result);
 		updateTeams();
 	});
 }
@@ -309,14 +309,14 @@ function modifyTeam(data) {
 	}
 	data._id = mongodb.ObjectID(data._id);
 	db.teams.update({_id:data._id}, data, {w:1}, function(err, result) {
-		console.log(result);
+		//console.log(result);
 		updateTeams();
 	});	
 }
 
 function removeTeam(data) {
 	db.teams.remove({_id:mongodb.ObjectID(data)}, {w:1}, function(err, result) {
-		console.log(result);
+		//console.log(result);
 		updateTeams();
 	});
 }
@@ -335,7 +335,7 @@ function reorderUpcoming(ids) {
 	for(var i = 0; i < ids.length; i++) {
 		db.upcoming.update({_id: mongodb.ObjectID(ids[i])}, {$set:{order:i}},
 			{w:1}, function(err, result) {
-				console.log(i);
+				//console.log(i);
 			}
 		);
 	}
@@ -366,16 +366,16 @@ function addUpcomingTeam(data) {
 
 function removeUpcomingTeam(data) {
 	data._id = mongodb.ObjectID(data._id);
-	console.log({_id:data._id});
-	console.log({$pull:{teams:data.team}});
+	//console.log({_id:data._id});
+	//console.log({$pull:{teams:data.team}});
 	db.upcoming.findAndModify({_id:data._id}, [['_id', 1]],
 		{$pull:{teams:data.team}}, {w:1}, function(err, result) {
 			if(err) {
 				console.error(err);
 				return;
 			}
-			console.log(err);
-			console.log(result);
+			//console.log(err);
+			//console.log(result);
 			if(result === null) {
 				return;
 			}
@@ -397,11 +397,11 @@ function popUpcoming() {
 			for(var i = 0; i < result.teams.length; i++) {
 				result.teams[i] = mongodb.ObjectID(result.teams[i]);
 			}
-			console.log(result);
+			//console.log(result);
 			if(result.teams.length > 0) {
 				db.teams.find({_id:{$in:(result.teams)}}, function(err, results) {
 					results.toArray(function(err, results) {
-						console.log(results);
+						//console.log(results);
 						if(results.length == 0) {
 							return;
 						}
@@ -448,7 +448,7 @@ function pushCompleted() {
 
 function removeCompleted(data) {
 	db.completed.remove({_id:mongodb.ObjectID(data)}, {w:1}, function(err, result) {
-		console.log(result);
+		//console.log(result);
 		updateCompleted();
 	});
 }
@@ -677,10 +677,10 @@ function main() {
 							update = true;
 							field.ramps[i].visible = !v;
 							if(v) {
-								cueServerRampLightOff();
+								cueServerRampLightOff(i);
 							}
 							else {
-								cueServerRampLightOn();
+								cueServerRampLightOn(i);
 							}
 						}
 					}
@@ -915,43 +915,52 @@ fs.readFile(fieldFileName, {encoding:'utf8'}, parseField);
 */
 
 //ramp commands:
+
+function cueServerSend(str) {
+	http.get(cueServerURL + encodeURIComponent(str), function(res) {
+		console.log(str+' --> '+res.statusCode);
+	}).on('error', function(e) {
+		console.err(str+' --> '+e.message);
+	});
+}
+
 function cueServerRampUp(index) {
-	http.get(cueServerURL + encodeURIComponent('P1Q4' + index + '.1G'));
+	cueServerSend('P1Q4' + index + '.1G');
 }
 function cueServerRampDown(index) {
-	http.get(cueServerURL + encodeURIComponent('P1Q4' + index + '.2G'));
+	cueServerSend('P1Q4' + index + '.2G');
 }
 function cueServerRampOff(index) {
-	http.get(cueServerURL + encodeURIComponent('P1Q4' + index + '.3G'));
+	cueServerSend('P1Q4' + index + '.3G');
 }
 function cueServerRampLightOn(index) {
-	http.get(cueServerURL + encodeURIComponent('P2F5>8AFL'));
+	cueServerSend('P2F5>8AFL');
 }
 function cueServerRampLightOff(index) {
-	http.get(cueServerURL + encodeURIComponent('P2F5>8A0'));
+	cueServerSend('P2F5>8A0');
 }
 
 //server commands:
 function cueServerInit() {
-	http.get(cueServerURL + encodeURIComponent('M900G'));
+	cueServerSend('M900G');
 }
 function cueServerReset() {
-	http.get(cueServerURL + encodeURIComponent('M1111G'));
+	cueServerSend('M1111G');
 }
 function cueServerEmergencyStop() {
-	http.get(cueServerURL + encodeURIComponent('M999G'));
+	cueServerSend('M999G');
 }
 
 //lighting commands:
 function cueServerLightsOn() {
-	http.get(cueServerURL + encodeURIComponent('M1G'));
+	cueServerSend('M1G');
 } // whole course
 function cueServerLightsOff() {
-	http.get(cueServerURL + encodeURIComponent('P1CL'));
+	cueServerSend('P1CL');
 }
 function cueServerLightsFlashOn() {
-	http.get(cueServerURL + encodeURIComponent('P21>4+10AFL'));
+	cueServerSend('P21>4+10AFL');
 } // just flashing lights
 function cueServerLightsFlashOff() {
-	http.get(cueServerURL + encodeURIComponent('P21>4+10A0'));
+	cueServerSend('P21>4+10A0');
 }
