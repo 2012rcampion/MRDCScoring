@@ -9,14 +9,14 @@
 			socket = {};
 			currentColor = -1;
 			teamColors = [
-				'#ff0000',
+				'#0000ff', //regular
 				'#ffff00',
 				'#00ff00',
-				'#0000ff',
-				'#7f0000',
+				'#ff0000',
+				'#00007f',
 				'#7f7f00',
 				'#007f00',
-				'#00007f'
+				'#7f0000'
 			];
 			fieldColors = {
 				't':'#ddc16f',
@@ -61,7 +61,7 @@
 				canvas.width = size*squareDim;
 				canvas.height = size*squareDim;
 				context = canvas.getContext('2d');
-				context.fillStyle = '#444444';
+				context.fillStyle = '#777777';
 				context.fillRect(0, 0, size*squareDim, size*squareDim);
 				
 				/*<button id='startRamp'>Activate</button>
@@ -265,20 +265,24 @@
 					var list = $('#teams');
 					list.find('li').remove();
 					for(var i = 0; i < data.teams.length; i++) {
-						var li = $('<li>')
+						var li = $('<button>')
 							.text(data.teams[i].name + ':')
 							.append($('<span>').text(data.scores[i].score))
 							.data('team', i)
-							.css({'background-color': teamColors[i]})
 							.on('click', function() {
 								currentColor = +$(this).data('team');
-								$(this).siblings().removeClass('selected');
+								$('#teams button').removeClass('selected');
 								$(this).addClass('selected');
 							});
 						if(i == currentColor) {
-							li.addClass('selected');
+							li.trigger('click');
 						}
-						list.append(li);
+						list.append(
+							$('<li>')
+							.css('border-color', teamColors[i])
+							.css('background-color', teamColors[i])
+							.append(li)
+						);
 					}
 				});
 				
@@ -398,17 +402,16 @@
 			<canvas id='canvas'></canvas>	
 		</div>
 		<div id='sidebar'>
-			<span class='time'></span>
+			<div class='time'></div>
 			<ul id='teams'>
 			</ul>
-			Ramp:
-			<button id='upRamp'>Activate (Up)</button>
-			<button id='downRamp'>Deactivate (Down)</button><br/>
-			<button id='openDoor'>Door</button>
-			<button id='getCone'>Cone</button>
-			<button id='dropWall'>Drop Wall</button><br/>
-			<button id='personalFoul'>Personal Foul</button>
-			<button id='technicalFoul'>Technical Foul</button>
+			<div><button id='upRamp'>Activated Ramp</button></div>
+			<div><button id='downRamp'>Deactivated Ramp</button></div>
+			<div><button id='openDoor'>Opened Door</button></div>
+			<div><button id='getCone'>Released Cone</button></div>
+			<div><button id='dropWall'>Drop Wall Activated</button></div>
+			<div><button id='personalFoul' class='foul'>Personal Foul</button></div>
+			<div><button id='technicalFoul' class='foul'>Technical Foul</button></div>
 		</div>
 		<div id='bottom'>
 			<h2>Current Game</h2>
