@@ -7,6 +7,8 @@ var mongodb = require('mongodb');
 //resources
 var fieldFileName = __dirname + '/field.config';
 var dbURL = 'mongodb://localhost:27017/jsdc';
+var cueServerHost = '192.168.1.42';
+var cueServerURL = 'http://' + cueServerHost + '/exe.cgi?cmd='; // Includes trailing `?`
 
 //game parameters, all times in ms
 var scoreInterval = 10000; //10s
@@ -895,19 +897,43 @@ fs.readFile(fieldFileName, {encoding:'utf8'}, parseField);
 */
 
 //ramp commands:
-function cueServerRampUp(index) {}
-function cueServerRampDown(index) {}
-function cueServerRampOff(index) {}
-function cueServerRampLightOn(index) {}
-function cueServerRampLightOff(index) {}
+function cueServerRampUp(index) {
+	http.get(cueServerURL + encodeURIComponent('P1Q4' + index + '.1G'));
+}
+function cueServerRampDown(index) {
+	http.get(cueServerURL + encodeURIComponent('P1Q4' + index + '.2G'));
+}
+function cueServerRampOff(index) {
+	http.get(cueServerURL + encodeURIComponent('P1Q4' + index + '.3G'));
+}
+function cueServerRampLightOn(index) {
+	http.get(cueServerURL + encodeURIComponent('P2F5>8AFL'));
+}
+function cueServerRampLightOff(index) {
+	http.get(cueServerURL + encodeURIComponent('P2F5>8A0'));
+}
 
 //server commands:
-function cueServerInit() {}
-function cueServerReset() {}
-function cueServerEmergencyStop() {}
+function cueServerInit() {
+	http.get(cueServerURL + encodeURIComponent('M900G'));
+}
+function cueServerReset() {
+	http.get(cueServerURL + encodeURIComponent('M1111G'));
+}
+function cueServerEmergencyStop() {
+	http.get(cueServerURL + encodeURIComponent('M999G'));
+}
 
 //lighting commands:
-function cueServerLightsOn() {} // whole course
-function cueServerLightsOff() {}
-function cueServerLightsFlashOn() {} // just flashing lights
-function cueServerLightsFlashOff() {}
+function cueServerLightsOn() {
+	http.get(cueServerURL + encodeURIComponent('M1G'));
+} // whole course
+function cueServerLightsOff() {
+	http.get(cueServerURL + encodeURIComponent('P1CL'));
+}
+function cueServerLightsFlashOn() {
+	http.get(cueServerURL + encodeURIComponent('P21>4+10AFL'));
+} // just flashing lights
+function cueServerLightsFlashOff() {
+	http.get(cueServerURL + encodeURIComponent('P21>4+10A0'));
+}
