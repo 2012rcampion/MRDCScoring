@@ -934,10 +934,10 @@ function cueServerRampOff(index) {
 	cueServerSend('P1Q4' + index + '.3G');
 }
 function cueServerRampLightOn(index) {
-	cueServerSend('P2F5>8AFL');
+	cueServerSend('P2F' + (index+5) + 'AFL');
 }
 function cueServerRampLightOff(index) {
-	cueServerSend('P2F5>8A0');
+	cueServerSend('P2F' + (index+5) + 'A0');
 }
 
 //server commands:
