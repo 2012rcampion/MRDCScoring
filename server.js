@@ -245,6 +245,7 @@ function initField() {
 		field.ramps.state = 'stopped';
 		field.ramps.visible = false;
 	}
+	field.lights = true;
 }
 
 function initScores() {
@@ -255,7 +256,8 @@ function initScores() {
 	scores = new Array(teams.length);
 	for(var i = 0; i < scores.length; i++) {
 		scores[i] = {
-			score: 0,
+			offsetScore: 0,
+			baseScore: 0,
 			ramp: false,
 			door: false,
 			cone: false,
@@ -286,6 +288,19 @@ function updateTime() {
 // ----- TEAMS -----
 
 function updateTeams() {
+	for(var i = 0; i < teams.length; i++) {
+		db.teams.findOne({_id:teams[i]._id}, function(err, result) {
+			console.log(result);
+			for(var j = 0; j < teams.length; j++) {
+				console.log(teams[j]);
+				if(teams[j]._id.toHexString() == result._id.toHexString()) {
+					teams[j] = result;
+					console.log('ok');
+					break;
+				}
+			}
+		});
+	}
 	db.teams.find({}, function(err, cursor) {
 		cursor.toArray(function(err, teams) {
 			io.sockets.emit('updateTeams', teams)
@@ -544,7 +559,7 @@ function upRamp(i) {
 		field.ramps[i].visible = true;
 		if(!scores[i].ramp) {
 			scores[i].ramp = true;
-			scores[i].score += rampValue;
+			scores[i].offsetScore += rampValue;
 		}
 		updateState();
 	}
@@ -577,7 +592,7 @@ function downRamp(i) {
 function getCone(i) {
 	if(i >= 0 && !scores[i].cone) {
 		scores[i].cone = true;
-		scores[i].score += coneValue;
+		scores[i].offsetScore += coneValue;
 		updateState();
 	}
 }
@@ -585,7 +600,7 @@ function getCone(i) {
 function dropWall(i) {
 	if(i >= 0 && !scores[i].wall) {
 		scores[i].wall = true;
-		scores[i].score += wallValue;
+		scores[i].offsetScore += wallValue;
 		updateState();
 	}
 }
@@ -593,21 +608,21 @@ function dropWall(i) {
 function openDoor(i) {
 	if(i >= 0 && !scores[i].door) {
 		scores[i].door = true;
-		scores[i].score += doorValue;
+		scores[i].offsetScore += doorValue;
 		updateState();
 	}
 }
 
 function personalFoul(i) {
 	if(i >= 0) {
-		scores[i].score += personalFoulValue;
+		scores[i].offsetScore += personalFoulValue;
 		updateState();
 	}
 }
 
 function technicalFoul(i) {
 	if(i >= 0) {
-		scores[i].score += technicalFoulValue;
+		scores[i].offsetScore += technicalFoulValue;
 		updateState();
 	}
 }
@@ -644,10 +659,8 @@ function main() {
 				update = true;
 				for(var i = 0; i < field.territories; i++) {
 					if(field.scoreTimers[i] > 0) {
-						scores[field.state[i]].score
-								+= field.points[i]
-								* teams[field.state[i]].multiplier
-								* endBonusMultiplier;
+						scores[field.state[i]].offsetScore
+								+= field.points[i]*endBonusMultiplier;
 						field.scoreTimers[i] = -1;
 					}
 				}
@@ -662,9 +675,7 @@ function main() {
 						field.scoreTimers[i] > 0
 						&& currentTime - field.scoreTimers[i] > scoreInterval
 					) {
-						scores[field.state[i]].score
-							+= field.points[i]
-							* teams[field.state[i]].multiplier;
+						scores[field.state[i]].baseScore += field.points[i];
 						field.scoreTimers[i] += scoreInterval;
 						update = true;
 					}
@@ -685,16 +696,20 @@ function main() {
 						}
 					}
 				}
-				if(time < 60) {
+				if(time < 60000) {
+					console.log('countdown');
 					var p = courseFlashPatterns['60seconds'];
-					if(time < 30) {
+					if(time < 30000) {
 						p = courseFlashPatterns['30seconds'];
 					}
-					if((time/p.period)%1 < p.dutyCycle) {
-						cueServerLightsFlashOn();
-					}
-					else {
-						cueServerLightsFlashOff();
+					if(field.lights != (time/p.period)%1 < p.dutyCycle) {
+						if(field.lights) {
+							cueServerLightsFlashOn();
+						}
+						else {
+							cueServerLightsFlashOff();
+						}
+						field.lights = !field.lights;
 					}
 				}
 			}
@@ -917,11 +932,12 @@ fs.readFile(fieldFileName, {encoding:'utf8'}, parseField);
 //ramp commands:
 
 function cueServerSend(str) {
-	http.get(cueServerURL + encodeURIComponent(str), function(res) {
+	console.log(str);
+	/*http.get(cueServerURL + encodeURIComponent(str), function(res) {
 		console.log(str+' --> '+res.statusCode);
 	}).on('error', function(e) {
 		console.err(str+' --> '+e.message);
-	});
+	});*/
 }
 
 function cueServerRampUp(index) {
@@ -959,8 +975,8 @@ function cueServerLightsOff() {
 	cueServerSend('P1CL');
 }
 function cueServerLightsFlashOn() {
-	cueServerSend('P21>4+10AFL');
+	cueServerSend('P2F1>4+10AFL');
 } // just flashing lights
 function cueServerLightsFlashOff() {
-	cueServerSend('P21>4+10A0');
+	cueServerSend('P2F1>4+10A0');
 }
