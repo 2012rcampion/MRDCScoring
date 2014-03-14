@@ -332,7 +332,7 @@
 								.addClass('upcoming')
 								.append(
 									$('<button>')
-									.text('x')
+									.addClass('delete')
 									.data('team', u.teams[j])
 									.on('click', function() {
 										socket.emit('removeUpcomingTeam', {
@@ -363,7 +363,29 @@
 					var list = $('#completedList');
 					list.find('li').remove();
 					for(var i = 0; i < data.length; i++) {
-						list.append($('<li>').text(JSON.stringify(data[i])));
+						var d = data[i];
+						var li = $('<li>').data('id', d._id);
+						for(var j = 0; j < d.teams.length; j++) {
+							li.append(
+								$('<span>').append(
+									$('<span>').text(d.teams[j].name)
+								)
+								.append(': ')
+								.append(
+									$('<span>').text(d.scores[j].score)
+								)
+							)
+						}
+						li.append(
+							$('<button>')
+							.addClass('delete')
+							.on('click', function() {
+								socket.emit('removeCompleted',
+									$(this).closest('li').data('id')
+								);
+							})
+						);
+						list.append(li);
 					}
 				});
 			

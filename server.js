@@ -890,13 +890,14 @@ fs.readFile(fieldFileName, {encoding:'utf8'}, parseField);
 
 /*
 
----projector---
+----projector----
 
-  0 (red)   1 (yellow)
+  2 (green)   0 (red)
 
 
+  
 
-  2 (green) 3 (blue)
+  1 (yellow)  3 (blue)
 
 */
 

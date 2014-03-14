@@ -60,4 +60,33 @@ li.selected {
 	-webkit-column-count:auto;
 	column-width:200px;
 	-webkit-column-width:150px;
-}/*
+}*/
+
+.delete {
+	height:24px;
+	width:24px;
+	border-radius:12px;
+	background-color:#ff7777;
+	color:#ffffff;
+	border:none;
+	margin:4px;
+	font-size:22px;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.delete:before {
+	content:"×";
+	
+}
+
+#sidebar > button {
+	height:32px;
+	margin:4px;
+	background:#dddddd;
+	border:solid 3px #888888;
+}
+
+* {
+	font-family:sans;
+}
