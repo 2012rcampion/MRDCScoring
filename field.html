@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<title>Scoreboard</title>
-		<link rel='stylesheet' type='text/css' href='style.css'/>
+		<link rel='stylesheet' type='text/css' href='style-large.css'/>
 		<script src='jquery-1.11.0.js'></script>
 		<script src='jquery-ui.js'></script>
 		<script src='/socket.io/socket.io.js'></script>
@@ -177,6 +177,10 @@
 					}
 				});
 				
+				socket.on('updateTeams', function(data) {
+					teamData = data;
+				});
+				
 				socket.on('updateTime', function(data) {
 					var m = Math.floor(data/60000);
 					var s = Math.floor(data/1000)-60*m;
@@ -192,8 +196,8 @@
 			<canvas id='canvas'></canvas>	
 		</div>
 		<div id='sidebar'>
-			<div class='time'></div>
-			<ul id='teams'>
+			<div class='time' ></div>
+			<ul id='teams' >
 			</ul>
 		</div>
 	</body>

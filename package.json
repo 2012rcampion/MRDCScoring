@@ -1,14 +1,17 @@
 {
-  "name": "jsdc",
-  "version": "0.0.0",
+  "name": "jsdc-server",
+  "version": "2014.0.0",
+  "repository":{
+	"type":"git",
+	"url":"https://github.com/brearto2/JSDCServerV2.git"
+  },
   "description": "JSDC Server",
-  "main": "server.js",
+  "main": "app.js",
   "dependencies": {
-    "socket.io": "~0.9.16",
-    "express": "~3.4.8",
-    "mongodb": "~1.3.23"
+    "express": "~4.9.7",
+    "jade": "~1.7.0"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node app.js"
   }
 }

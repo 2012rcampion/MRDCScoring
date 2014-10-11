@@ -42,6 +42,9 @@
 						cell.data('row', i);
 						cell.data('col', j);
 						cell.on('click', function() {
+							if(!confirm('capure territory')){
+							return;
+							}
 							var x = +$(this).data('col');
 							var y = +$(this).data('row');
 							socket.emit('capture', {
@@ -75,35 +78,49 @@
 				// ramp
 				
 				$('#upRamp').on('click', function() {
+					if(confirm('up ramp')) {
 					socket.emit('upRamp', currentColor);
+					}
 				});
 				
 				$('#downRamp').on('click', function() {
+					if(confirm('down ramp')) {
 					socket.emit('downRamp', currentColor);
+					}
 				});
 				
 				// other actions
 				
 				$('#openDoor').on('click', function() {
+					if(confirm('open door')) {
 					socket.emit('openDoor', currentColor);
+					}
 				});
 				
 				$('#getCone').on('click', function() {
+					if(confirm('get cone')) {
 					socket.emit('getCone', currentColor);
+					}
 				});
 				
 				$('#dropWall').on('click', function() {
+					if(confirm('drop wall')) {
 					socket.emit('dropWall', currentColor);
+					}
 				});
 				
 				// fouls
 				
 				$('#personalFoul').on('click', function() {
+					if(confirm('personal foul')) {
 					socket.emit('personalFoul', currentColor);
+					}
 				});
 				
 				$('#technicalFoul').on('click', function() {
+					if(confirm('technical foul')) {
 					socket.emit('technicalFoul', currentColor);
+					}
 				});
 				
 				//timer functions
@@ -169,11 +186,11 @@
 				});
 				
 				$('#removeTeam').on('click', function() {
-					if(!$('#teamSelector').val()) {
+					/*if(!$('#teamSelector').val()) {
 						alert('You must first select a team');
 						return;
 					}
-					socket.emit('removeTeam', $('#teamSelector').val());
+					socket.emit('removeTeam', $('#teamSelector').val());*/
 				});
 				
 				$('#createTeam').on('click', function() {
@@ -203,7 +220,7 @@
 					var f = data.field;
 					//console.log(data);
 					context.clearRect(0, 0, size*squareDim, size*squareDim);
-					context.lineWidth = 16;
+					context.lineWidth = 20;
 					for(var i = 0; i < f.territories; i++) {
 						var border = f.borders[i];
 						context.beginPath();
@@ -294,6 +311,7 @@
 					var m = Math.floor(data/60000);
 					var s = Math.floor(data/1000)-60*m;
 					$('.time').html(m+':'+('0'+s).slice(-2));
+					console.log(data);
 				});
 				
 				socket.on('updateTeams', function(data) {
@@ -326,7 +344,7 @@
 							.text(t.name)
 						);
 					}
-					selector.trigger('change');/*each(function(index, element) {
+					$('#teamSelector').trigger('change');/*each(function(index, element) {
 						element.trigger('change');
 					});*/
 				});
@@ -340,7 +358,7 @@
 						for(var j = 0; j < u.teams.length; j++) {
 							li.append(
 								$('<span>')
-								.text(teamData[u.teams[j]].name)
+								.text(teamData[u.teams[j]]?teamData[u.teams[j]].name:'')
 								.addClass('upcoming')
 								.append(
 									$('<button>')
@@ -360,6 +378,9 @@
 							.clone()
 							.on('change', function() {
 								if(!($(this).val())) {
+									return;
+								}
+								if(!(($(this).val()) in teamData)) {
 									return;
 								}
 								socket.emit('addUpcomingTeam', {
@@ -391,15 +412,14 @@
 						var li = $('<li>').data('id', d._id);
 						for(var j = 0; j < d.teams.length; j++) {
 							li.append(
-								$('<span>').append(
-									$('<span>').text(d.teams[j].name)
-								)
+								$('<span>')
+								.append($('<span>').text(d.teams[j].name))
 								.append(': ')
 								.append(
 									$('<span>').text(
-										d.scores[i].offsetScore +
-										d.scores[i].baseScore *
-										d.teams[i].multiplier
+										d.scores[j].offsetScore +
+										d.scores[j].baseScore *
+										d.teams[j].multiplier
 									)
 								)
 							)

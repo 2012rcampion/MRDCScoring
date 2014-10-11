@@ -16,13 +16,13 @@ var matchTime = 7*60000; //7m
 var rampReversalDelay = 15000; //15s
 
 var rampFlashPatterns = {
-	'up'       :{'period':1000, 'dutyCycle':0.75},
-	'reversing':{'period': 500, 'dutyCycle':0.50}
+	'up'       :{'period':2000, 'dutyCycle':0.75},
+	'reversing':{'period':1000, 'dutyCycle':0.50}
 };
 
 var courseFlashPatterns = {
-	'60seconds':{'period':1000, 'dutyCycle':0.50},
-	'30seconds':{'period': 500, 'dutyCycle':0.50}
+	'60seconds':{'period':2000, 'dutyCycle':0.50},
+	'30seconds':{'period':1000, 'dutyCycle':0.50}
 };
 
 var endBonusMultiplier = 10;
@@ -49,7 +49,7 @@ var running = false;
 //setup functions
 function parseField(err, data) {
 	if(err) {
-		return console.error(err);
+		return console.erroror(err);
 	}
 	lines = data.split('\n');
 	
@@ -69,13 +69,13 @@ function parseField(err, data) {
 	for(var i = 0; i < field.height; i++) {
 		var chars = lines[i+1].split(',');
 		if(chars.length != field.width) {
-			console.error('Warning, field is not the proper width on line '+(i+1));
+			console.erroror('Warning, field is not the proper width on line '+(i+1));
 			return;
 		}
 		field.colors[i]   = chars;
 		var chars = lines[i+1+field.height].split(',');
 		if(chars.length != field.width) {
-			console.error('Warning, field is not the proper width on line '+(i+1+field.width));
+			console.erroror('Warning, field is not the proper width on line '+(i+1+field.width));
 			return;
 		}
 		field.points[i]   = chars;
@@ -219,7 +219,7 @@ function parseField(err, data) {
 function initDB() {
 	mongoClient.connect(dbURL, function(err, database) {
 		if(err) {
-			return console.error(err);
+			return console.erroror(err);
 		}
 		console.log('Connected to ' + dbURL);
 				
@@ -242,15 +242,15 @@ function initField() {
 	for(var i = 0; i < field.maxTeams; i++ ) {
 		field.state[field.teamCorners[i]] = i;
 		field.scoreTimers[field.teamCorners[i]] = -2;
-		field.ramps.state = 'stopped';
-		field.ramps.visible = false;
+		field.ramps[i].state = 'down';
+		field.ramps[i].visible = true;
 	}
 	field.lights = true;
 }
 
 function initScores() {
 	if(teams.length > field.maxTeams) {
-		console.error("Warning: too many teams, truncating list");
+		console.erroror("Warning: too many teams, truncating list");
 		teams.length = field.maxTeams;
 	}
 	scores = new Array(teams.length);
@@ -269,7 +269,14 @@ function initScores() {
 //communication functions
 function updateState() {
 	io.sockets.emit('updateState', {
-		'field':field,
+		'field':{
+			territories:field.territories,
+			borders:field.borders,
+			colors:field.colors,
+			state:field.state,
+			maxTeams:field.maxTeams,
+			ramps:field.ramps
+		},
 		'teams':teams,
 		'scores':scores
 	});
@@ -288,24 +295,23 @@ function updateTime() {
 // ----- TEAMS -----
 
 function updateTeams() {
+	db.teams.find({}, {sort:[['name',1]]}, function(err, cursor) {
+		cursor.toArray(function(err, teams) {
+			io.sockets.emit('updateTeams', teams)
+		});
+	});
 	for(var i = 0; i < teams.length; i++) {
 		db.teams.findOne({_id:teams[i]._id}, function(err, result) {
-			console.log(result);
+			//console.log(result);
 			for(var j = 0; j < teams.length; j++) {
-				console.log(teams[j]);
+				//console.log(teams[j]);
 				if(teams[j]._id.toHexString() == result._id.toHexString()) {
 					teams[j] = result;
-					console.log('ok');
 					break;
 				}
 			}
 		});
 	}
-	db.teams.find({}, function(err, cursor) {
-		cursor.toArray(function(err, teams) {
-			io.sockets.emit('updateTeams', teams)
-		});
-	});
 }
 
 function createTeam(data) {
@@ -386,7 +392,7 @@ function removeUpcomingTeam(data) {
 	db.upcoming.findAndModify({_id:data._id}, [['_id', 1]],
 		{$pull:{teams:data.team}}, {w:1}, function(err, result) {
 			if(err) {
-				console.error(err);
+				console.erroror(err);
 				return;
 			}
 			//console.log(err);
@@ -406,33 +412,39 @@ function removeUpcomingTeam(data) {
 	);	
 }
 
+var dbqueue = {};
+
 function popUpcoming() {
-	db.upcoming.find({}, {sort:[['order', 1]]}, function(err, results) {
-		results.nextObject(function(err, result) {
-			for(var i = 0; i < result.teams.length; i++) {
-				result.teams[i] = mongodb.ObjectID(result.teams[i]);
-			}
-			//console.log(result);
-			if(result.teams.length > 0) {
-				db.teams.find({_id:{$in:(result.teams)}}, function(err, results) {
-					results.toArray(function(err, results) {
-						//console.log(results);
-						if(results.length == 0) {
-							return;
-						}
-						teams = results;
-						resetGame();
-						db.upcoming.remove({_id:result._id}, {w:1}, function(err, results) {
-							updateUpcoming();
-						});
+	db.upcoming.findOne({}, {sort:[['order', 1]]}, function(err, result) {
+		if(!result) {
+			console.log('result is false');
+			return;
+		}
+		console.log(result);
+		dbqueue = result;
+		console.log(dbqueue);
+		if(dbqueue.teams.length > 0) {
+			teams = []
+			for(var i = 0; i < dbqueue.teams.length; i++) {
+				console.log(dbqueue.teams[i]);
+				setImmediate(function(index) {
+					console.log(index);
+					console.log(dbqueue.teams[index])
+					db.teams.findOne({_id:mongodb.ObjectID(dbqueue.teams[index])}, function(err, team) {
+						console.log(team);
+						teams[index] = team;
 					});
-				});
+				}, i);
 			}
-			else {
-				teams = [];
+			setTimeout(function() {
 				resetGame();
-			}
-		});
+			}, 200);
+			//db.upcoming.remove({_id:dbqueue._id}, {w:1}, function(err, results) {});
+		}
+		else {
+			teams = [];
+			resetGame();
+		}
 	});
 }
 
@@ -452,11 +464,11 @@ function pushCompleted() {
 	}
 	db.completed.insert({'teams':teams, 'scores':scores, 'time':realTime},
 		{w:1}, function(err, result) {
-			teams = [];
+			/*teams = [];
 			scores = [];
-			resetGame();
+			resetGame();*/
 			updateCompleted();
-			updateState();
+			//updateState();
 		}
 	);
 }
@@ -667,7 +679,10 @@ function main() {
 				for(var i = 0; i < field.maxTeams; i++) {
 					field.ramps[i].state = 'stopped';
 					field.ramps[i].visible = false;
+					cueServerRampOff(i);
 				}
+				cueServerLightsOff();
+				
 			}
 			else {
 				for(var i = 0; i < field.territories; i++) {
@@ -718,16 +733,18 @@ function main() {
 				updateState();
 			}
 		}
-	}, 100);
+	}, 200);
 	
 	io.sockets.on('connection', function(socket) {
 		//console.log(socket);
 		setTimeout(function() {
 			updateState(true);
 			updateTeams();
-			updateUpcoming();
-			updateCompleted();
-			updateTime();
+			setTimeout(function() {
+				updateUpcoming();
+				updateCompleted();
+				updateTime();
+			},500);
 		},100);
 			
 		socket.on('capture', function(data) {
@@ -931,23 +948,29 @@ fs.readFile(fieldFileName, {encoding:'utf8'}, parseField);
 
 //ramp commands:
 
+var useCues = true;
+
 function cueServerSend(str) {
-	console.log(str);
-	/*http.get(cueServerURL + encodeURIComponent(str), function(res) {
-		console.log(str+' --> '+res.statusCode);
-	}).on('error', function(e) {
-		console.err(str+' --> '+e.message);
-	});*/
+	if(!useCues) {
+		console.log(str);
+	}
+	else {
+		http.get(cueServerURL + encodeURIComponent(str), function(res) {
+			console.log(str+' --> '+res.statusCode);
+		}).on('error', function(e) {
+			console.error(str+' --> '+e.message);
+		});
+	}
 }
 
 function cueServerRampUp(index) {
-	cueServerSend('P1Q4' + index + '.1G');
+	cueServerSend('O' + (index+1) + 'A0');
 }
 function cueServerRampDown(index) {
-	cueServerSend('P1Q4' + index + '.2G');
+	cueServerSend('O' + (index+1) + 'A1');
 }
 function cueServerRampOff(index) {
-	cueServerSend('P1Q4' + index + '.3G');
+	cueServerSend('O' + (index+1) + 'A0');
 }
 function cueServerRampLightOn(index) {
 	cueServerSend('P2F' + (index+5) + 'AFL');
@@ -970,13 +993,14 @@ function cueServerEmergencyStop() {
 //lighting commands:
 function cueServerLightsOn() {
 	cueServerSend('M1G');
+	cueServerLightsFlashOn();
 } // whole course
 function cueServerLightsOff() {
 	cueServerSend('P1CL');
 }
 function cueServerLightsFlashOn() {
-	cueServerSend('P2F1>4+10AFL');
+	cueServerSend('P2F1>4+9>12AFL');
 } // just flashing lights
 function cueServerLightsFlashOff() {
-	cueServerSend('P2F1>4+10A0');
+	cueServerSend('P2F1>4+9>12A0');
 }

@@ -21,14 +21,14 @@
 #field {
 	position: relative;
 	float:left;
-	margin:5px;
-	border:solid 4px #dddddd;
+	margin:10px;
+	border:solid 8px #dddddd;
 	/*z-index: -1;*/
 }
 
 #sidebar {
 	overflow:hidden;
-	font-size:18px;
+	font-size:36px;
 }
 
 #teams {
@@ -37,40 +37,30 @@
 	padding:0;
 }
 
-#teams button {
-	text-align:left;
-}
-
 #teams li {
-	height:32px;
-	line-height:32px;
+	height:64px;
+	line-height:64px;
 	padding:0;
-	margin:6px;
-	border:solid 4px #dddddd;
+	margin:12px;
+	border:solid 8px #dddddd;
 }
 
 #sidebar .time {
-	height:48px;
-	line-height:48px;
+	height:96px;
+	line-height:96px;
 	border:none;
 	text-align:center;
-	font-size: 32px;
+	font-size: 64px;
 }
 
 #teams li span {
 	float:right;
 }
 
-#sidebar div {
-	height:32px;
-	margin:6px;
-	border:solid 4px #dddddd;
-}
-
 #sidebar li {
-	height:32px;
-	margin:6px;
-	border:solid 4px #dddddd;
+	height:64px;
+	margin:12px;
+	border:solid 8px #dddddd;
 }
 
 #sidebar button {
