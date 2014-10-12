@@ -1,9 +1,9 @@
 {
   "name": "jsdc-server",
-  "version": "2014.0.0",
-  "repository":{
-	"type":"git",
-	"url":"https://github.com/brearto2/JSDCServerV2.git"
+  "version": "2015.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brearto2/JSDCServerV2.git"
   },
   "description": "JSDC Server",
   "main": "app.js",
