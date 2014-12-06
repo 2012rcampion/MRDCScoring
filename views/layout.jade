@@ -1,12 +1,12 @@
 html
-	head
-		block head
-			title= title
-		body
-			header
-				ul
-					each name, view in views
-						li
-							a(href=view)= name
-			h1= title
-			block body
+  head
+    block head
+      title= title
+    body
+      header
+        ul
+          each name, view in views
+            li
+              a(href=view)= name
+      h1= title
+      block body

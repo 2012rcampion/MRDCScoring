@@ -1,5 +1,23 @@
 extends layout
 
 block body
-	p 'Scoreboard!'
-	p= docs
+  h2 Scores
+  - var i = 0
+  ul
+    while i < teams.length
+      li= teamNames[i] + ': ' + state[i]
+      - i++
+  h2 Controls
+  form(action='event', method='GET')
+    - var i = 0
+    while i < events.length
+      input(type='radio', name='event', value=events[i])
+      = controls[i]
+      br
+      - i++
+    - var i = 0
+    select(name='team')
+      while i < teams.length
+        option(value=teams[i])= teamNames[i]
+        - i++
+    input(type='submit', value='Submit')

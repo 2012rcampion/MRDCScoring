@@ -3,6 +3,20 @@ var path = require('path');
 var express = require('express');
 var app = express();
 var mongo = require('./mongo.js');
+var games = require('./game.js');
+
+// temporary game state initialization, bypassing database
+var teamName = {
+  '1':'Nationals',
+  '2':'Cubs',
+  '3':'Giants',
+  '4':'Phillies'
+};
+
+var teams = ['1', '2', '3', '4'];
+
+var game = games[0];
+state = game.initState(teams);
 
 var view_names = {
   'scoreboard':'Scoreboard',
@@ -27,15 +41,25 @@ app.get('/', function(req, res){
   res.render('layout', {});
 });
 
+app.get('/event', function(req, res) {
+  var event = JSON.parse(req.query.event);
+  event.team = req.query.team;
+  console.log(' |- event =', event)
+  state = game.updateState(state, event);
+  res.redirect('/scoreboard');
+});
+
 app.use('/:page', function (req, res, next) {
   var view = req.params.page;
   if(view in view_names) {
-    mongo.db.collection('teams').find().toArray(function(err, docs) {
-      res.render(view, {
-        title: view_names[view],
-        views: view_names,
-        docs: JSON.stringify(docs)
-      });
+    res.render(view, {
+      title: view_names[view],
+      views: view_names,
+      teams: teams,
+      teamNames: teams.map(function(t){ return teamName[t]; }),
+      state: game.renderState(state),
+      events: game.events.map(JSON.stringify),
+      controls: game.events.map(game.renderControl)
     });
   }
   else {
@@ -82,7 +106,7 @@ function exitGracefully() {
   for(var id in sockets) {
     sockets[id].end();
   }
-  // set a timeout to kill processes 
+  // set a timeout to kill process if we're stuck 
   setTimeout(function() {
     console.error('Closing connections timed out, exiting anyway');
     process.exit();

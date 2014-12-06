@@ -1,7 +1,7 @@
 util = require('util');
 
 // game configuration
-module.exports.games = [
+module.exports = [
   {
     name:'JSDC 2015', // name shown in menu
     duration:5*60, // standard game duration, seconds
@@ -13,7 +13,7 @@ module.exports.games = [
       {name:'Flying',  type:'multiplier', value:  2}
     ],
     // set up initial state for all teams
-    initialState:function(teams) {
+    initState:function(teams) {
       var state = {};
       state.teams = teams; // so we know the order later
       teams.forEach(function(team) {
@@ -46,12 +46,11 @@ module.exports.games = [
     },
     // so far the render functions only produce strings, meaning you can only
     // produce events listed in the `events` list.  Later they'll produce
-    // <div>s with <input> elements, or maybe an object that gets passed to
-    // a bit of jade.
+    // an object that gets rendered by jade during an api call.
     // render game state, return as a list of strings for each team
     renderState:function(state) {
       return state.teams.map(function(team) {
-        return util.format('%04d pts', state[team].score);
+        return util.format('%d pts', state[team].score);
       });
     },
     // render controls for events
@@ -60,10 +59,10 @@ module.exports.games = [
         return util.format('%s (x%d multiplier)', event.name, event.value);
       }
       if(event.type == 'many') {
-        return util.format('%s (%+d points)', event.name, event.value);
+        return util.format('%s (%d points)', event.name, event.value);
       }
       if(event.type == 'onetime') {
-        return util.format('%s (%+d points)', event.name, event.value);
+        return util.format('%s (%d points)', event.name, event.value);
       }
       console.log('could not render control for event', event);
       console.log('not a recognized type');
