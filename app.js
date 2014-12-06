@@ -24,7 +24,7 @@ app.use(function(req, res, next) {
 });
 
 app.get('/', function(req, res){
-  res.redirect('/scoreboard');
+  res.render('layout', {});
 });
 
 app.use('/:page', function (req, res, next) {
@@ -49,9 +49,22 @@ app.get('*', function(req, res) {
 });
 
 var server;
+var sockets = {}; // object to hold sockets in
+var socketid = 0; // socket id counter
 mongo.init(function() {
   server = app.listen(8080, function() {
     console.log('Listening on port %d', server.address().port);
+  });
+  // monitor sockets
+  server.on('connection', function(socket) { // on connection
+    var id = (socketid++); // increment id and store in closure
+    sockets[id] = socket; // store the socket in case we need to close it later
+    console.log('socket #%d now open', id);
+    // monitor for socket close event and report
+    socket.on('close', function(error) {
+      delete sockets[id]; // remove from list
+      console.log('socket #%d closed with%s error', id, error?' an':'out');
+    });
   });
 });
 
@@ -64,12 +77,16 @@ function exitGracefully() {
       console.log('Closed database, exiting now');
       process.exit();
     });
-  });  
+  });
+  console.log('end()ing open sockets...');
+  for(var id in sockets) {
+    sockets[id].end();
+  }
   // set a timeout to kill processes 
   setTimeout(function() {
     console.error('Closing connections timed out, exiting anyway');
     process.exit();
-  }, 3000);
+  }, 10*1000);
 }
 
 process.on('SIGINT',  exitGracefully);
