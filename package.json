@@ -9,7 +9,9 @@
   "main": "app.js",
   "dependencies": {
     "express": "~4.9.7",
-    "jade": "~1.7.0"
+    "jade": "~1.7.0",
+    "less": "~2.1.1",
+    "mongodb": "~2.0"
   },
   "scripts": {
     "start": "node app.js"
