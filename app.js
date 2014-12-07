@@ -3,9 +3,9 @@ var path = require('path');
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
+
 var mongo = require('./mongo.js');
-var mongodb = require('mongodb');
-var games = require('./game.js');
+var game = require('./game.js')[0];
 
 // temporary game state initialization, bypassing database
 var teamName = {
@@ -19,6 +19,10 @@ var teams = ['1', '2', '3', '4'];
 
 var game = games[0];
 state = game.initState(teams);
+
+console.log('initial game state:', state);
+
+// setup jade views
 
 var view_names = {
   'scoreboard':'Scoreboard',
@@ -34,8 +38,10 @@ for(var view in view_names) {
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
+// log all requests
+
 app.use(function(req, res, next) {
-  console.log(new Date().toISOString(), ':', req.url);
+  console.log(req.method, req.url);
   next();
 });
 
@@ -46,51 +52,113 @@ app.use(bodyParser.urlencoded({extended:true}));
 // parse application/json
 app.use(bodyParser.json());
 
-api.get('/teams', function(req, res) {
-  mongo.teams.find().toArray(function(err, docs) {
-    res.json(docs);
-  });
-});
-
-api.post('/teams', function(req, res) {
-  var team = req.body;
-  mongo.teams.insertOne(team, function(err, doc) {
-    res.json(err?err:doc);
-  });
-});
-
-api.param('team_id', function(req, res, next, team_id){
-  req.team_id = mongodb.ObjectID(team_id);
+// converty every instance of the id paramater to mongodb id format
+api.param('id', function(req, res, next, id){
+  req.id = mongo.ObjectID(id);
   next();
 });
 
-api.get('/teams/:team_id', function(req, res) {
-  mongo.teams.findOne({_id:req.team_id}, function(err, doc) {
-    res.json(err?err:doc);
-  });
-});
-
-api.put('/teams/:team_id', function(req, res) {
-  var team = req.body;
-  mongo.teams.updateOne({_id:req.team_id}, {$set:team}, function(err, doc) {
-    res.json(err?err:doc);
-  });
-});
-
-api.delete('/teams/:team_id', function(req, res) {
-  var team = req.body;
-  mongo.teams.deleteOne({_id:req.team_id}, function(err) {
-    res.json(err?err:{ok:true});
-  });
-});
-
 /*
-api.get('/teams', function(req, res) {
-  mongo.teams.find().toArray(function(err, docs) {
-    res.json(docs);
-  });
-})
+*    /!\ WARNING /!\
+* 
+*  API LACKS VALIDATION
+*
+*    /!\ WARNING /!\
 */
+
+api.route('/teams')
+  .get(function(req, res) {
+    mongo.teams.find().toArray(function(err, docs) {
+      res.json(docs);
+    });
+  })
+  .post(function(req, res) {
+    var team = req.body;
+    mongo.teams.insertOne(team, function(err, doc) {
+      res.json(err?err:doc);
+    });
+  });
+api.route('/teams/:id')
+  .get(function(req, res) {
+    mongo.teams.findOne({_id:req.id}, function(err, doc) {
+      res.json(err?err:doc);
+    });
+  })
+  .put(function(req, res) {
+    var team = req.body;
+    mongo.teams.updateOne({_id:req.id}, {$set:team}, function(err, doc) {
+      res.json(err?err:doc);
+    });
+  })
+  .delete(function(req, res) {
+    mongo.teams.deleteOne({_id:req.id}, function(err) {
+      res.json(err?err:{ok:true});
+    });
+  });
+
+// define api for matches
+
+api.route('/games')
+  .get(function(req, res) {
+    mongo.games.find().toArray(function(err, docs) {
+      res.json(docs);
+    });
+  })
+  .post(function(req, res) {
+    var game = req.body;
+    mongo.games.insertOne(game, function(err, doc) {
+      res.json(err?err:doc);
+    });
+  });
+api.route('/games/:id')
+  .get(function(req, res) {
+    mongo.games.findOne({_id:req.id}, function(err, doc) {
+      res.json(err?err:doc);
+    });
+  })
+  .put(function(req, res) {
+    var game = req.body;
+    mongo.games.updateOne({_id:req.id}, {$set:game}, function(err, doc) {
+      res.json(err?err:doc);
+    });
+  })
+  .delete(function(req, res) {
+    mongo.games.deleteOne({_id:req.id}, function(err) {
+      res.json(err?err:{ok:true});
+    });
+  });
+
+// define api for events
+
+api.route('/events')
+  .get(function(req, res) {
+    mongo.events.find().toArray(function(err, docs) {
+      res.json(docs);
+    });
+  })
+  .post(function(req, res) {
+    var event = req.body;
+    mongo.events.insertOne(event, function(err, doc) {
+      res.json(err?err:doc);
+    });
+  });
+api.route('/events/:id')
+  .get(function(req, res) {
+    mongo.events.findOne({_id:req.id}, function(err, doc) {
+      res.json(err?err:doc);
+    });
+  })
+  .put(function(req, res) {
+    var event = req.body;
+    mongo.events.updateOne({_id:req.id}, {$set:event}, function(err, doc) {
+      res.json(err?err:doc);
+    });
+  })
+  .delete(function(req, res) {
+    mongo.events.deleteOne({_id:req.id}, function(err) {
+      res.json(err?err:{ok:true});
+    });
+  });
 
 app.use('/api', api);
 

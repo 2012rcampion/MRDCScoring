@@ -16,6 +16,9 @@ var auth = {
 //    auth.user, auth.pass, auth.host, auth.port, auth.name);
 var uri = 'mongodb://localhost/jsdc';
 
+// expose objectid to the app
+module.exports.ObjectID = mongodb.ObjectID;
+
 /* Connect to the Mongo database at the URI using the client */
 module.exports.init = function(callback) {
   mongodb.MongoClient.connect(uri, function(err, db) {
@@ -26,10 +29,9 @@ module.exports.init = function(callback) {
     
     module.exports.db = db;
     
-    module.exports.teams     = db.collection('teams');
-    module.exports.scheduled = db.collection('scheduled');
-    module.exports.completed = db.collection('completed');
-    module.exports.events    = db.collection('events');
+    module.exports.teams  = db.collection('teams');
+    module.exports.games  = db.collection('games');
+    module.exports.events = db.collection('events');
     
     callback();
   });    
