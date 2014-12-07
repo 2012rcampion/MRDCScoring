@@ -2,7 +2,9 @@ var util = require('util');
 var path = require('path');
 var express = require('express');
 var app = express();
+var bodyParser = require('body-parser');
 var mongo = require('./mongo.js');
+var mongodb = require('mongodb');
 var games = require('./game.js');
 
 // temporary game state initialization, bypassing database
@@ -37,6 +39,61 @@ app.use(function(req, res, next) {
   next();
 });
 
+var api = express.Router();
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({extended:true}));
+// parse application/json
+app.use(bodyParser.json());
+
+api.get('/teams', function(req, res) {
+  mongo.teams.find().toArray(function(err, docs) {
+    res.json(docs);
+  });
+});
+
+api.post('/teams', function(req, res) {
+  var team = req.body;
+  mongo.teams.insertOne(team, function(err, doc) {
+    res.json(err?err:doc);
+  });
+});
+
+api.param('team_id', function(req, res, next, team_id){
+  req.team_id = mongodb.ObjectID(team_id);
+  next();
+});
+
+api.get('/teams/:team_id', function(req, res) {
+  mongo.teams.findOne({_id:req.team_id}, function(err, doc) {
+    res.json(err?err:doc);
+  });
+});
+
+api.put('/teams/:team_id', function(req, res) {
+  var team = req.body;
+  mongo.teams.updateOne({_id:req.team_id}, {$set:team}, function(err, doc) {
+    res.json(err?err:doc);
+  });
+});
+
+api.delete('/teams/:team_id', function(req, res) {
+  var team = req.body;
+  mongo.teams.deleteOne({_id:req.team_id}, function(err) {
+    res.json(err?err:{ok:true});
+  });
+});
+
+/*
+api.get('/teams', function(req, res) {
+  mongo.teams.find().toArray(function(err, docs) {
+    res.json(docs);
+  });
+})
+*/
+
+app.use('/api', api);
+
 app.get('/', function(req, res){
   res.render('layout', {
     title: 'Home',
@@ -47,7 +104,7 @@ app.get('/', function(req, res){
 app.get('/event', function(req, res) {
   var event = JSON.parse(req.query.event);
   event.team = req.query.team;
-  console.log(' |- event =', event)
+  console.log(' |- event =', event);
   state = game.updateState(state, event);
   res.redirect('/scoreboard');
 });
@@ -70,7 +127,7 @@ app.use('/:page', function (req, res, next) {
   }
 });
 
-
+// catchall 404
 app.get('*', function(req, res) {
   res.status(404).send();
 });

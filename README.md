@@ -26,7 +26,7 @@ The main server routines are in `app.js`.  Database handling subroutines are loc
 
 The ui pages are under `views/`, and are rendered with jade.
 
-Database dumps are under `db/`.
+Database dumps are under `dump/`.
 
 Configuration files are not implemented yet.
 

@@ -8,7 +8,7 @@ block body
       li= teamNames[i] + ': ' + state[i]
       - i++
   h2 Controls
-  form(action='event', method='GET')
+  form(action='event', method='POST')
     - var i = 0
     while i < events.length
       input(type='radio', name='event', value=events[i])

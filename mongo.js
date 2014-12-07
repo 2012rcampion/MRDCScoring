@@ -23,8 +23,14 @@ module.exports.init = function(callback) {
       throw err;
     }
     console.log('Connected to server at %s', uri);
-
+    
     module.exports.db = db;
+    
+    module.exports.teams     = db.collection('teams');
+    module.exports.scheduled = db.collection('scheduled');
+    module.exports.completed = db.collection('completed');
+    module.exports.events    = db.collection('events');
+    
     callback();
   });    
 };
