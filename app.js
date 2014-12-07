@@ -38,7 +38,10 @@ app.use(function(req, res, next) {
 });
 
 app.get('/', function(req, res){
-  res.render('layout', {});
+  res.render('layout', {
+    title: 'Home',
+    views: view_names
+  });
 });
 
 app.get('/event', function(req, res) {
