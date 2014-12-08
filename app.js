@@ -17,7 +17,6 @@ var teamName = {
 
 var teams = ['1', '2', '3', '4'];
 
-var game = games[0];
 state = game.initState(teams);
 
 console.log('initial game state:', state);
@@ -27,7 +26,8 @@ console.log('initial game state:', state);
 var view_names = {
   'scoreboard':'Scoreboard',
   'admin':'Administrator',
-  'jade_test':'Hello World'
+  'jade_test':'Hello World',
+  'teams':'Teams'
 };
 
 console.log('Views');
@@ -44,6 +44,9 @@ app.use(function(req, res, next) {
   console.log(req.method, req.url);
   next();
 });
+
+// serve static files
+app.use('/static', express.static(path.join(__dirname, 'static')));
 
 var api = express.Router();
 
