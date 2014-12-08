@@ -2,17 +2,8 @@ extends layout
 
 block append head
   script(src='/static/jquery-1.11.1.js')
-  script.
-    $(document).ready(function() {
-      $.getJSON('/api/teams', function(teams) {
-        var teamsList = $('#teamsList');
-        teams.forEach(function(team) {
-          var li = $('<li>');
-          li.html(team.name);
-          teamsList.append(li);
-        });
-      });
-    });
+  script(src='/static/jquery-ui.js')
+  script(src='/static/teams-script.js')
 
 block body
   h2 List of Teams
