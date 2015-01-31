@@ -56,7 +56,7 @@ module.exports = [
     // render controls for events
     renderControl:function(event) {
       if(event.type == 'multiplier') {
-        return util.format('%s (x%d multiplier)', event.name, event.value);
+        return util.format('%s (%dx multiplier)', event.name, event.value);
       }
       if(event.type == 'many') {
         return util.format('%s (%d points)', event.name, event.value);

@@ -55,7 +55,13 @@ app.use(bodyParser.urlencoded({extended:true}));
 // parse application/json
 app.use(bodyParser.json());
 
-// converty every instance of the id paramater to mongodb id format
+// log request body
+api.use(function(req, res, next) {
+  console.log('req.body =', req.body);
+  next();
+});
+
+// convert every instance of the id paramater to mongodb id format
 api.param('id', function(req, res, next, id){
   req.id = mongo.ObjectID(id);
   next();

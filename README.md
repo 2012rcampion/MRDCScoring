@@ -34,3 +34,5 @@ Configuration files are not implemented yet.
 
 Front-facing user interface pages are located under the root.  For example, the
 page for editing the teams ~~is~~ will be located under `/teams`.
+
+Corresponding api calls will be under `/api`, e.g. `/api/teams`
