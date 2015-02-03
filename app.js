@@ -5,7 +5,9 @@ var app = express();
 var bodyParser = require('body-parser');
 
 var mongo = require('./mongo.js');
-var game = require('./game.js')[0];
+
+// imported explicitly now, but later will be called in
+var gameDef = require('./game-def-2015.js');
 
 // temporary game state initialization, bypassing database
 var teamName = {
@@ -17,7 +19,7 @@ var teamName = {
 
 var teams = ['1', '2', '3', '4'];
 
-state = game.initState(teams);
+state = gameDef.initState(teams);
 
 console.log('initial game state:', state);
 
@@ -107,6 +109,13 @@ api.route('/teams/:id')
 
 // define api for matches
 
+// de-json-ify body parameters (turns out body-parser
+// already does this with qt when extended:true is set
+/*api.use('/games', function(req, res, next) {
+  req.body.teams = JSON.parse(req.body.teams
+  next();
+});*/
+
 api.route('/games')
   .get(function(req, res) {
     mongo.games.find().toArray(function(err, docs) {
@@ -182,7 +191,7 @@ app.get('/event', function(req, res) {
   var event = JSON.parse(req.query.event);
   event.team = req.query.team;
   console.log(' |- event =', event);
-  state = game.updateState(state, event);
+  state = gameDef.updateState(state, event);
   res.redirect('/scoreboard');
 });
 
@@ -194,9 +203,9 @@ app.use('/:page', function (req, res, next) {
       views: view_names,
       teams: teams,
       teamNames: teams.map(function(t){ return teamName[t]; }),
-      state: game.renderState(state),
-      events: game.events.map(JSON.stringify),
-      controls: game.events.map(game.renderControl)
+      state: gameDef.renderState(state),
+      events: gameDef.events.map(JSON.stringify),
+      controls: gameDef.events.map(gameDef.renderControl)
     });
   }
   else {
