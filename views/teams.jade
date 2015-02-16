@@ -5,6 +5,34 @@ block append head
   script(src='/static/jquery-ui.js')
   script(src='/static/teams-script.js')
 
-block body
-  h2 List of Teams
+block pageTitle
+  h1 Teams
+
+block pageContent
   ul#teamsList
+    each team in teams
+      //- console.log(team)
+      li
+        span.team-name= team.name
+        .team-edit
+          form(action='/api/teams/'+team._id method='PUT')
+            | Name:
+            input(name='name' value=team.name)
+            br
+            | School:
+            input(name='school' value=team.school)
+            br
+            input(type='submit' value='Edit')
+          form(action='/api/teams/'+team._id method='DELETE')
+            input(type='submit' value='Delete')
+    li
+      | New team
+      form(action='/api/teams' method='POST')
+        | Name:
+        input(name='name')
+        br
+        | School:
+        input(name='school')
+        br
+        input(type='submit' value='Create')
+        

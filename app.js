@@ -23,8 +23,9 @@ state = gameDef.initState(teams);
 
 console.log('initial game state:', state);
 
-// setup jade views
-
+// -setup jade views-
+// handling all the views automatically?  haha nope
+/*
 var view_names = {
   'scoreboard':'Scoreboard',
   'admin':'Administrator',
@@ -35,7 +36,7 @@ var view_names = {
 console.log('Views');
 for(var view in view_names) {
   console.log(' |- %s => %s', view, view_names[view]);
-}
+}*/
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -180,12 +181,12 @@ api.route('/events/:id')
 
 app.use('/api', api);
 
-app.get('/', function(req, res){
+/*app.get('/', function(req, res){
   res.render('layout', {
     title: 'Home',
     views: view_names
   });
-});
+});*/
 
 app.get('/event', function(req, res) {
   var event = JSON.parse(req.query.event);
@@ -195,6 +196,17 @@ app.get('/event', function(req, res) {
   res.redirect('/scoreboard');
 });
 
+
+app.use('/teams', function(req, res, next) {
+  mongo.teams.find().toArray(function(err, docs) {
+    res.render('teams', {
+      teams: docs
+    });    
+  });
+});
+
+// handling all the views automatically?  haha nope
+/*
 app.use('/:page', function (req, res, next) {
   var view = req.params.page;
   if(view in view_names) {
@@ -212,6 +224,7 @@ app.use('/:page', function (req, res, next) {
     next();
   }
 });
+*/
 
 // catchall 404
 app.get('*', function(req, res) {
