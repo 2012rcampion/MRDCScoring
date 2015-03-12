@@ -15,12 +15,18 @@ api.use(function(req, res, next) {
 
 // convert every instance of the id paramater to mongodb id format
 api.param('id', function(req, res, next, id) {
-  req.id = mongo.ObjectID(id);
+  req.id = mongo.ObjectId(id);
+  console.log('%s -> %j', id, req.id);
+  console.log(req.id);
+  console.log(mongo.ObjectId(id));
   next();
 });
 
 api.param('team', function(req, res, next, id) {
-  req.teamID = mongo.ObjectID(id);
+  req.teamId = mongo.ObjectId(id);
+  console.log('%s -> %j', id, req.teamId);
+  console.log(req.teamId);
+  console.log(mongo.ObjectId(id));
   next();
 });
 
@@ -130,7 +136,9 @@ api.route('/games/:id/teams')
     }
     db.done(function(db) {
       db.collection('games')
-      .updateOne({_id:req.id}, {$addToSet:{teams:req.body.team}},
+      .updateOne(
+        {_id:req.id},
+        {$addToSet:{teams:(mongo.ObjectId(req.body.team))}},
         function(err, doc) {
           res.json(err?err:doc);
         });
@@ -141,7 +149,9 @@ api.route('/games/:id/teams/:team')
   .delete(function(req, res) {
     db.done(function(db) {
       db.collection('games')
-      .updateOne({_id:req.id}, {$pull:{teams:req.body.teamID}},
+      .updateOne(
+        {_id:req.id},
+        {$pullAll:{teams:[req.teamId, req.teamId.toHexString()]}},
         function(err) {
           res.json(err?err:{ok:true});
         });
@@ -160,7 +170,7 @@ function updateEventsFrom(gameID, gameTime) {
         var startingState;
         if(first == null) {
           startingState = new Promise(function(resolve, reject) {
-            db.collection('games').findOne({'_id':MongoId(gameID)},
+            db.collection('games').findOne({'_id':mongo.ObjectId(gameID)},
               function(err, game) {
                 if(err) {
                   return reject(Error(err));

@@ -15,16 +15,19 @@ block pageContent
         h3 Teams
         ul
           each team in game.teams
-            li= teamsMap[team].name
-              form(action='/api/games/'+game._id+'/teams/'+team._id method='DELETE')
-            | Name:
-            input(name='name' value=team.name)
-            br
-            | School:
-            input(name='school' value=team.school)
-            br
-            input(type='submit' value='Edit')
-        if game._id == current
+            li
+              form(action='/api/games/'+game._id+'/teams/'+team \
+                method='DELETE')
+                span= teamsMap[team].name
+                input(type='submit' value='Remove')
+        form(action='/api/games/'+game._id+'/teams' method='POST')
+          select(name='team')
+            each team in teams
+              option(value=team._id)= team.name
+          input(type='submit' value='Add')
+        form(action='/api/games/'+game._id method='DELETE')
+          input(type='submit' value='Delete')
+        if game._id.toHexString() == current.toHexString()
           p current game
   h2 Teams List
   ul

@@ -1,3 +1,7 @@
 #!/bin/bash
 
-mongodump -db jsdc
+mv dump dump-backup
+
+mongodump -d jsdc
+
+rm -r dump-backup
