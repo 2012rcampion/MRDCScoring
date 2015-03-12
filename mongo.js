@@ -17,23 +17,15 @@ var auth = {
 var uri = 'mongodb://localhost/jsdc';
 
 // expose objectid to the app
-module.exports.ObjectId = mongodb.ObjectId;
 
 /* Connect to the Mongo database at the URI using the client */
-
-var db;
-
 module.exports = Promise.denodeify(mongodb.MongoClient.connect)(uri)
-  .then(function(fulfill) {
-    console.log('Connected to server at %s', uri);
-    
-    this.db = db;
-    
-    this.teams   = db.collection('teams');
-    this.games   = db.collection('games');
-    this.events  = db.collection('events');
-    this.globals = db.collection('globals');
-    
-    callback();
-  });    
-};
+  .then(Promise.denodify(db.collections))
+  .then(function(collections) {
+    var map = {ObjectId:mongodb.ObjectId};
+    collections.forEach(function(collection) {
+      map[collection.collectionName] = collection
+    });
+    return map;
+  });
+

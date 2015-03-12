@@ -1,23 +1,16 @@
-var valueMap = {};
+var Promise = require('promise');
+var db = require('./mongo.js');
 
-module.exports = function(mongo) {
-  
-  var db = mongo;
-  
-  var globals = {};
-  
-  globals.get = function(name, callback) {
-    if(name in valueMap) {
-      callback(valueMap[name]);
+var cache = {};
+
+module.exports.get = function(name) {
+    if(name in cache) {
+      return Promise.resolve(cache[name]);
     }
-    else {
-      db.valueMap.findOne({'name':name}, function(err, doc) {
-        if(err) {
-          console.log('error getting global property "%s": %j', name, err);
-          callback(null);
-        }
+    return Promise.denodeify(db.globals.findOne)({'name':name}_
+      .then(function(doc) {
         else if(doc != null && 'val' in doc) {
-          valueMap[name] = doc.val;
+          cache[name] = doc.val;
           callback(doc.val);
         }
         else {
@@ -29,8 +22,8 @@ module.exports = function(mongo) {
   };
   
   globals.set = function(name, val) {
-    valueMap[name] = val;
-    db.valueMap.updateOne({'name':name}, {$set:{'val':val}}, {upsert:true},
+    cache[name] = val;
+    db.cache.updateOne({'name':name}, {$set:{'val':val}}, {upsert:true},
       function(err, res) {
         if(err) {
           console.log('error setting global property "%s": %j', name, err);

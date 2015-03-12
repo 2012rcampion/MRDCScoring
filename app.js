@@ -5,12 +5,12 @@ var app = express();
 var bodyParser = require('body-parser');
 var async = require('async');
 
-var mongo = require('./mongo.js');
+var db = require('./mongo.js');
 
 // imported explicitly now, but later will be called in
 var gameDef = require('./game-def-2015.js');
 
-var globals = require('./globals.js')(mongo);
+var globals = require('./globals.js');
 
 //state = gameDef.initState(teams);
 
@@ -50,7 +50,7 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 
 
-app.use('/api', require('./api.js')(mongo, global, gameDef));
+app.use('/api', require('./api.js')(db, global, gameDef));
 
 /*app.get('/', function(req, res){
   res.render('layout', {
@@ -69,7 +69,7 @@ app.get('/event', function(req, res) {
 
 
 app.get('/teams', function(req, res, next) {
-  mongo.teams.find().toArray(function(err, docs) {
+  db.teams.find().toArray(function(err, docs) {
     res.render('teams', {
       teams: docs
     });    
@@ -79,10 +79,10 @@ app.get('/teams', function(req, res, next) {
 app.get('/games', function(req, res, next) {
   async.parallel([
     function(callback) {
-      mongo.games.find().sort({'order': 1, 'completed':1}).toArray(callback);
+      db.games.find().sort({'order': 1, 'completed':1}).toArray(callback);
     },
     function(callback) {
-      mongo.teams.find().sort({'name':1}).toArray(callback);
+      db.teams.find().sort({'name':1}).toArray(callback);
     }
    ], function(err, docs) {
     if(err) {
@@ -148,7 +148,7 @@ app.get('*', function(req, res) {
 var server;
 var sockets = {}; // object to hold sockets in
 var socketid = 0; // socket id counter
-mongo.init(function() {
+db.init(function() {
   
   globals.get('game-current', console.log)
   
@@ -173,7 +173,7 @@ function exitGracefully() {
   console.log('\nShutting down...');
   server.close(function() {
     console.log('Closed server');
-    mongo.db.close(function() {
+    db.db.close(function() {
       console.log('Closed database, exiting now');
       process.exit();
     });
