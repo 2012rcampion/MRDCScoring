@@ -9,29 +9,24 @@ block pageTitle
   h1 Games
 
 block pageContent
-  - var allGames = pastGames;
-  - if(currentGame) {
-  -   allGames.push(currentGame);
-  - }
-  - allGames = allGames.concat(futureGames);
   ul
-    each game in allGames
+    each game in games
       li= JSON.stringify(game)
         h3 Teams
         ul
           each team in game.teams
             li= teamsMap[team].name
-  h2 Past Games
-  ul
-    each game in pastGames
-      li= JSON.stringify(game)
-  h2 Current Game
-  div= JSON.stringify(currentGame)
-  h2 Future Games
-  ul
-    each game in futureGames
-      li= JSON.stringify(game)
+              form(action='/api/games/'+game._id+'/teams/'+team._id method='DELETE')
+            | Name:
+            input(name='name' value=team.name)
+            br
+            | School:
+            input(name='school' value=team.school)
+            br
+            input(type='submit' value='Edit')
+        if game._id == current
+          p current game
   h2 Teams List
   ul
-    each team in teamsList
+    each team in teams
       li= JSON.stringify(team)

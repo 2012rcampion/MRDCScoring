@@ -38,7 +38,7 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 
 
-app.use('/api', require('./api.js')(db, global, gameDef));
+app.use('/api', require('./api.js'));
 
 
 app.get('/event', function(req, res) {
@@ -51,53 +51,80 @@ app.get('/event', function(req, res) {
 
 
 app.get('/teams', function(req, res, next) {
-  db.teams.find().toArray(function(err, docs) {
-    res.render('teams', {
-      teams: docs
+  db.done(function(db) {
+    db.teams.find().toArray(function(err, docs) {
+      res.render('teams', {
+        teams: docs
+      });
     });    
   });
 });
 
 app.get('/games', function(req, res, next) {
-  async.parallel([
-    function(callback) {
-      db.games.find().sort({'order': 1, 'completed':1}).toArray(callback);
-    },
-    function(callback) {
-      db.teams.find().sort({'name':1}).toArray(callback);
-    }
-   ], function(err, docs) {
-    if(err) {
-      res.json(err);
-      return;
-    }
-    var pastGames = [];
-    var futureGames = [];
-    docs[0].forEach(function(game) {
-      if(game.order < 0) {
-        pastGames.push(game);
+  db.done(function(db) {
+    console.log('started parallel evaluation');
+    async.parallel([
+      function(callback) {
+        db.collection('games').find().sort({'completed':1}).toArray(callback);
+      },
+      function(callback) {
+        db.collection('teams').find().sort({'name':1}).toArray(callback);
+      },
+      function(callback) {
+        globals.get('game-order').nodeify(callback)
+      },
+      function(callback) {
+        globals.get('game-current').nodeify(callback)
       }
-      else {
-        futureGames.push(game);
+     ],
+     function(err, docs) {
+      if(err) {
+        res.json(err);
+        return;
       }
+      var games = docs[0];
+      var teams = docs[1];
+      var order = docs[2];
+      var current = docs[3];
+      
+      var gamesOrdered = [];
+      
+      var end = order.length;
+      
+      console.log(order);
+      
+      orderString = [];
+      order.forEach(function(id, i) {
+        orderString[i] = id.toHexString();
+      });
+      games.forEach(function(game) {
+        var i = orderString.indexOf(game._id.toHexString());
+        if(i < 0) {
+          gamesOrdered[end] = game;
+          end++;
+        }
+        else {
+          gamesOrdered[i] = game;
+        }
+      });
+      
+      
+      console.log(gamesOrdered);
+      
+      var teamsMap = {};
+      teams.forEach(function(team) {
+        teamsMap[team._id] = team;
+      });
+      
+      res.render('games', {
+        games: gamesOrdered,
+        current: current,
+        teamsMap: teamsMap,
+        teams: teams
+      });   
+      
+      console.log('rendered') 
     });
-    if(futureGames.length > 0) {
-      currentGame = futureGames.shift();
-    }
-    var teamsMap = {};
-    var teamsList = [];
-    docs[1].forEach(function(team) {
-      teamsMap[team._id] = team;
-      teamsList.push(team._id);
-    });
-    
-    res.render('games', {
-      pastGames:   pastGames,
-      currentGame: currentGame,
-      futureGames: futureGames,
-      teamsMap:  teamsMap,
-      teamsList: teamsList
-    });    
   });
 });
 
