@@ -16,16 +16,25 @@ var auth = {
 //    auth.user, auth.pass, auth.host, auth.port, auth.name);
 var uri = 'mongodb://localhost/jsdc';
 
-// expose objectid to the app
-
 /* Connect to the Mongo database at the URI using the client */
-module.exports = Promise.denodeify(mongodb.MongoClient.connect)(uri)
-  .then(Promise.denodify(db.collections))
-  .then(function(collections) {
-    var map = {ObjectId:mongodb.ObjectId};
-    collections.forEach(function(collection) {
-      map[collection.collectionName] = collection
-    });
-    return map;
-  });
+module.exports = Promise.denodeify(mongodb.MongoClient.connect)(uri);
+
+
+/*
+  .then(function(db) {
+    db.promise = function(collection, operation) {
+        var args = Array.prototype.slice.call(arguments);
+        args.shift().shift();
+        return new Promise(function(resolve, reject) {
+          args.push(function(err, result) {
+              if(err) {
+                return reject(Error(err));
+              }
+              resolve(result);
+            });
+          db.collection(collection)[operation].apply(null, args);
+        });
+      }
+    return db;
+  });*/
 

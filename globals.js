@@ -4,35 +4,38 @@ var db = require('./mongo.js');
 var cache = {};
 
 module.exports.get = function(name) {
-    if(name in cache) {
-      return Promise.resolve(cache[name]);
-    }
-    return Promise.denodeify(db.globals.findOne)({'name':name}_
-      .then(function(doc) {
-        else if(doc != null && 'val' in doc) {
-          cache[name] = doc.val;
-          callback(doc.val);
-        }
-        else {
-          console.log('warning getting global property "%s": has no value', name, err);
-          callback(null);
-        }
-      });
-    }
-  };
-  
-  globals.set = function(name, val) {
-    cache[name] = val;
-    db.cache.updateOne({'name':name}, {$set:{'val':val}}, {upsert:true},
-      function(err, res) {
+  if(name in cache) {
+    return Promise.resolve(cache[name]);
+  }
+  return db.then(function(db) {
+    return new Promise(function(resolve, reject) {
+      db.collection('globals').findOne({'name':name}, function(err, doc) {
         if(err) {
-          console.log('error setting global property "%s": %j', name, err);
+          reject(Error(err));
+          return;
         }
-      }
-    );
-  };
-  
-  return globals
-
+        if(doc != null && 'val' in doc) {
+          cache[name] = doc.val;
+          resolve(doc.val);
+          return;
+        }
+        reject(Error('global property '+name+' has no value'));
+      });
+    });
+  });
 }
   
+module.exports.set = function(name, val) {
+  cache[name] = val;
+  db.then(function(db) {
+    db.collection('globals').updateOne(
+      {'name':name},
+      {$set:{'val':val}},
+      {upsert:true},
+      function(err) {
+        if(err) {
+          console.log('error saving global property "%s": %j', name, err);
+        }
+    });
+  });
+}
