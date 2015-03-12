@@ -1,4 +1,4 @@
-//var util = require('util');
+var Promise = require('promise');
 var mongodb = require('mongodb');
 //var client = mongodb.MongoClient;
 
@@ -17,21 +17,22 @@ var auth = {
 var uri = 'mongodb://localhost/jsdc';
 
 // expose objectid to the app
-module.exports.ObjectID = mongodb.ObjectID;
+module.exports.ObjectId = mongodb.ObjectId;
 
 /* Connect to the Mongo database at the URI using the client */
-module.exports.init = function(callback) {
-  mongodb.MongoClient.connect(uri, function(err, db) {
-    if(err) {
-      throw err;
-    }
+
+var db;
+
+module.exports = Promise.denodeify(mongodb.MongoClient.connect)(uri)
+  .then(function(fulfill) {
     console.log('Connected to server at %s', uri);
     
-    module.exports.db = db;
+    this.db = db;
     
-    module.exports.teams  = db.collection('teams');
-    module.exports.games  = db.collection('games');
-    module.exports.events = db.collection('events');
+    this.teams   = db.collection('teams');
+    this.games   = db.collection('games');
+    this.events  = db.collection('events');
+    this.globals = db.collection('globals');
     
     callback();
   });    

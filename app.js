@@ -3,25 +3,16 @@ var path = require('path');
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
+var async = require('async');
 
 var mongo = require('./mongo.js');
 
 // imported explicitly now, but later will be called in
 var gameDef = require('./game-def-2015.js');
 
-// temporary game state initialization, bypassing database
-var teamName = {
-  '1':'Nationals',
-  '2':'Cubs',
-  '3':'Giants',
-  '4':'Phillies'
-};
+var globals = require('./globals.js')(mongo);
 
-var teams = ['1', '2', '3', '4'];
-
-state = gameDef.initState(teams);
-
-console.log('initial game state:', state);
+//state = gameDef.initState(teams);
 
 // -setup jade views-
 // handling all the views automatically?  haha nope
@@ -51,135 +42,15 @@ app.use(function(req, res, next) {
 // serve static files
 app.use('/static', express.static(path.join(__dirname, 'static')));
 
-var api = express.Router();
+
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({extended:true}));
 // parse application/json
 app.use(bodyParser.json());
 
-// log request body
-api.use(function(req, res, next) {
-  console.log('req.body =', req.body);
-  next();
-});
 
-// convert every instance of the id paramater to mongodb id format
-api.param('id', function(req, res, next, id){
-  req.id = mongo.ObjectID(id);
-  next();
-});
-
-/*
-*    /!\ WARNING /!\
-* 
-*  API LACKS VALIDATION
-*
-*    /!\ WARNING /!\
-*/
-
-api.route('/teams')
-  .get(function(req, res) {
-    mongo.teams.find().toArray(function(err, docs) {
-      res.json(docs);
-    });
-  })
-  .post(function(req, res) {
-    var team = req.body;
-    mongo.teams.insertOne(team, function(err, doc) {
-      res.json(err?err:doc);
-    });
-  });
-api.route('/teams/:id')
-  .get(function(req, res) {
-    mongo.teams.findOne({_id:req.id}, function(err, doc) {
-      res.json(err?err:doc);
-    });
-  })
-  .put(function(req, res) {
-    var team = req.body;
-    mongo.teams.updateOne({_id:req.id}, {$set:team}, function(err, doc) {
-      res.json(err?err:doc);
-    });
-  })
-  .delete(function(req, res) {
-    mongo.teams.deleteOne({_id:req.id}, function(err) {
-      res.json(err?err:{ok:true});
-    });
-  });
-
-// define api for matches
-
-// de-json-ify body parameters (turns out body-parser
-// already does this with qt when extended:true is set
-/*api.use('/games', function(req, res, next) {
-  req.body.teams = JSON.parse(req.body.teams
-  next();
-});*/
-
-api.route('/games')
-  .get(function(req, res) {
-    mongo.games.find().toArray(function(err, docs) {
-      res.json(docs);
-    });
-  })
-  .post(function(req, res) {
-    var game = req.body;
-    mongo.games.insertOne(game, function(err, doc) {
-      res.json(err?err:doc);
-    });
-  });
-api.route('/games/:id')
-  .get(function(req, res) {
-    mongo.games.findOne({_id:req.id}, function(err, doc) {
-      res.json(err?err:doc);
-    });
-  })
-  .put(function(req, res) {
-    var game = req.body;
-    mongo.games.updateOne({_id:req.id}, {$set:game}, function(err, doc) {
-      res.json(err?err:doc);
-    });
-  })
-  .delete(function(req, res) {
-    mongo.games.deleteOne({_id:req.id}, function(err) {
-      res.json(err?err:{ok:true});
-    });
-  });
-
-// define api for events
-
-api.route('/events')
-  .get(function(req, res) {
-    mongo.events.find().toArray(function(err, docs) {
-      res.json(docs);
-    });
-  })
-  .post(function(req, res) {
-    var event = req.body;
-    mongo.events.insertOne(event, function(err, doc) {
-      res.json(err?err:doc);
-    });
-  });
-api.route('/events/:id')
-  .get(function(req, res) {
-    mongo.events.findOne({_id:req.id}, function(err, doc) {
-      res.json(err?err:doc);
-    });
-  })
-  .put(function(req, res) {
-    var event = req.body;
-    mongo.events.updateOne({_id:req.id}, {$set:event}, function(err, doc) {
-      res.json(err?err:doc);
-    });
-  })
-  .delete(function(req, res) {
-    mongo.events.deleteOne({_id:req.id}, function(err) {
-      res.json(err?err:{ok:true});
-    });
-  });
-
-app.use('/api', api);
+app.use('/api', require('./api.js')(mongo, global, gameDef));
 
 /*app.get('/', function(req, res){
   res.render('layout', {
@@ -197,10 +68,53 @@ app.get('/event', function(req, res) {
 });
 
 
-app.use('/teams', function(req, res, next) {
+app.get('/teams', function(req, res, next) {
   mongo.teams.find().toArray(function(err, docs) {
     res.render('teams', {
       teams: docs
+    });    
+  });
+});
+
+app.get('/games', function(req, res, next) {
+  async.parallel([
+    function(callback) {
+      mongo.games.find().sort({'order': 1, 'completed':1}).toArray(callback);
+    },
+    function(callback) {
+      mongo.teams.find().sort({'name':1}).toArray(callback);
+    }
+   ], function(err, docs) {
+    if(err) {
+      res.json(err);
+      return;
+    }
+    var pastGames = [];
+    var futureGames = [];
+    docs[0].forEach(function(game) {
+      if(game.order < 0) {
+        pastGames.push(game);
+      }
+      else {
+        futureGames.push(game);
+      }
+    });
+    if(futureGames.length > 0) {
+      currentGame = futureGames.shift();
+    }
+    var teamsMap = {};
+    var teamsList = [];
+    docs[1].forEach(function(team) {
+      teamsMap[team._id] = team;
+      teamsList.push(team._id);
+    });
+    
+    res.render('games', {
+      pastGames:   pastGames,
+      currentGame: currentGame,
+      futureGames: futureGames,
+      teamsMap:  teamsMap,
+      teamsList: teamsList
     });    
   });
 });
@@ -235,6 +149,9 @@ var server;
 var sockets = {}; // object to hold sockets in
 var socketid = 0; // socket id counter
 mongo.init(function() {
+  
+  globals.get('game-current', console.log)
+  
   server = app.listen(8080, function() {
     console.log('Listening on port %d', server.address().port);
   });

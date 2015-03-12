@@ -1,0 +1,37 @@
+extends layout
+
+block append head
+  script(src='/static/jquery-1.11.1.js')
+  script(src='/static/jquery-ui.js')
+  script(src='/static/games.js')
+
+block pageTitle
+  h1 Games
+
+block pageContent
+  - var allGames = pastGames;
+  - if(currentGame) {
+  -   allGames.push(currentGame);
+  - }
+  - allGames = allGames.concat(futureGames);
+  ul
+    each game in allGames
+      li= JSON.stringify(game)
+        h3 Teams
+        ul
+          each team in game.teams
+            li= teamsMap[team].name
+  h2 Past Games
+  ul
+    each game in pastGames
+      li= JSON.stringify(game)
+  h2 Current Game
+  div= JSON.stringify(currentGame)
+  h2 Future Games
+  ul
+    each game in futureGames
+      li= JSON.stringify(game)
+  h2 Teams List
+  ul
+    each team in teamsList
+      li= JSON.stringify(team)
