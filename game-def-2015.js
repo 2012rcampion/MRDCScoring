@@ -5,14 +5,21 @@ extend = require('extend');
 
 module.exports.name = 'JSDC 2015'; // name shown in menu
 
-module.exports.duration = 5*60; // standard game duration, seconds
+module.exports.duration = 6*60; // standard game duration, seconds
 
 module.exports.countdown = true; // football style timer, not futbol style timer
 module.exports.events = [ // possible game event types
-  {name:'Basket',  type:'many',       value: 10},
-  {name:'Ramp',    type:'onetime',    value: 30},
-  {name:'Penalty', type:'many',       value:-50},
-  {name:'Flying',  type:'multiplier', value:  2}
+  {name:'Wiffle Ball',  type:'many',    value:30},
+  {name:'Golf Ball',    type:'many',    value:15},
+  {name:'Foam Ball',    type:'many',    value:10},
+  {name:'Drop Wall',    type:'many',    value:10},
+  {name:'Tunnel',        type:'onetime', value:5},
+  {name:'Moat',          type:'onetime', value:5},
+  {name:'Teeter Totter', type:'onetime', value:5},
+  {name:'Personal Foul',  type:'many', value:-10},
+  {name:'Technical Foul', type:'many', value:-50},
+  {name:'Flying',     type:'multiplier', value:2},
+  {name:'Autonomous', type:'multiplier', value:4}
 ];
 
 // set up initial state for all teams
@@ -42,15 +49,16 @@ module.exports.updateState = function(state, event) {
   console.log(state);
   var teamState = state[event.team];
   if(event.type == 'multiplier') {
-    teamState.multiplier = event.value;
+    teamState.multiplier = Math.max(teamState.multiplier,
+      parseFloat(event.value));
   }
   if(event.type == 'many') {
-    teamState.baseScore += event.value;
+    teamState.baseScore += parseFloat(event.value);
   }
   if(event.type == 'onetime') {
     if(teamState.onetime.indexOf(event.name) == -1) {
       teamState.onetime.push(event.name);
-      teamState.baseScore += event.value;
+      teamState.baseScore += parseFloat(event.value);
     }
   }
   teamState.score = teamState.multiplier * teamState.baseScore;

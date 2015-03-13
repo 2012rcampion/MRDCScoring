@@ -248,9 +248,13 @@ function updateEventsFrom(gameID, gameTime) {
   db.then(function(db) {
     db.collection('events')
     .findOne(
-      {'game':mongo.ObjectId(gameID), $lt:{'clock':gameTime}},
+      {'game':mongo.ObjectId(gameID), clock:{$lt:gameTime}},
       {sort:[['clock', -1]]},
       function(err, first) {
+        if(err) {
+          console.log('error getting previous event:', err);
+          return;
+        }
         var startingState;
         if(first == null) {
           console.log('first == null');
@@ -288,24 +292,32 @@ function updateEventsFrom(gameID, gameTime) {
             })
             .sort({'clock':1})
             .each(function(err, event) {
-              if(!event) {
-                console.log("can't update null event");
+              if(err) {
+                console.log('error getting event:', err);
+                return;
+              }
+              if(event == null) {
+                db.collection('games')
+                  .updateOne(
+                    {'_id':gameID},
+                    {$set:{score:(state.teams.map(function(team) {
+                      return state[team].score;
+                    }))}},
+                    function(err, doc) {
+                      if(err) {
+                        console.log('error saving scores:', err)
+                      }
+                    });
                 return;
               }
               state = gameDef.updateState(state, event);
               db.collection('events')
                 .update(
-                  {'_id':event.id},
+                  {'_id':event._id},
                   {$set:{'state':state}},
                   function() {}
                 );
             });
-            db.collection('game')
-              .updateOne(
-                {'_id':gameID},
-                {$set:{score:(state.score)}},
-                function() {}
-              );
           });
       });
   });
@@ -328,6 +340,7 @@ api.route('/events')
     }
     
     event.game = mongo.ObjectId(event.game);
+    event.team = mongo.ObjectId(event.team);
     
     event.submitted = new Date();
     event.clock     = Date.now();
@@ -363,9 +376,11 @@ api.route('/events/:id')
   })
   .delete(function(req, res) {
     db.done(function(db) {
-      db.collection('events').deleteOne({_id:req.id}, function(err) {
-        res.json(err?err:{ok:true});
-      });
+      db.collection('events')
+        .findOneAndDelete({_id:req.id}, {}, function(err, doc) {
+          res.json(err?err:{'ok':1});
+          updateEventsFrom(doc.value.game, doc.value.clock);
+        });
     });
   });
 

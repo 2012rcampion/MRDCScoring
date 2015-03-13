@@ -169,7 +169,7 @@ app.get('/events/:id', function(req, res, next) {
         teamsMap: teamsMap,
         teams: teams,
         game: game,
-        prototypes: gameDef.events
+        def: gameDef,
       });
     });
   });
