@@ -1,23 +1,41 @@
 extends layout
 
-block body
-  h2 Scores
-  - var i = 0
-  ul
-    while i < teams.length
-      li= teamNames[i] + ': ' + state[i]
-      - i++
-  h2 Controls
-  form(action='event', method='POST')
-    - var i = 0
-    while i < events.length
-      input(type='radio', name='event', value=events[i])
-      = controls[i]
-      br
-      - i++
-    - var i = 0
-    select(name='team')
-      while i < teams.length
-        option(value=teams[i])= teamNames[i]
-        - i++
-    input(type='submit', value='Submit')
+block append head
+  script(src='/static/jquery-1.11.1.js')
+  script(src='/static/jquery-ui.js')
+  script(src='/static/scoreboard.js')
+  
+  style
+    | .teamList li, form {
+    |   display: inline;
+    |   list-style-type: none;
+    |   padding-right: 5px;
+    | }
+    | .school { font-size: 36; }
+    | * { font-size: 48; }
+    | .score { text-align:right; }
+    | table { width:100%; }
+    | #time { width:100%; text-align:center; font-size:72; }
+    
+  script
+    | gametime = 
+    = gametime
+    | ; realtime = 
+    = realtime
+    | ; countdown =
+    = countdown
+    | ;
+
+//block pageTitle
+//  h1 Events
+
+block pageContent
+  div#time
+  table
+    each team in state.teams
+      tr
+        td= teamsMap[team].name + '  '
+          if teamsMap[team].school
+            span.school= '(' + teamsMap[team].school + ')'
+        td.score= state[team].score
+        

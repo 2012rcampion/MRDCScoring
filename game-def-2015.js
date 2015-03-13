@@ -12,7 +12,7 @@ module.exports.events = [ // possible game event types
   {name:'Wiffle Ball',  type:'many',    value:30},
   {name:'Golf Ball',    type:'many',    value:15},
   {name:'Foam Ball',    type:'many',    value:10},
-  {name:'Drop Wall',    type:'many',    value:10},
+  {name:'Drop Wall',    type:'many',    value: 5},
   {name:'Tunnel',        type:'onetime', value:5},
   {name:'Moat',          type:'onetime', value:5},
   {name:'Teeter Totter', type:'onetime', value:5},

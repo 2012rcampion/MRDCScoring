@@ -8,9 +8,12 @@ var async = require('async');
 var mongo = require('mongodb');
 
 var db = require('./mongo.js');
+var timer = require('./timer.js');
 
 // imported explicitly now, but later will be called in
 var gameDef = require('./game-def-2015.js');
+
+timer.limit(gameDef.duration);
 
 var globals = require('./globals.js');
 
@@ -177,41 +180,52 @@ app.get('/events/:id', function(req, res, next) {
 
 app.get('/scoreboard', function(req, res, next) {
   db.done(function(db) {
-    async.parallel([
-      function(callback) {
-        globals.get('game-current').done(function(current) {
-        db.collection('events')
-          .findOne({game:mongo.ObjectID(current)}, {sort:{'clock':-1}},
-          callback);
-      },
-      function(callback) {
-        db.collection('teams').find().sort({'name':1}).toArray(callback);
-      }
-    ],
-    function(err, docs) {
-      if(err) {
-        res.json(err);
-        return;
-      }
-      var event = docs[0];
-      var teams = docs[1];
-      
-      var teamsMap = {};
-      teams.forEach(function(team) {
-        teamsMap[team._id] = team;
-      });
-      
-      console.log(event);
-      
-      res.json({'ok':1});
-      return;
-      
-      res.render('events', {
-        events: events,
-        teamsMap: teamsMap,
-        teams: teams,
-        game: game,
-        def: gameDef,
+    globals.get('game-current').done(function(gameID) {
+      async.parallel([
+        function(callback) {
+          db.collection('events')
+            .findOne(
+              {game:gameID},
+              {sort:{'clock':-1}},
+              callback);
+        },
+        function(callback) {
+          db.collection('teams').find().sort({'name':1}).toArray(callback);
+        },
+        function(callback) {
+          db.collection('games').findOne({_id:gameID}, callback);
+        }
+      ],
+      function(err, docs) {
+        if(err) {
+          res.json(err);
+          return;
+        }
+        var event = docs[0];
+        var teams = docs[1];
+        var game  = docs[2];
+        
+        var teamsMap = {};
+        teams.forEach(function(team) {
+          teamsMap[team._id] = team;
+        });
+        
+        var state;
+        if(event) {
+          state = event.state;
+        }
+        else {
+          state = gameDef.initState(game.teams);
+        }
+        
+        res.render('scoreboard', {
+          teamsMap: teamsMap,
+          state: state,
+          def: gameDef,
+          realtime:Date.now(),
+          gametime:timer.get(gameDef.countdown),
+          countdown:timer.running()
+        });
       });
     });
   });

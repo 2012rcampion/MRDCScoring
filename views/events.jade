@@ -22,6 +22,14 @@ block pageTitle
   h1 Events
 
 block pageContent
+  div
+    | Timer controls:  
+    form(action='/api/timer/start')
+      input(type='submit' value='Start')
+    form(action='/api/timer/stop')
+      input(type='submit' value='Stop')
+    form(action='/api/timer/reset')
+      input(type='submit' value='Reset')
   select#team-select
     each team in game.teams
       option(value=team)= teamsMap[team].name
@@ -51,10 +59,13 @@ block pageContent
           each team,idx in game.teams
             if idx > 0
               |  
-            = event.state[team].score
+            if event.state[team]
+              = event.state[team].score
+            else
+              | --
           | )   
-          form(action='/api/events/' + event._id method='DELETE')
-            input(type='submit' value='X')
+        form(action='/api/events/' + event._id method='DELETE')
+          input(type='submit' value='X')
         pre.event-full= JSON.stringify(event, null, '  ')
         
         

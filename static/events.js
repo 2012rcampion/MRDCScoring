@@ -26,6 +26,15 @@ $(document).ready(function() {
     }
   });*/
   
+  if(localStorage.getItem('submitter')) {
+    $('#submitter-field').val(localStorage.getItem('submitter'))
+  }
+  
+  if(localStorage.getItem('team')) {
+    $('#team-select').val(localStorage.getItem('team'))
+  }
+  
+  
   $('#event-name').change(function() {
     var event = JSON.parse($(this).find('option:selected').attr('prototype'));
     console.log(event);
@@ -34,7 +43,15 @@ $(document).ready(function() {
   }).change();
   
   $('#team-select').change(function() {
-    $('input.team').val($('#team-select').val());
+    var val = $('#team-select').val();
+    $('input.team').val(val);
+    localStorage.setItem('team', val);
+  }).change();
+  
+  $('#submitter-field').change(function() {
+    var val = $('#submitter-field').val();
+    $('input.submitter').val(val);
+    localStorage.setItem('submitter', val);
   }).change();
   
   // custom form submission

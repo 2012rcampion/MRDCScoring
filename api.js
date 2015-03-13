@@ -4,6 +4,7 @@ var mongo = require('mongodb');
 var db = require('./mongo.js');
 var globals = require('./globals');
 var gameDef = require('./game-def-2015.js');
+var timer = require('./timer.js');
 
 var api = express.Router();
 
@@ -300,7 +301,7 @@ function updateEventsFrom(gameID, gameTime) {
                 db.collection('games')
                   .updateOne(
                     {'_id':gameID},
-                    {$set:{score:(state.teams.map(function(team) {
+                    {$set:{scores:(state.teams.map(function(team) {
                       return state[team].score;
                     }))}},
                     function(err, doc) {
@@ -343,7 +344,7 @@ api.route('/events')
     event.team = mongo.ObjectID(event.team);
     
     event.submitted = new Date();
-    event.clock     = Date.now();
+    event.clock     = timer.get();
     
     db.done(function(db) {
       db.collection('events').insertOne(event, function(err, doc) {
@@ -383,6 +384,21 @@ api.route('/events/:id')
         });
     });
   });
+  
+api.route('/timer/stop').all(function(req, res) {
+  timer.stop();
+  res.end();
+});
+
+api.route('/timer/start').all(function(req, res) {
+  timer.start();
+  res.end();
+});
+
+api.route('/timer/reset').all(function(req, res) {
+  timer.set(0);
+  res.end();
+});
 
 module.exports = api;
 
