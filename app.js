@@ -53,7 +53,7 @@ app.get('/event', function(req, res) {
 
 app.get('/teams', function(req, res, next) {
   db.done(function(db) {
-    db.collection('teams').find().toArray(function(err, docs) {
+    db.collection('teams').find().sort({'school':1, 'name':1}).toArray(function(err, docs) {
       res.render('teams', {
         teams: docs
       });
@@ -133,7 +133,7 @@ app.get('/games', function(req, res, next) {
 
 
 app.get('/events/:id', function(req, res, next) {
-  var gameId = mongo.ObjectId(req.params.id);
+  var gameId = mongo.ObjectID(req.params.id);
   db.done(function(db) {
     console.log('started parallel evaluation');
     async.parallel([

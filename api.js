@@ -15,18 +15,18 @@ api.use(function(req, res, next) {
 
 // convert every instance of the id paramater to mongodb id format
 api.param('id', function(req, res, next, id) {
-  req.id = mongo.ObjectId(id);
+  req.id = mongo.ObjectID(id);
   console.log('%s -> %j', id, req.id);
   console.log(req.id);
-  console.log(mongo.ObjectId(id));
+  console.log(mongo.ObjectID(id));
   next();
 });
 
 api.param('team', function(req, res, next, id) {
-  req.teamId = mongo.ObjectId(id);
+  req.teamId = mongo.ObjectID(id);
   console.log('%s -> %j', id, req.teamId);
   console.log(req.teamId);
-  console.log(mongo.ObjectId(id));
+  console.log(mongo.ObjectID(id));
   next();
 });
 
@@ -181,7 +181,7 @@ api.route('/games/order')
   .post(function(req, res) {
     if(res.body.order && res.body.order.length > 0) {
       globals.set('order',res.body.order.map(function(id) {
-        return mongo.ObjectId(id);
+        return mongo.ObjectID(id);
       }));
       return res.json({'ok':1});
     }
@@ -220,7 +220,7 @@ api.route('/games/:id/teams')
     db.done(function(db) {
       db.collection('games').updateOne(
         {_id:req.id},
-        {$addToSet:{teams:(mongo.ObjectId(req.body.team))}},
+        {$addToSet:{teams:(mongo.ObjectID(req.body.team))}},
         function(err, doc) {
           res.json(err?err:doc);
           updateEventsFrom(req.id, -1);
@@ -248,7 +248,7 @@ function updateEventsFrom(gameID, gameTime) {
   db.then(function(db) {
     db.collection('events')
     .findOne(
-      {'game':mongo.ObjectId(gameID), clock:{$lt:gameTime}},
+      {'game':mongo.ObjectID(gameID), clock:{$lt:gameTime}},
       {sort:[['clock', -1]]},
       function(err, first) {
         if(err) {
@@ -261,7 +261,7 @@ function updateEventsFrom(gameID, gameTime) {
           startingState = new Promise(function(resolve, reject) {
             console.log('resolving promise');
             db.collection('games').findOne(
-              {'_id':mongo.ObjectId(gameID)},
+              {'_id':mongo.ObjectID(gameID)},
               function(err, game) {
                 if(err) {
                   reject(Error(err));
@@ -287,7 +287,7 @@ function updateEventsFrom(gameID, gameTime) {
         startingState.then(function(state) {
           db.collection('events')
             .find({
-              game:mongo.ObjectId(gameID),
+              game:mongo.ObjectID(gameID),
               clock:{$gte:gameTime}
             })
             .sort({'clock':1})
@@ -339,8 +339,8 @@ api.route('/events')
       return res.json({'err':1, 'reason':'event got no game!'});
     }
     
-    event.game = mongo.ObjectId(event.game);
-    event.team = mongo.ObjectId(event.team);
+    event.game = mongo.ObjectID(event.game);
+    event.team = mongo.ObjectID(event.team);
     
     event.submitted = new Date();
     event.clock     = Date.now();
