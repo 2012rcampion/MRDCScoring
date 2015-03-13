@@ -6,7 +6,7 @@ block append head
   script(src='/static/games.js')
   
   style
-    | .teamList li, form {
+    | form {
     |   display: inline;
     |   list-style-type: none;
     |   padding-right: 5px;
@@ -17,6 +17,7 @@ block append head
     |   height: 20px;
     |   display: block;
     | }
+    | * { font-size: 24; }
 
 block pageTitle
   h1 Games
@@ -57,12 +58,12 @@ block pageContent
             li
               form(action='/api/games/'+game._id+'/start' method='POST')
                 input(type='submit' value='Start')
-        pre= JSON.stringify(game)
+        //pre= JSON.stringify(game, null, '  ')
   form(action='/api/games/' method='POST')
     input(type='submit' value='New Game')
   ul
     each game in gamesFinished
-      li
+      li= game.completed
         ul.teamList
           each team, i in game.teams
             li
@@ -73,4 +74,4 @@ block pageContent
                     | (
                     = game.scores[i]
                     | )
-        pre= JSON.stringify(game)
+        //pre= JSON.stringify(game, null, '  ')

@@ -43,7 +43,7 @@ module.exports.get = function(countdown) {
   }
   if(current > limit) {
     current = limit;
-    running = false;
+    module.exports.stop();
   }
   if(countdown) {
     current = limit - current;

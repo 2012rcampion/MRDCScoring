@@ -22,7 +22,7 @@ function update() {
 $(document).ready(function() {
   setTimeout(function() {
     location.reload(true);
-  }, 5000);
+  }, 3000);
   
   update()
   

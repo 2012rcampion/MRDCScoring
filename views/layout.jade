@@ -2,6 +2,13 @@ html
   head
     block head
       title= title
+      script(src='/static/common.js')
     body
+      block header
+        a(href='/games') Games
+        | &nbsp;
+        a(href='/teams') Teams
+        | &nbsp;
+        a(href='/scoreboard') Scoreboard
       block pageTitle
       block pageContent

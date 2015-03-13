@@ -6,7 +6,7 @@ block append head
   script(src='/static/events.js')
   
   style
-    | .teamList li, form {
+    | form {
     |   display: inline;
     |   list-style-type: none;
     |   padding-right: 5px;
@@ -17,9 +17,7 @@ block append head
     |   height: 20px;
     |   display: block;
     | }
-
-block pageTitle
-  h1 Events
+    | * { font-size: 32; }
 
 block pageContent
   div
@@ -56,14 +54,10 @@ block pageContent
           | , 
           = event.name
           |  (
-          each team,idx in game.teams
-            if idx > 0
-              |  
-            if event.state[team]
-              = event.state[team].score
-            else
-              | --
-          | )   
+          = event.state[event.team].score
+          | ) [
+          = event.submitter
+          | ]   
         form(action='/api/events/' + event._id method='DELETE')
           input(type='submit' value='X')
         pre.event-full= JSON.stringify(event, null, '  ')

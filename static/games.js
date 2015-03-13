@@ -4,7 +4,7 @@ $(document).ready(function() {
     $(this).parent().find('.team-edit').slideToggle();
   });
   
-  $('#games-list').sortable({
+  /*$('#games-list').sortable({
     axis:'y',
     update: function(event, ui) {
       var data = $('#games-list')
@@ -24,7 +24,7 @@ $(document).ready(function() {
         }
       });
     }
-  });
+  });*/
   
   // custom form submission
   $('form').submit(function() {

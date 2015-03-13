@@ -17,17 +17,17 @@ api.use(function(req, res, next) {
 // convert every instance of the id paramater to mongodb id format
 api.param('id', function(req, res, next, id) {
   req.id = mongo.ObjectID(id);
-  console.log('%s -> %j', id, req.id);
-  console.log(req.id);
-  console.log(mongo.ObjectID(id));
+  //console.log('%s -> %j', id, req.id);
+  //console.log(req.id);
+  //console.log(mongo.ObjectID(id));
   next();
 });
 
 api.param('team', function(req, res, next, id) {
   req.teamId = mongo.ObjectID(id);
-  console.log('%s -> %j', id, req.teamId);
-  console.log(req.teamId);
-  console.log(mongo.ObjectID(id));
+  //console.log('%s -> %j', id, req.teamId);
+  //console.log(req.teamId);
+  //console.log(mongo.ObjectID(id));
   next();
 });
 
@@ -90,6 +90,7 @@ function advanceOrder() {
       globals.set('game-order', order);
     });
   });
+  timer.set(0);
 }
 
 api.route('/games')
@@ -112,7 +113,7 @@ api.route('/games')
           return;
         }
         globals.get('game-order').done(function(order) {
-          console.log(doc)
+          //console.log(doc)
           order.push(doc.ops[0]._id);
           globals.set('game-order', order);
         });
@@ -258,9 +259,9 @@ function updateEventsFrom(gameID, gameTime) {
         }
         var startingState;
         if(first == null) {
-          console.log('first == null');
+          //console.log('first == null');
           startingState = new Promise(function(resolve, reject) {
-            console.log('resolving promise');
+            //console.log('resolving promise');
             db.collection('games').findOne(
               {'_id':mongo.ObjectID(gameID)},
               function(err, game) {
@@ -273,18 +274,18 @@ function updateEventsFrom(gameID, gameTime) {
                   return;
                 }
                 var state = gameDef.initState(game.teams);
-                console.log('resolving to', state);
+                //console.log('resolving to', state);
                 resolve(state);
               });
           });
-          console.log(startingState);
+          //console.log(startingState);
         }
         else {
-          console.log('else');
+          //console.log('else');
           startingState = Promise.resolve(first.state);
         }
         
-        console.log(startingState);
+        //console.log(startingState);
         startingState.then(function(state) {
           db.collection('events')
             .find({

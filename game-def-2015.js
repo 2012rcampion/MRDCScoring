@@ -34,19 +34,19 @@ module.exports.initState = function(teams) {
       onetime:[] // which onetime events have they triggered
     };
   });
-  console.log('initState:')
-  console.log(state)
+  //console.log('initState:')
+  //console.log(state)
   return state;
 }
 
 // update game state
 module.exports.updateState = function(state, event) {
-  console.log('updateState:')
-  console.log(state)
-  console.log(event)
+  //console.log('updateState:')
+  //console.log(state)
+  //console.log(event)
   state = extend(true, {}, state);
-  console.log('copy of state:')
-  console.log(state);
+  //console.log('copy of state:')
+  //console.log(state);
   var teamState = state[event.team];
   if(event.type == 'multiplier') {
     teamState.multiplier = Math.max(teamState.multiplier,
