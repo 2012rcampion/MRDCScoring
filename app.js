@@ -175,6 +175,49 @@ app.get('/events/:id', function(req, res, next) {
   });
 });
 
+app.get('/scoreboard', function(req, res, next) {
+  db.done(function(db) {
+    async.parallel([
+      function(callback) {
+        globals.get('game-current').done(function(current) {
+        db.collection('events')
+          .findOne({game:mongo.ObjectID(current)}, {sort:{'clock':-1}},
+          callback);
+      },
+      function(callback) {
+        db.collection('teams').find().sort({'name':1}).toArray(callback);
+      }
+    ],
+    function(err, docs) {
+      if(err) {
+        res.json(err);
+        return;
+      }
+      var event = docs[0];
+      var teams = docs[1];
+      
+      var teamsMap = {};
+      teams.forEach(function(team) {
+        teamsMap[team._id] = team;
+      });
+      
+      console.log(event);
+      
+      res.json({'ok':1});
+      return;
+      
+      res.render('events', {
+        events: events,
+        teamsMap: teamsMap,
+        teams: teams,
+        game: game,
+        def: gameDef,
+      });
+    });
+  });
+});
+
+
 // catchall 404
 app.get('*', function(req, res) {
   res.status(404).send();
