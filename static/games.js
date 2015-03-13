@@ -4,7 +4,27 @@ $(document).ready(function() {
     $(this).parent().find('.team-edit').slideToggle();
   });
   
-  $('#gamesList').sortable()
+  $('#games-list').sortable({
+    axis:'y',
+    update: function(event, ui) {
+      var data = $('#games-list')
+        .find('.game-item')
+        .not('.current')
+        .map(function() {
+          return this.id;
+        }).toArray();
+      console.log(data)
+      $.ajax({
+        data: {order:data},
+        type: 'POST',
+        url: '/api/games/order',
+        success: function(res) {
+          console.log('success!');
+          location.reload(true); // reload page on success
+        }
+      });
+    }
+  });
   
   // custom form submission
   $('form').submit(function() {

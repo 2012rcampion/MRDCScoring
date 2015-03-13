@@ -177,6 +177,16 @@ api.route('/games/complete')
       });      
     });
   });
+api.route('/games/order')
+  .post(function(req, res) {
+    if(res.body.order && res.body.order.length > 0) {
+      globals.set('order',res.body.order.map(function(id) {
+        return mongo.ObjectId(id);
+      }));
+      return res.json({'ok':1});
+    }
+    res.json({'err':1, 'reason':"order parameter is not a non-empty array"});
+  });
 api.route('/games/:id/start')
   .post(function(req, res) {
     globals.get('game-current').done(function(current) {

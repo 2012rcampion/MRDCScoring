@@ -13,23 +13,28 @@ block append head
     | }
     | pre { font-size: 12; }
     | .current { background-color: #ffee77 }
+    | .sortable-placeholder {
+    |   height: 20px;
+    |   display: block;
+    | }
 
 block pageTitle
   h1 Games
 
 block pageContent
-  ol#gamesList
+  ol#games-list
     each game in gamesUpcoming
       if !(game)
         li
         - continue
       - isCurrent = (game._id.toHexString() == current.toHexString());
-      li(class=isCurrent ? 'current' : undefined)
+      li.game-item(class=(isCurrent ? 'current' : undefined)
+            id=game._id.toHexString())
         ul.teamList
           each team in game.teams
             li
-              form(action='/api/games/'+game._id+'/teams/'+team \
-                method='DELETE')
+              form(action='/api/games/'+game._id+'/teams/'+team
+                    method='DELETE')
                 span= teamsMap[team].name
                 input(type='submit' value='X')
           li
