@@ -82,6 +82,15 @@ api.route('/teams/:id')
   next();
 });*/
 
+function advanceOrder() {
+  globals.get('game-current').done(function(current) {
+    globals.get('game-order').done(function(order) {
+      globals.set('game-current', order.shift());
+      globals.set('game-order', order);
+    });
+  });
+}
+
 api.route('/games')
   .get(function(req, res) {
     db.done(function(db) {
@@ -92,9 +101,20 @@ api.route('/games')
   })
   .post(function(req, res) {
     var game = req.body;
+    if(!('teams' in game)) {
+      game.teams = [];
+    }
     db.done(function(db) {
       db.collection('games').insertOne(game, function(err, doc) {
         res.json(err?err:doc);
+        if(err) {
+          return;
+        }
+        globals.get('game-order').done(function(order) {
+          console.log(doc)
+          order.push(doc.ops[0]._id);
+          globals.set('game-order', order);
+        });
       });
     });
   });
@@ -118,7 +138,60 @@ api.route('/games/:id')
   .delete(function(req, res) {
     db.done(function(db) {
       db.collection('games').deleteOne({_id:req.id}, function(err) {
-        res.json(err?err:{ok:true});
+        res.json(err?err:res);
+        if(err) {
+          return;
+        }
+        globals.get('game-order').done(function(order) {
+          order.forEach(function(id, i) {
+            if(id.toHexString() == req.id.toHexString()) {
+              order.splice(i, 1);
+              globals.set('game-order', order);
+            }
+          });
+          
+          globals.get('game-current').done(function(current) {
+            if(current && req.id.toHexString() == current.toHexString()) {
+              advanceOrder();
+            }
+          });
+        });
+      });
+    });
+  });
+api.route('/games/complete')
+  .post(function(req, res) {
+    globals.get('game-current').done(function(current) {
+      if(!current) {
+        res.json({'err':1, 'reason':'no current game'});
+        return
+      }
+      db.done(function(db) {
+        db.collection('games').update(
+          {_id:current},
+          {$currentDate:{completed:true}},
+          function(err, doc) {
+            res.json(err?err:doc);
+            advanceOrder();
+          });
+      });      
+    });
+  });
+api.route('/games/:id/start')
+  .post(function(req, res) {
+    globals.get('game-current').done(function(current) {
+      globals.get('game-order').done(function(order) {
+        if(current) {
+          globals.set('game-order', order.unshift(current));
+        }
+        globals.set('game-current', req.id);
+        order.forEach(function(id, i) {
+          if(id.toHexString() == req.id.toHexString()) {
+            order.splice(i, 1);
+            globals.set('game-order', order);
+          }
+        });
+        res.json({'ok':1});
       });
     });
   });
@@ -202,6 +275,12 @@ function updateEventsFrom(gameID, gameTime) {
                   function() {}
                 );
             });
+            db.collection('game')
+              .updateOne(
+                {'_id':gameID},
+                {$set:{score:(state.score)}},
+                function() {}
+              );
           });
       });
   });

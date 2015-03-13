@@ -4,32 +4,65 @@ block append head
   script(src='/static/jquery-1.11.1.js')
   script(src='/static/jquery-ui.js')
   script(src='/static/games.js')
+  
+  style
+    | .teamList li, form {
+    |   display: inline;
+    |   list-style-type: none;
+    |   padding-right: 5px;
+    | }
+    | pre { font-size: 12; }
+    | .current { background-color: #ffee77 }
 
 block pageTitle
   h1 Games
 
 block pageContent
-  ul
-    each game in games
-      li= JSON.stringify(game)
-        h3 Teams
-        ul
+  ol#gamesList
+    each game in gamesUpcoming
+      if !(game)
+        li
+        - continue
+      - isCurrent = (game._id.toHexString() == current.toHexString());
+      li(class=isCurrent ? 'current' : undefined)
+        ul.teamList
           each team in game.teams
             li
               form(action='/api/games/'+game._id+'/teams/'+team \
                 method='DELETE')
                 span= teamsMap[team].name
-                input(type='submit' value='Remove')
-        form(action='/api/games/'+game._id+'/teams' method='POST')
-          select(name='team')
-            each team in teams
-              option(value=team._id)= team.name
-          input(type='submit' value='Add')
-        form(action='/api/games/'+game._id method='DELETE')
-          input(type='submit' value='Delete')
-        if game._id.toHexString() == current.toHexString()
-          p current game
-  h2 Teams List
+                input(type='submit' value='X')
+          li
+            form(action='/api/games/'+game._id+'/teams' method='POST')
+              select(name='team')
+                each team in teams
+                  option(value=team._id)= team.name
+              input(type='submit' value='Add')
+          li
+            form(action='/api/games/'+game._id method='DELETE')
+              input(type='submit' value='Delete')
+          if isCurrent
+            li
+              form(action='/api/games/complete' method='POST')
+                input(type='submit' value='Finish')
+          else
+            li
+              form(action='/api/games/'+game._id+'/start' method='POST')
+                input(type='submit' value='Start')
+        pre= JSON.stringify(game)
+  form(action='/api/games/' method='POST')
+    input(type='submit' value='New Game')
   ul
-    each team in teams
-      li= JSON.stringify(team)
+    each game in gamesFinished
+      li
+        ul.teamList
+          each team, i in game.teams
+            li
+              span= teamsMap[team].name
+                if game.scores && game.scores[i] != undefined
+                  | &nbsp; 
+                  span
+                    | (
+                    = game.scores[i]
+                    | )
+        pre= JSON.stringify(game)

@@ -4,6 +4,8 @@ $(document).ready(function() {
     $(this).parent().find('.team-edit').slideToggle();
   });
   
+  $('#gamesList').sortable()
+  
   // custom form submission
   $('form').submit(function() {
     var form = $(this);

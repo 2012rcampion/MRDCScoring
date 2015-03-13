@@ -52,7 +52,7 @@ app.get('/event', function(req, res) {
 
 app.get('/teams', function(req, res, next) {
   db.done(function(db) {
-    db.teams.find().toArray(function(err, docs) {
+    db.collection('teams').find().toArray(function(err, docs) {
       res.render('teams', {
         teams: docs
       });
@@ -89,9 +89,8 @@ app.get('/games', function(req, res, next) {
       
       var gamesOrdered = [];
       
-      var end = order.length;
-      
-      console.log(order);
+      var gamesCompleted = [];
+      //var end = order.length;
       
       orderString = [];
       order.forEach(function(id, i) {
@@ -100,16 +99,20 @@ app.get('/games', function(req, res, next) {
       games.forEach(function(game) {
         var i = orderString.indexOf(game._id.toHexString());
         if(i < 0) {
-          gamesOrdered[end] = game;
-          end++;
+          //gamesOrdered[end] = game;
+          //end++;
+          if(game._id.toHexString() == current.toHexString()) {
+            gamesOrdered[0] = game;
+          }
+          else {
+            gamesCompleted.push(game);
+          }
         }
         else {
-          gamesOrdered[i] = game;
+          gamesOrdered[i + 1] = game;
         }
       });
       
-      
-      console.log(gamesOrdered);
       
       var teamsMap = {};
       teams.forEach(function(team) {
@@ -117,13 +120,12 @@ app.get('/games', function(req, res, next) {
       });
       
       res.render('games', {
-        games: gamesOrdered,
+        gamesUpcoming: gamesOrdered,
+        gamesFinished: gamesCompleted,
         current: current,
         teamsMap: teamsMap,
         teams: teams
-      });   
-      
-      console.log('rendered') 
+      });
     });
   });
 });
