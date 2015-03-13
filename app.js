@@ -5,6 +5,7 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var async = require('async');
+var mongo = require('mongodb');
 
 var db = require('./mongo.js');
 
@@ -131,6 +132,48 @@ app.get('/games', function(req, res, next) {
 });
 
 
+app.get('/events/:id', function(req, res, next) {
+  var gameId = mongo.ObjectId(req.params.id);
+  db.done(function(db) {
+    console.log('started parallel evaluation');
+    async.parallel([
+      function(callback) {
+        db.collection('events')
+          .find({game:gameId})
+          .sort({'clock':1})
+          .toArray(callback);
+      },
+      function(callback) {
+        db.collection('teams').find().sort({'name':1}).toArray(callback);
+      },
+      function(callback) {
+        db.collection('games').findOne({_id:gameId}, callback);
+      }
+    ],
+    function(err, docs) {
+      if(err) {
+        res.json(err);
+        return;
+      }
+      var events = docs[0];
+      var teams = docs[1];
+      var game = docs[2];
+      
+      var teamsMap = {};
+      teams.forEach(function(team) {
+        teamsMap[team._id] = team;
+      });
+      
+      res.render('events', {
+        events: events,
+        teamsMap: teamsMap,
+        teams: teams,
+        game: game,
+        prototypes: gameDef.events
+      });
+    });
+  });
+});
 
 // catchall 404
 app.get('*', function(req, res) {

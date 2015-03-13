@@ -26,10 +26,13 @@ block pageContent
     each game in gamesUpcoming
       if !(game)
         li
+          pre EMPTY
         - continue
       - isCurrent = (game._id.toHexString() == current.toHexString());
       li.game-item(class=(isCurrent ? 'current' : undefined)
             id=game._id.toHexString())
+        div
+          a(href='/events/'+game._id) go to game
         ul.teamList
           each team in game.teams
             li

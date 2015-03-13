@@ -218,12 +218,12 @@ api.route('/games/:id/teams')
       return;
     }
     db.done(function(db) {
-      db.collection('games')
-      .updateOne(
+      db.collection('games').updateOne(
         {_id:req.id},
         {$addToSet:{teams:(mongo.ObjectId(req.body.team))}},
         function(err, doc) {
           res.json(err?err:doc);
+          updateEventsFrom(req.id, -1);
         });
     });
     
@@ -237,6 +237,7 @@ api.route('/games/:id/teams/:team')
         {$pullAll:{teams:[req.teamId, req.teamId.toHexString()]}},
         function(err) {
           res.json(err?err:{ok:true});
+          updateEventsFrom(req.id, -1);
         });
     });
   });
@@ -247,36 +248,50 @@ function updateEventsFrom(gameID, gameTime) {
   db.then(function(db) {
     db.collection('events')
     .findOne(
-      {'game':mongo.ObjectId(gameID), $lt:{'game-time':gameTime}},
-      {sort:[['game-time', -1]]},
+      {'game':mongo.ObjectId(gameID), $lt:{'clock':gameTime}},
+      {sort:[['clock', -1]]},
       function(err, first) {
         var startingState;
         if(first == null) {
+          console.log('first == null');
           startingState = new Promise(function(resolve, reject) {
-            db.collection('games').findOne({'_id':mongo.ObjectId(gameID)},
+            console.log('resolving promise');
+            db.collection('games').findOne(
+              {'_id':mongo.ObjectId(gameID)},
               function(err, game) {
                 if(err) {
-                  return reject(Error(err));
+                  reject(Error(err));
+                  return;
                 }
                 if(game == null) {
-                  return reject(Error("game-current is invalid!"));
+                  reject(Error("game-current is invalid!"));
+                  return;
                 }
-                resolve(gameDef.initState(game.teams));
+                var state = gameDef.initState(game.teams);
+                console.log('resolving to', state);
+                resolve(state);
               });
           });
+          console.log(startingState);
         }
         else {
+          console.log('else');
           startingState = Promise.resolve(first.state);
         }
         
-        startingState.done(function(state) {
+        console.log(startingState);
+        startingState.then(function(state) {
           db.collection('events')
             .find({
-              'game':mongo.ObjectId(gameID),
-              $gte:{'game-time':gameTime}
+              game:mongo.ObjectId(gameID),
+              clock:{$gte:gameTime}
             })
-            .sort([['game-time', 1]])
-            .each(function(event) {
+            .sort({'clock':1})
+            .each(function(err, event) {
+              if(!event) {
+                console.log("can't update null event");
+                return;
+              }
               state = gameDef.updateState(state, event);
               db.collection('events')
                 .update(
@@ -308,10 +323,19 @@ api.route('/events')
   .post(function(req, res) {
     var event = req.body;
     
+    if(!('game' in event)) {
+      return res.json({'err':1, 'reason':'event got no game!'});
+    }
+    
+    event.game = mongo.ObjectId(event.game);
+    
+    event.submitted = new Date();
+    event.clock     = Date.now();
+    
     db.done(function(db) {
       db.collection('events').insertOne(event, function(err, doc) {
         res.json(err?err:doc);
-        updateEventsFrom(event.game, event['game-time']);
+        updateEventsFrom(event.game, event.clock);
       });
     });
   });
@@ -331,7 +355,7 @@ api.route('/events/:id')
           res.json(err?err:doc);
           db.collection('events').findOne({_id:req.id},
             function(err, updatedEvent) {
-              updateEventsFrom(updatedEvent.game, updatedEvent['game-time']);
+              updateEventsFrom(updatedEvent.game, updatedEvent.clock);
             });
             
         });
