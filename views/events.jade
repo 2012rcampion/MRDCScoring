@@ -22,22 +22,41 @@ block pageTitle
   h1 Events
 
 block pageContent
+  select#team-select
+    each team in game.teams
+      option(value=team)= teamsMap[team].name
+  input#submitter-field(value='default')
+  ul
+    each event in def.events
+      li
+        form(action='/api/events/' method='POST')
+          each value,key in event
+            input(type='hidden', name=key, value=value)
+          input(type='hidden' name='game' value=game._id)
+          input.team(type='hidden' name='team')
+          input.submitter(type='hidden' name='submitter')
+          input(type='submit' value=def.renderControl(event))
   ul#event-list
     each event in events
       li
-        pre= JSON.stringify(event, null, '  ')
-    li New Event:&nbsp;
-      form(action='/api/events/' method='POST')
-        input(type='hidden' name='game' value=game._id)
-        select(name='team')
-          each team in game.teams
-            option(value=team)= teamsMap[team].name
-        select#event-name(name='name')
-          each event in prototypes
-            option(value=event.name prototype=JSON.stringify(event))= event.name
-        input#event-type(type='hidden' name='type')
-        input#event-value(name='value')
-        input(type='submit' value='Add')
-        input(name='submitter' value='default')
+        span.event
+          // note that trailing whitespace matters
+          // on the literal lines (i.e. | ...)
+          = teamsMap[event.team].name
+          | @
+          = event.clock
+          | , 
+          = event.name
+          |  (
+          each team,idx in game.teams
+            if idx > 0
+              |  
+            = event.state[team].score
+          | )   
+          form(action='/api/events/' + event._id method='DELETE')
+            input(type='submit' value='X')
+        pre.event-full= JSON.stringify(event, null, '  ')
+        
+        
         
         

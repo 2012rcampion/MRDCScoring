@@ -1,7 +1,7 @@
 $(document).ready(function() {
-  $('.team-edit').hide();
-  $('.team-name').click(function() {
-    $(this).parent().find('.team-edit').slideToggle();
+  $('.event-full').hide();
+  $('.event, .event-full').click(function() {
+    $(this).parent().find('.event-full').slideToggle();
   });
   
   /*$('#games-list').sortable({
@@ -31,6 +31,10 @@ $(document).ready(function() {
     console.log(event);
     $('#event-type').val(event.type);
     $('#event-value').val(event.value);
+  }).change();
+  
+  $('#team-select').change(function() {
+    $('input.team').val($('#team-select').val());
   }).change();
   
   // custom form submission
