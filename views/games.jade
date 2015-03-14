@@ -1,8 +1,6 @@
 extends layout
 
 block append head
-  script(src='/static/jquery-1.11.1.js')
-  script(src='/static/jquery-ui.js')
   script(src='/static/games.js')
   
   style
@@ -23,6 +21,14 @@ block pageTitle
   h1 Games
 
 block pageContent
+  div
+    | Timer controls:  
+    form(action='/api/timer/start')
+      input(type='submit' value='Start')
+    form(action='/api/timer/stop')
+      input(type='submit' value='Stop')
+    form(action='/api/timer/reset')
+      input(type='submit' value='Reset')
   ol#games-list
     each game in gamesUpcoming
       if !(game)

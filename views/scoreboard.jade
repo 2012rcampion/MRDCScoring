@@ -1,22 +1,18 @@
 extends layout
 
 block append head
-  script(src='/static/jquery-1.11.1.js')
-  script(src='/static/jquery-ui.js')
-  script(src='/static/scoreboard.js')
-  
   style
     | .teamList li, form {
     |   display: inline;
     |   list-style-type: none;
     |   padding-right: 5px;
     | }
-    | .school { font-size: 36; }
-    | * { font-size: 48; }
+    | .school { font-size: 30; }
+    | * { font-size: 40; }
     | .score { text-align:right; }
     | table { width:100%; }
-    | #time { width:100%; text-align:center; font-size:72; }
-    
+    | #time { width:100%; text-align:center; font-size:60; }
+    | #foot * { font-size: 24; }
   script
     | gametime = 
     = gametime
@@ -25,17 +21,27 @@ block append head
     | ; countdown =
     = countdown
     | ;
+  script(src='/static/scoreboard.js')
 
 block header
-
 
 block pageContent
   div#time
   table
-    each team in state.teams
-      tr
-        td= teamsMap[team].name + '  '
-          if teamsMap[team].school
-            span.school= '(' + teamsMap[team].school + ')'
-        td.score= state[team].score
-        
+    if state.teams
+      each team in state.teams
+        tr
+          td= teamsMap[team].name + '  '
+            if teamsMap[team].school
+              span.school= '(' + teamsMap[team].school + ')'
+          td.score= state[team].score
+  div#foot
+    ol
+      each game in games
+        li
+          each team,idx in game.teams
+            if idx > 0
+              | , 
+            = teamsMap[team].name
+      
+            

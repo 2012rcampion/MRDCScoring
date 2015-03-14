@@ -194,7 +194,13 @@ app.get('/scoreboard', function(req, res, next) {
         },
         function(callback) {
           db.collection('games').findOne({_id:gameID}, callback);
-        }
+        },
+        function(callback) {
+          db.collection('games').find().sort({'completed':1}).toArray(callback);
+        },
+        function(callback) {
+          globals.get('game-order').nodeify(callback)
+        },
       ],
       function(err, docs) {
         if(err) {
@@ -204,10 +210,29 @@ app.get('/scoreboard', function(req, res, next) {
         var event = docs[0];
         var teams = docs[1];
         var game  = docs[2];
+        var games = docs[3];
+        var order = docs[4];
         
         var teamsMap = {};
         teams.forEach(function(team) {
           teamsMap[team._id] = team;
+        });
+        
+        var gamesOrdered = [];
+      
+        orderString = [];
+        order.forEach(function(id, i) {
+          orderString[i] = id.toHexString();
+        });
+        games.forEach(function(game) {
+          var i = orderString.indexOf(game._id.toHexString());
+          if(i < 0) {
+            //gamesOrdered[end] = game;
+            //end++;
+          }
+          else {
+            gamesOrdered[i] = game;
+          }
         });
         
         var state;
@@ -224,7 +249,8 @@ app.get('/scoreboard', function(req, res, next) {
           def: gameDef,
           realtime:Date.now(),
           gametime:timer.get(gameDef.countdown),
-          countdown:timer.running()
+          countdown:timer.running(),
+          games: gamesOrdered
         });
       });
     });

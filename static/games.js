@@ -1,10 +1,5 @@
-$(document).ready(function() {
-  $('.team-edit').hide();
-  $('.team-name').click(function() {
-    $(this).parent().find('.team-edit').slideToggle();
-  });
-  
-  /*$('#games-list').sortable({
+function enableSort() {
+  $('#games-list').sortable({
     axis:'y',
     update: function(event, ui) {
       var data = $('#games-list')
@@ -24,7 +19,17 @@ $(document).ready(function() {
         }
       });
     }
-  });*/
+  });
+}
+
+
+$(document).ready(function() {
+  $('.team-edit').hide();
+  $('.team-name').click(function() {
+    $(this).parent().find('.team-edit').slideToggle();
+  });
+  
+
   
   // custom form submission
   $('form').submit(function() {

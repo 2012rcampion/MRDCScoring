@@ -86,6 +86,9 @@ api.route('/teams/:id')
 function advanceOrder() {
   globals.get('game-current').done(function(current) {
     globals.get('game-order').done(function(order) {
+      if(order.length == 0) {
+        return;
+      }
       globals.set('game-current', order.shift());
       globals.set('game-order', order);
     });
@@ -181,8 +184,8 @@ api.route('/games/complete')
   });
 api.route('/games/order')
   .post(function(req, res) {
-    if(res.body.order && res.body.order.length > 0) {
-      globals.set('order',res.body.order.map(function(id) {
+    if(req.body.order && req.body.order.length > 0) {
+      globals.set('order',req.body.order.map(function(id) {
         return mongo.ObjectID(id);
       }));
       return res.json({'ok':1});
