@@ -26,9 +26,11 @@ block pageContent
       input(type='submit' value='Stop')
     form(action='/api/timer/reset')
       input(type='submit' value='Reset')
+  | Team:
   select#team-select
     each team in game.teams
       option(value=team)= teamsMap[team].name
+  |  Your name:
   input#submitter-field(value='default')
   ul
     each event in def.events
@@ -52,7 +54,10 @@ block pageContent
           | , 
           = event.name
           |  (
-          = event.state[event.team].score
+          if event.state && event.state[event.team] != undefined
+            = event.state[event.team].score
+          else
+            | error
           | ) [
           = event.submitter
           | ]   

@@ -24,11 +24,12 @@ block append head
   script(src='/static/scoreboard.js')
 
 block header
+  h1(style='color:red;width:100%;text-align:center;font-size:30;') Please turn off your WiFi.  Thank you.
 
 block pageContent
   div#time
   table
-    if state.teams
+    if state && state.teams
       each team in state.teams
         tr
           td= teamsMap[team].name + '  '
