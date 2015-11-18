@@ -1,9 +1,21 @@
-JSDCServerV2
-============
+# MRDCScoring
 
-Scoring system for the Jerry Sanders Design Competition, version 2.
+Scoring system for the Midwestern Robotics Design Competition
 
-# Installation #
+## Installation
+
+### Install MongoDB
+
+([Instructions on `mongodb.org`](https://docs.mongodb.org/getting-started/shell/tutorial/install-mongodb-on-debian/))
+
+```bash
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com --recv EA312927
+echo "deb http://repo.mongodb.org/apt/debian wheezy/mongodb-org/3.2 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+```
+
+---
 
 After installing [node](http://nodejs.org/), run
 
@@ -12,15 +24,15 @@ After installing [node](http://nodejs.org/), run
 Make sure that [MongoDB](https://www.mongodb.org/) is running.  Optionally use
 `mongorestore` to load the database from one of the database dumps.
 
-# Usage #
+## Usage
 
 Run the application system using the command:
 
     node app.js
 
-# Organization #
+## Organization
 
-## Code ##
+### Code
 
 The main server routines are in `app.js`.  Database handling subroutines are located in `mongo.js`.
 
@@ -30,7 +42,7 @@ Database dumps are under `dump/`.
 
 Configuration files are not implemented yet.
 
-## Webserver ##
+### Webserver
 
 Front-facing user interface pages are located under the root.  For example, the
 page for editing the teams ~~is~~ will be located under `/teams`.
